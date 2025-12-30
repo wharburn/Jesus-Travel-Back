@@ -37,6 +37,15 @@ function setupEventListeners() {
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
   document.getElementById('cancelQuote').addEventListener('click', closeQuoteModal);
   document.getElementById('quoteForm').addEventListener('submit', submitQuote);
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('docsDropdown');
+    const button = document.getElementById('docsBtn');
+    if (dropdown && button && !dropdown.contains(e.target) && !button.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
 }
 
 // Logout
@@ -802,4 +811,10 @@ ${
     errorEl.textContent = `Network error: ${error.message}`;
     errorEl.classList.remove('hidden');
   }
+}
+
+// Documentation dropdown toggle
+function toggleDocsDropdown() {
+  const dropdown = document.getElementById('docsDropdown');
+  dropdown.classList.toggle('hidden');
 }
