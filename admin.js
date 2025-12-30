@@ -559,14 +559,22 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
 
   try {
     const token = localStorage.getItem('adminToken');
+
+    console.log('Deleting enquiry:', enquiryId);
+    console.log('API URL:', `${API_BASE_URL}/enquiries/${enquiryId}`);
+
     const response = await fetch(`${API_BASE_URL}/enquiries/${enquiryId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 
+    console.log('Delete response status:', response.status);
+
     const data = await response.json();
+    console.log('Delete response data:', data);
 
     if (response.ok && data.success) {
       alert(`✅ Enquiry ${referenceNumber} deleted successfully`);
@@ -576,6 +584,6 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
     }
   } catch (error) {
     console.error('Error deleting enquiry:', error);
-    alert('❌ Network error. Please try again.');
+    alert(`❌ Network error: ${error.message}\n\nCheck console for details.`);
   }
 }
