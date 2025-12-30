@@ -42,15 +42,11 @@ class Enquiry {
 
     logger.info(`Saving enquiry ${this.id} with reference ${this.referenceNumber}`);
 
-    // Convert to JSON and log for debugging
+    // Convert to JSON object (Upstash Redis will handle serialization)
     const jsonData = this.toJSON();
-    const jsonString = JSON.stringify(jsonData);
-    logger.info(
-      `JSON string length: ${jsonString.length}, first 200 chars: ${jsonString.substring(0, 200)}`
-    );
 
-    // Save to Redis (primary storage)
-    await redisClient.set(key, jsonString);
+    // Save to Redis (primary storage) - Upstash automatically handles JSON serialization
+    await redisClient.set(key, jsonData);
 
     // Add to index for listing
     const zaddResult1 = await redisClient.zadd('enquiries:all', {
@@ -96,14 +92,10 @@ class Enquiry {
       const key = `enquiry:${id}`;
       const data = await redisClient.get(key);
 
-      logger.info(
-        `Raw data from Redis for ${id}: type=${typeof data}, value=${String(data).substring(0, 100)}`
-      );
-
       if (!data) return null;
 
-      const parsed = JSON.parse(data);
-      return new Enquiry(parsed);
+      // Upstash Redis automatically deserializes JSON, so data is already an object
+      return new Enquiry(data);
     } catch (error) {
       logger.error(`Error loading enquiry ${id}:`, error);
       return null;
