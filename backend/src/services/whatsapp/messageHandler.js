@@ -18,6 +18,14 @@ export const processWhatsAppMessage = async (message) => {
 
     // Check if this is from the pricing team submitting a quote
     const pricingTeamPhone = process.env.PRICING_TEAM_PHONE?.replace(/[+\s]/g, '');
+
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('🔍 PRICING TEAM CHECK');
+    logger.info(`Sender phone: ${phoneNumber}`);
+    logger.info(`Pricing team phone: ${pricingTeamPhone || 'NOT SET'}`);
+    logger.info(`Match: ${pricingTeamPhone && phoneNumber === pricingTeamPhone ? 'YES' : 'NO'}`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
     if (pricingTeamPhone && phoneNumber === pricingTeamPhone) {
       // Method 1: Full format with reference number
       const fullQuoteMatch = text.match(/QUOTE\s+(JT-\d{4}-\d{6})\s+£?(\d+(?:\.\d{2})?)/i);
