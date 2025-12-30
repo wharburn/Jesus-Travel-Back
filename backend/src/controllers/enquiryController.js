@@ -97,13 +97,26 @@ export const getEnquiries = async (req, res, next) => {
       enquiries = await Enquiry.findAll(parseInt(limit), parseInt(offset));
     }
 
+    // Filter out any null/invalid enquiries and safely convert to JSON
+    const validEnquiries = enquiries
+      .filter((e) => e !== null && e !== undefined)
+      .map((e) => {
+        try {
+          return e.toJSON ? e.toJSON() : e;
+        } catch (err) {
+          logger.error('Error converting enquiry to JSON:', err);
+          return null;
+        }
+      })
+      .filter((e) => e !== null);
+
     res.json(
       successResponse({
-        enquiries: enquiries.map((e) => (e.toJSON ? e.toJSON() : e)),
+        enquiries: validEnquiries,
         pagination: {
           limit: parseInt(limit),
           offset: parseInt(offset),
-          count: enquiries.length,
+          count: validEnquiries.length,
         },
       })
     );

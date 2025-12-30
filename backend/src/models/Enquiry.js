@@ -76,9 +76,17 @@ class Enquiry {
 
   // Find enquiry by ID
   static async findById(id) {
-    const key = `enquiry:${id}`;
-    const data = await redisClient.get(key);
-    return data ? new Enquiry(JSON.parse(data)) : null;
+    try {
+      const key = `enquiry:${id}`;
+      const data = await redisClient.get(key);
+      if (!data) return null;
+
+      const parsed = JSON.parse(data);
+      return new Enquiry(parsed);
+    } catch (error) {
+      logger.error(`Error loading enquiry ${id}:`, error);
+      return null;
+    }
   }
 
   // Find enquiry by reference number
