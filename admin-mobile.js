@@ -12,6 +12,7 @@ const pageSize = 20;
 let allEnquiries = [];
 let filteredEnquiries = [];
 let currentQuoteEnquiry = null;
+let activeFilter = null; // 'pending_quote', 'web', or null for all
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,10 +30,8 @@ function loadAdminInfo() {
 // Setup event listeners
 function setupEventListeners() {
   document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('refreshBtn').addEventListener('click', loadEnquiries);
-  document.getElementById('filterStatus').addEventListener('change', applyFilters);
-  document.getElementById('filterSource').addEventListener('change', applyFilters);
-  document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 500));
+  document.getElementById('filterPendingQuote').addEventListener('click', () => toggleFilter('pending_quote'));
+  document.getElementById('filterWeb').addEventListener('click', () => toggleFilter('web'));
   document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
   document.getElementById('cancelQuote').addEventListener('click', closeQuoteModal);
@@ -89,23 +88,46 @@ async function loadEnquiries() {
   }
 }
 
+// Toggle filter buttons
+function toggleFilter(filterType) {
+  const pendingBtn = document.getElementById('filterPendingQuote');
+  const webBtn = document.getElementById('filterWeb');
+
+  // Toggle the filter
+  if (activeFilter === filterType) {
+    // Clicking the same button again - turn off filter
+    activeFilter = null;
+    pendingBtn.classList.remove('ring-4', 'ring-yellow-500');
+    webBtn.classList.remove('ring-4', 'ring-yellow-500');
+  } else {
+    // Activate the clicked filter
+    activeFilter = filterType;
+
+    // Update button styles
+    if (filterType === 'pending_quote') {
+      pendingBtn.classList.add('ring-4', 'ring-yellow-500');
+      webBtn.classList.remove('ring-4', 'ring-yellow-500');
+    } else if (filterType === 'web') {
+      webBtn.classList.add('ring-4', 'ring-yellow-500');
+      pendingBtn.classList.remove('ring-4', 'ring-yellow-500');
+    }
+  }
+
+  applyFilters();
+}
+
 // Apply filters
 function applyFilters() {
-  const statusFilter = document.getElementById('filterStatus').value;
-  const sourceFilter = document.getElementById('filterSource').value;
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
   filteredEnquiries = allEnquiries.filter((enquiry) => {
-    const matchesStatus = !statusFilter || enquiry.status === statusFilter;
-    const matchesSource = !sourceFilter || enquiry.source === sourceFilter;
-    const matchesSearch =
-      !searchTerm ||
-      enquiry.customerName?.toLowerCase().includes(searchTerm) ||
-      enquiry.customerPhone?.toLowerCase().includes(searchTerm) ||
-      enquiry.customerEmail?.toLowerCase().includes(searchTerm) ||
-      enquiry.referenceNumber?.toLowerCase().includes(searchTerm);
+    // Apply active filter
+    if (activeFilter === 'pending_quote') {
+      return enquiry.status === 'pending_quote';
+    } else if (activeFilter === 'web') {
+      return enquiry.source === 'web';
+    }
 
-    return matchesStatus && matchesSource && matchesSearch;
+    // No filter active - show all
+    return true;
   });
 
   currentPage = 0;
@@ -192,7 +214,7 @@ function renderDesktopTable() {
 function renderMobileCards() {
   const container = document.getElementById("enquiriesCardsContainer");
   if (!container) return;
-  
+
   const start = currentPage * pageSize;
   const end = start + pageSize;
   const pageEnquiries = filteredEnquiries.slice(start, end);

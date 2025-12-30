@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Admin Dashboard - JT Chauffeur Services</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="favicon/favicon.ico" />
@@ -17,7 +20,7 @@
         .desktop-table {
           display: none;
         }
-        
+
         .mobile-cards {
           display: block;
         }
@@ -42,7 +45,7 @@
         .desktop-table {
           display: table;
         }
-        
+
         .mobile-cards {
           display: none;
         }
@@ -50,7 +53,10 @@
 
       /* Better touch targets for mobile */
       @media (max-width: 768px) {
-        button, a, select, input {
+        button,
+        a,
+        select,
+        input {
           min-height: 44px;
         }
 
@@ -186,24 +192,62 @@
                 type="button"
                 class="bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all shadow-lg hover:shadow-yellow-500/50 flex items-center gap-1 sm:gap-2"
               >
-                📚 <span class="hidden sm:inline">Documentation</span><span class="sm:hidden">Docs</span>
-                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                📚 <span class="hidden sm:inline">Documentation</span
+                ><span class="sm:hidden">Docs</span>
+                <svg
+                  class="w-3 h-3 sm:w-4 sm:h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
                 </svg>
               </button>
-              <div id="docsDropdown" class="hidden absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+              <div
+                id="docsDropdown"
+                class="hidden absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50"
+              >
                 <div class="py-2">
-                  <a href="docs/index.html" class="block px-4 py-2 hover:bg-gray-700 transition-colors">📖 Documentation Home</a>
-                  <a href="docs/environment-variables.html" class="block px-4 py-2 hover:bg-gray-700 transition-colors">⚙️ Environment Variables</a>
-                  <a href="docs/quote-system.html" class="block px-4 py-2 hover:bg-gray-700 transition-colors">💰 Quote System</a>
-                  <a href="docs/api-reference.html" class="block px-4 py-2 hover:bg-gray-700 transition-colors">🔌 API Reference</a>
-                  <a href="docs/deployment-guide.html" class="block px-4 py-2 hover:bg-gray-700 transition-colors">🚀 Deployment Guide</a>
+                  <a
+                    href="docs/index.html"
+                    class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                    >📖 Documentation Home</a
+                  >
+                  <a
+                    href="docs/environment-variables.html"
+                    class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                    >⚙️ Environment Variables</a
+                  >
+                  <a
+                    href="docs/quote-system.html"
+                    class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                    >💰 Quote System</a
+                  >
+                  <a
+                    href="docs/api-reference.html"
+                    class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                    >🔌 API Reference</a
+                  >
+                  <a
+                    href="docs/deployment-guide.html"
+                    class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                    >🚀 Deployment Guide</a
+                  >
                 </div>
               </div>
             </div>
 
             <!-- Logout Button -->
-            <button id="logoutBtn" type="button" class="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors">
+            <button
+              id="logoutBtn"
+              type="button"
+              class="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors"
+            >
               Logout
             </button>
           </div>
@@ -217,53 +261,50 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-8">
         <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-800 stat-card">
           <div class="text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">Total</div>
-          <div class="text-2xl sm:text-3xl font-bold text-yellow-500 stat-value" id="totalEnquiries">0</div>
+          <div
+            class="text-2xl sm:text-3xl font-bold text-yellow-500 stat-value"
+            id="totalEnquiries"
+          >
+            0
+          </div>
         </div>
         <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-800 stat-card">
           <div class="text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">Pending</div>
-          <div class="text-2xl sm:text-3xl font-bold text-blue-500 stat-value" id="pendingQuotes">0</div>
+          <div class="text-2xl sm:text-3xl font-bold text-blue-500 stat-value" id="pendingQuotes">
+            0
+          </div>
         </div>
         <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-800 stat-card">
           <div class="text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">Quoted</div>
-          <div class="text-2xl sm:text-3xl font-bold text-purple-500 stat-value" id="quotedCount">0</div>
+          <div class="text-2xl sm:text-3xl font-bold text-purple-500 stat-value" id="quotedCount">
+            0
+          </div>
         </div>
         <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-800 stat-card">
           <div class="text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">Confirmed</div>
-          <div class="text-2xl sm:text-3xl font-bold text-green-500 stat-value" id="confirmedCount">0</div>
+          <div class="text-2xl sm:text-3xl font-bold text-green-500 stat-value" id="confirmedCount">
+            0
+          </div>
         </div>
       </div>
 
-      <!-- Filters -->
+      <!-- Quick Filters -->
       <div class="bg-gray-900 rounded-lg p-4 sm:p-6 border border-gray-800 mb-4 sm:mb-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div>
-            <label class="block text-xs sm:text-sm text-gray-400 mb-2">Status</label>
-            <select id="filterStatus" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm">
-              <option value="">All Statuses</option>
-              <option value="pending_quote">Pending Quote</option>
-              <option value="quoted">Quoted</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs sm:text-sm text-gray-400 mb-2">Source</label>
-            <select id="filterSource" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm">
-              <option value="">All Sources</option>
-              <option value="web">Website</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="phone">Phone</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs sm:text-sm text-gray-400 mb-2">Search</label>
-            <input type="text" id="searchInput" placeholder="Name, phone..." class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm" />
-          </div>
-          <div class="flex items-end">
-            <button id="refreshBtn" type="button" class="w-full bg-yellow-600 hover:bg-yellow-700 px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors text-sm">
-              🔄 Refresh
-            </button>
-          </div>
+        <div class="flex flex-col gap-3 max-w-xs mx-auto sm:mx-0">
+          <button
+            id="filterPendingQuote"
+            type="button"
+            class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-6 py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base shadow-lg"
+          >
+            📋 Pending Quote
+          </button>
+          <button
+            id="filterWeb"
+            type="button"
+            class="w-full bg-purple-600 hover:bg-purple-700 active:bg-purple-800 px-6 py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base shadow-lg"
+          >
+            🌐 Web
+          </button>
         </div>
       </div>
       <!-- Desktop Table View -->
@@ -301,12 +342,22 @@
 
       <!-- Pagination -->
       <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-        <div class="text-xs sm:text-sm text-gray-400" id="paginationInfo">Showing 0 of 0 enquiries</div>
+        <div class="text-xs sm:text-sm text-gray-400" id="paginationInfo">
+          Showing 0 of 0 enquiries
+        </div>
         <div class="flex space-x-2">
-          <button type="button" id="prevBtn" class="bg-gray-800 hover:bg-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <button
+            type="button"
+            id="prevBtn"
+            class="bg-gray-800 hover:bg-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Previous
           </button>
-          <button type="button" id="nextBtn" class="bg-gray-800 hover:bg-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <button
+            type="button"
+            id="nextBtn"
+            class="bg-gray-800 hover:bg-gray-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Next
           </button>
         </div>
@@ -314,39 +365,85 @@
     </main>
 
     <!-- Quote Submission Modal -->
-    <div id="quoteModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div class="bg-gray-900 rounded-lg p-6 sm:p-8 max-w-md w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
+    <div
+      id="quoteModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-gray-900 rounded-lg p-6 sm:p-8 max-w-md w-full border border-gray-800 max-h-[90vh] overflow-y-auto"
+      >
         <h2 class="text-xl sm:text-2xl font-bold text-yellow-500 mb-4 sm:mb-6">Submit Quote</h2>
         <div id="quoteEnquiryDetails" class="mb-4 sm:mb-6 text-xs sm:text-sm text-gray-400"></div>
         <form id="quoteForm" class="space-y-3 sm:space-y-4">
           <div>
             <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Price (£)</label>
-            <input type="number" id="quotePrice" step="0.01" min="0" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm" placeholder="150.00" />
+            <input
+              type="number"
+              id="quotePrice"
+              step="0.01"
+              min="0"
+              required
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm"
+              placeholder="150.00"
+            />
           </div>
           <div>
-            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Breakdown (Optional)</label>
-            <textarea id="quoteBreakdown" rows="3" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm" placeholder="Base fare: £100&#10;Airport fee: £30&#10;Waiting time: £20"></textarea>
+            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2"
+              >Breakdown (Optional)</label
+            >
+            <textarea
+              id="quoteBreakdown"
+              rows="3"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm"
+              placeholder="Base fare: £100&#10;Airport fee: £30&#10;Waiting time: £20"
+            ></textarea>
           </div>
           <div>
-            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Notes (Optional)</label>
-            <textarea id="quoteNotes" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm" placeholder="Additional information for the customer"></textarea>
+            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2"
+              >Notes (Optional)</label
+            >
+            <textarea
+              id="quoteNotes"
+              rows="2"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm"
+              placeholder="Additional information for the customer"
+            ></textarea>
           </div>
           <div>
-            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Valid Until</label>
-            <input type="datetime-local" id="quoteValidUntil" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm" />
+            <label class="block text-xs sm:text-sm font-medium text-gray-300 mb-2"
+              >Valid Until</label
+            >
+            <input
+              type="datetime-local"
+              id="quoteValidUntil"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm"
+            />
             <p class="text-xs text-gray-500 mt-1">Default: 48 hours from now</p>
           </div>
           <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-6">
-            <button type="submit" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded-lg text-sm">
+            <button
+              type="submit"
+              class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded-lg text-sm"
+            >
               Send Quote
             </button>
-            <button type="button" id="cancelQuote" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm">
+            <button
+              type="button"
+              id="cancelQuote"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm"
+            >
               Cancel
             </button>
           </div>
         </form>
-        <div id="quoteError" class="hidden mt-4 p-3 bg-red-900 border border-red-700 rounded-lg text-red-200 text-xs sm:text-sm"></div>
-        <div id="quoteSuccess" class="hidden mt-4 p-3 bg-green-900 border border-green-700 rounded-lg text-green-200 text-xs sm:text-sm"></div>
+        <div
+          id="quoteError"
+          class="hidden mt-4 p-3 bg-red-900 border border-red-700 rounded-lg text-red-200 text-xs sm:text-sm"
+        ></div>
+        <div
+          id="quoteSuccess"
+          class="hidden mt-4 p-3 bg-green-900 border border-green-700 rounded-lg text-green-200 text-xs sm:text-sm"
+        ></div>
       </div>
     </div>
 
