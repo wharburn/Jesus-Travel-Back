@@ -226,9 +226,24 @@ const handleSimplePriceQuote = async (pricingTeamPhone, price, notes) => {
       })}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
-    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+    // Log the quote message prominently
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('📤 QUOTE TO SEND TO CUSTOMER:');
+    logger.info(`📞 Phone: ${enquiry.customerPhone}`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info(customerMessage);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    logger.info(`Quote sent to customer ${enquiry.customerPhone}`);
+    try {
+      await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+      logger.info(`✅ Quote sent via WhatsApp to ${enquiry.customerPhone}`);
+    } catch (error) {
+      logger.warn(
+        `⚠️ Failed to send quote via WhatsApp to ${enquiry.customerPhone}:`,
+        error.message
+      );
+      logger.warn('💡 Please send the quote manually via SMS/WhatsApp using the message above');
+    }
   } catch (error) {
     logger.error('Error handling simple price quote:', error);
     await sendWhatsAppMessage(pricingTeamPhone, `❌ Error processing quote: ${error.message}`);

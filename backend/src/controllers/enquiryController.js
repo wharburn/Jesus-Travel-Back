@@ -286,6 +286,28 @@ export const rejectQuote = async (req, res, next) => {
   }
 };
 
+// Delete single enquiry (admin only)
+export const deleteEnquiry = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const enquiry = await Enquiry.findById(id);
+    if (!enquiry) {
+      return res.status(404).json(errorResponse('NOT_FOUND', 'Enquiry not found'));
+    }
+
+    const referenceNumber = enquiry.referenceNumber;
+    await enquiry.delete();
+
+    logger.info(`Enquiry ${referenceNumber} deleted by admin`);
+
+    res.json(successResponse({ id, referenceNumber }, 'Enquiry deleted successfully'));
+  } catch (error) {
+    logger.error('Error deleting enquiry:', error);
+    next(error);
+  }
+};
+
 // Clear all enquiries (admin only - for debugging)
 export const clearAllEnquiries = async (req, res, next) => {
   try {

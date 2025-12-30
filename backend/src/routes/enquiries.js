@@ -4,6 +4,7 @@ import {
   acceptQuote,
   clearAllEnquiries,
   createEnquiry,
+  deleteEnquiry,
   getEnquiries,
   getEnquiryById,
   rejectQuote,
@@ -40,6 +41,7 @@ const submitQuoteValidation = [
 router.delete('/clear-all', authenticate, clearAllEnquiries);
 router.get('/', authenticate, getEnquiries);
 router.put('/:id/quote', authenticate, submitQuoteValidation, validate, submitQuote);
+router.delete('/:id', authenticate, deleteEnquiry);
 
 // Public routes
 router.post('/', createEnquiryValidation, validate, createEnquiry);

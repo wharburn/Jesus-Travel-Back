@@ -167,6 +167,10 @@ function renderEnquiries() {
           </button>`
               : ''
           }
+          <button onclick="deleteEnquiry('${enquiry.id}', '${enquiry.referenceNumber}')"
+                  class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm font-semibold transition-colors">
+            Delete
+          </button>
         </div>
       </td>
     </tr>
@@ -540,5 +544,38 @@ async function submitQuote(e) {
     console.error('Error submitting quote:', error);
     errorEl.textContent = 'Network error. Please try again.';
     errorEl.classList.remove('hidden');
+  }
+}
+
+// Delete enquiry with confirmation
+async function deleteEnquiry(enquiryId, referenceNumber) {
+  const confirmed = confirm(
+    `⚠️ Are you sure you want to delete enquiry ${referenceNumber}?\n\nThis action cannot be undone.`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('adminToken');
+    const response = await fetch(`${API_BASE_URL}/enquiries/${enquiryId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert(`✅ Enquiry ${referenceNumber} deleted successfully`);
+      loadEnquiries(); // Reload the list
+    } else {
+      alert(`❌ Failed to delete enquiry: ${data.error?.message || 'Unknown error'}`);
+    }
+  } catch (error) {
+    console.error('Error deleting enquiry:', error);
+    alert('❌ Network error. Please try again.');
   }
 }
