@@ -1,13 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../config/redis.js';
 import { indexEnquiry } from '../services/searchService.js';
-import { generateReferenceNumber } from '../utils/helpers.js';
 import logger from '../utils/logger.js';
 
 class Enquiry {
   constructor(data) {
     this.id = data.id || uuidv4();
-    this.referenceNumber = data.referenceNumber || generateReferenceNumber();
+    this.referenceNumber = data.referenceNumber || null; // Will be set in save()
     this.customerName = data.customerName;
     this.customerPhone = data.customerPhone;
     this.customerEmail = data.customerEmail || null;
@@ -32,6 +31,12 @@ class Enquiry {
 
   // Save enquiry to Redis
   async save() {
+    // Generate reference number if not set
+    if (!this.referenceNumber) {
+      const { generateReferenceNumber } = await import('../utils/helpers.js');
+      this.referenceNumber = await generateReferenceNumber();
+    }
+
     this.updatedAt = new Date().toISOString();
     const key = `enquiry:${this.id}`;
 
