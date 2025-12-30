@@ -561,9 +561,9 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
     const token = localStorage.getItem('adminToken');
 
     console.log('Deleting enquiry:', enquiryId);
-    console.log('API URL:', `${API_BASE_URL}/enquiries/${enquiryId}`);
+    console.log('API URL:', `${API_URL}/enquiries/${enquiryId}`);
 
-    const response = await fetch(`${API_BASE_URL}/enquiries/${enquiryId}`, {
+    const response = await fetch(`${API_URL}/enquiries/${enquiryId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
