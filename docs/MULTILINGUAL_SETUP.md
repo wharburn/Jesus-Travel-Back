@@ -1,10 +1,13 @@
 # Multilingual Website Setup Guide
 
-This guide explains how to implement the multilingual functionality for the JESUS TRAVEL website.
+Complete guide for implementing multi-language functionality on the JT Chauffeur Services website.
+
+---
 
 ## Overview
 
-The website now supports 7 languages:
+The website supports **7 languages**:
+
 - **English** (en) - Default
 - **Spanish** (es) - Español
 - **French** (fr) - Français
@@ -13,11 +16,15 @@ The website now supports 7 languages:
 - **Japanese** (ja) - 日本語
 - **Arabic** (ar) - العربية
 
+---
+
 ## Files Created
 
 1. **translations.js** - Contains all translations for the website
 2. **language-switcher.html** - The language selector dropdown UI component
 3. **MULTILINGUAL_SETUP.md** - This integration guide
+
+---
 
 ## Integration Steps
 
@@ -52,7 +59,7 @@ In each HTML file, add the language switcher component in the header section. In
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
       </svg>
     </button>
-    
+
     <div id="language-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 border-2 border-jt-gold rounded-lg shadow-xl overflow-hidden">
       <button data-lang="en" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
         <span class="text-lg">🇬🇧</span>
@@ -211,15 +218,19 @@ Add the `data-i18n` attribute to any element that should be translated. The valu
 4. **RTL Support**: Arabic automatically switches to right-to-left layout
 5. **Lang Attribute**: The HTML `lang` attribute is updated for accessibility
 
+---
+
 ## Features
 
-✅ **7 Languages Supported**
-✅ **Persistent Language Selection** (localStorage)
-✅ **RTL Support for Arabic**
-✅ **Accessible** (proper lang attributes)
-✅ **Smooth Transitions**
-✅ **Mobile Responsive**
-✅ **Clean UI Design**
+- **7 Languages Supported**
+- **Persistent Language Selection** (localStorage)
+- **RTL Support for Arabic**
+- **Accessible** (proper lang attributes)
+- **Smooth Transitions**
+- **Mobile Responsive**
+- **Clean UI Design**
+
+---
 
 ## Testing
 
@@ -232,32 +243,43 @@ To test the implementation:
 5. Refresh the page - language should persist
 6. Navigate to another page - language should persist
 
+---
+
 ## Troubleshooting
 
-**Translation not appearing:**
+### Translation not appearing
+
 - Check that the element has the correct `data-i18n` attribute
 - Verify the key exists in `translations.js`
 - Check browser console for errors
 
-**Language not persisting:**
+### Language not persisting
+
 - Ensure localStorage is enabled in the browser
 - Check browser console for errors
 
-**Dropdown not opening:**
+### Dropdown not opening
+
 - Verify all IDs match (`language-toggle`, `language-dropdown`)
 - Check that `script.js` is loaded after `translations.js`
+
+---
 
 ## Browser Support
 
 Works on all modern browsers that support:
+
 - localStorage
 - ES6 JavaScript
 - CSS Flexbox
 - CSS Grid
 
+---
+
 ## Future Enhancements
 
 Possible additions:
+
 - Auto-detect browser language
 - Add more languages
 - Translate image alt text

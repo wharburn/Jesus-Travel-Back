@@ -1,27 +1,35 @@
-# 🎯 Quote Submission System - Complete Guide
+# Quote Submission System - Complete Guide
 
-## 📋 Overview
+## Overview
 
-The system now supports **TWO ways** to submit quotes to customers:
+The JT Chauffeur quote system supports **two methods** for submitting quotes to customers:
 
 1. **WhatsApp** - Pricing team replies directly to enquiry notifications
 2. **Admin Dashboard** - Manual quote submission via web interface
 
-## 🔄 Complete Workflow
+---
 
-### 1️⃣ Customer Submits Enquiry
-- **Via Website**: Customer fills form at https://jesus-travel.site/test.html
-- **Via WhatsApp**: Customer messages the business WhatsApp number
+## Complete Workflow
 
-### 2️⃣ System Creates Enquiry
-- Enquiry saved to database with unique reference (e.g., JT-2025-000123)
-- Status set to `pending_quote`
-- Customer receives confirmation
+### Step 1: Customer Submits Enquiry
 
-### 3️⃣ Pricing Team Gets Notified
-Pricing team receives WhatsApp message:
+Customers can submit booking enquiries through:
+- **Website Form**: https://jesus-travel.site/test.html
+- **WhatsApp**: Direct message to business WhatsApp number
+
+### Step 2: System Creates Enquiry
+
+The system automatically:
+- Saves enquiry to database with unique reference (e.g., JT-2025-000123)
+- Sets status to `pending_quote`
+- Sends confirmation to customer
+
+### Step 3: Pricing Team Gets Notified
+
+Pricing team receives a WhatsApp notification:
+
 ```
-🆕 New Booking Enquiry
+NEW BOOKING ENQUIRY
 
 Ref: JT-2025-000123
 Customer: John Smith
@@ -33,91 +41,104 @@ Passengers: 2
 Vehicle: Saloon
 
 ━━━━━━━━━━━━━━━━━━━━
-📝 To submit a quote, reply:
+To submit a quote, reply:
 QUOTE JT-2025-000123 £150
 
 Or with notes:
 QUOTE JT-2025-000123 £150 Includes meet & greet
 ```
 
-### 4️⃣ Pricing Team Submits Quote
+### Step 4: Pricing Team Submits Quote
 
 #### Option A: WhatsApp Reply
-Simply reply to the notification:
+
+Simply reply to the notification message:
+
+**Basic Quote:**
 ```
 QUOTE JT-2025-000123 £150
 ```
 
-Or with notes:
+**Quote with Notes:**
 ```
 QUOTE JT-2025-000123 £150 Includes meet & greet and 30 mins waiting time
 ```
 
 #### Option B: Admin Dashboard
-1. Go to https://jesus-travel.site/admin-dashboard.html
-2. Login with admin credentials
-3. Find the enquiry (status: Pending Quote)
-4. Click yellow "Quote" button
-5. Fill in the form:
-   - Price (required)
-   - Breakdown (optional)
-   - Notes (optional)
-   - Valid Until (default: 48 hours)
-6. Click "Send Quote"
 
-### 5️⃣ System Processes Quote
+1. Navigate to https://jesus-travel.site/admin-dashboard.html
+2. Login with admin credentials
+3. Locate the enquiry (status will show "Pending Quote")
+4. Click the yellow **"Quote"** button
+5. Complete the quote form:
+   - **Price** (required)
+   - **Breakdown** (optional)
+   - **Notes** (optional)
+   - **Valid Until** (default: 48 hours)
+6. Click **"Send Quote"**
+
+### Step 5: System Processes Quote
+
+The system automatically:
 - Updates enquiry status to `quoted`
 - Records price, notes, and validity period
 - Sends confirmation to pricing team
-- **Automatically sends quote to customer via WhatsApp**
+- **Sends quote to customer via WhatsApp**
 
-### 6️⃣ Customer Receives Quote
-Customer gets WhatsApp message:
+### Step 6: Customer Receives Quote
+
+Customer receives WhatsApp message:
+
 ```
-✅ Quote Ready - JT-2025-000123
+QUOTE READY - JT-2025-000123
 
 Dear John Smith,
 
 Thank you for your enquiry. Here's your quote:
 
-📍 From: Heathrow Airport
-📍 To: Central London
-📅 Date: 2025-01-15 at 14:00
-🚗 Vehicle: Saloon
-👥 Passengers: 2
+From: Heathrow Airport
+To: Central London
+Date: 2025-01-15 at 14:00
+Vehicle: Saloon
+Passengers: 2
 
-💰 Total Price: £150
+Total Price: £150
 
-📝 Notes: Includes meet & greet and 30 mins waiting time
+Notes: Includes meet & greet and 30 mins waiting time
 
 This quote is valid until 17 Jan 2025, 14:00
 
 Reply "YES" to confirm your booking or contact us for any questions.
 ```
 
-### 7️⃣ Customer Responds
-- **Reply "YES"** → Booking confirmed ✅
-- **Reply "NO"** → Booking cancelled ❌
-- **No reply** → Quote expires after 48 hours ⏰
+### Step 7: Customer Responds
 
-## 🔧 Technical Details
+- **Reply "YES"** - Booking confirmed automatically
+- **Reply "NO"** - Booking cancelled
+- **No reply** - Quote expires after 48 hours
+
+---
+
+## Technical Details
 
 ### WhatsApp Quote Format
+
 ```
 QUOTE <reference-number> <price> [optional notes]
 ```
 
-**Examples:**
+**Valid Examples:**
 - `QUOTE JT-2025-000123 £150`
-- `QUOTE JT-2025-000123 150` (£ symbol optional)
+- `QUOTE JT-2025-000123 150` (pound symbol optional)
 - `QUOTE JT-2025-000123 £150 Includes meet & greet`
 
 ### API Endpoint
-```
+
+```http
 PUT /api/v1/enquiries/:id/quote
 Authorization: Bearer <admin-token>
+Content-Type: application/json
 
-Body:
 {
   "price": 150,
   "currency": "GBP",
@@ -127,9 +148,23 @@ Body:
 }
 ```
 
-## ⚙️ Configuration
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "enquiry": { ... },
+    "message": "Quote sent successfully"
+  }
+}
+```
+
+---
+
+## Configuration
 
 ### Required Environment Variables
+
 ```bash
 # Pricing team WhatsApp number (must match exactly)
 PRICING_TEAM_PHONE=+447700900001
@@ -140,53 +175,48 @@ GREEN_API_TOKEN=your-token
 ```
 
 ### Setting Up on Render
-1. Go to Render dashboard
+
+1. Login to Render dashboard
 2. Select your backend service
-3. Go to "Environment" tab
-4. Add/update `PRICING_TEAM_PHONE` with the correct number
+3. Navigate to **Environment** tab
+4. Add or update `PRICING_TEAM_PHONE` variable
 5. Save changes (service will auto-redeploy)
 
-## 📱 For Pricing Team
+---
 
-See **PRICING_TEAM_GUIDE.md** for detailed instructions on:
-- How to format WhatsApp replies
-- Examples of different quote types
-- What happens after submitting a quote
-- Troubleshooting
+## For Pricing Team
 
-## 🎨 For Admins
+See **PRICING_TEAM_GUIDE.md** for:
+- Detailed WhatsApp reply instructions
+- Quote formatting examples
+- Post-submission workflow
+- Troubleshooting tips
+
+---
+
+## For Administrators
 
 ### Admin Dashboard Features
-- View all enquiries with filters (status, source)
-- Search by customer name, phone, or reference
-- Click "Quote" button on pending enquiries
-- Fill quote form with price, breakdown, and notes
+
+- View all enquiries with status filters
+- Search by customer name, phone, or reference number
+- Submit quotes via web interface
 - Real-time status updates
+- Quote history tracking
 
-### Login
-- URL: https://jesus-travel.site/admin-dashboard.html
-- Email: admin@jesus-travel.com
-- Password: JesusWayne6667
+### Login Credentials
 
-## 🚀 Next Steps
+- **URL**: https://jesus-travel.site/admin-dashboard.html
+- **Email**: admin@jesus-travel.com
+- **Password**: JesusWayne6667
 
-1. **Test the WhatsApp flow**:
-   - Create a test enquiry
-   - Reply with a quote from pricing team number
-   - Verify customer receives it
+---
 
-2. **Test the dashboard flow**:
-   - Login to admin dashboard
-   - Submit a quote via the UI
-   - Verify customer receives it
+## Support
 
-3. **Monitor logs** on Render to ensure everything works
-
-## 📞 Support
-
-If you encounter issues:
+For technical issues:
 - Check Render logs for errors
-- Verify `PRICING_TEAM_PHONE` is set correctly
-- Ensure WhatsApp API is configured
+- Verify `PRICING_TEAM_PHONE` is configured correctly
+- Ensure WhatsApp API credentials are valid
 - Use admin dashboard as backup method
 

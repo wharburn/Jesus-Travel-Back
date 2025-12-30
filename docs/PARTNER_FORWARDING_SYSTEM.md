@@ -1,55 +1,61 @@
-# 🤝 Partner Forwarding System
+# Partner Forwarding System
 
 ## Overview
+
 Generic manual system for forwarding overflow bookings to partner companies (Addison Lee, Uber, Bolt, etc.) with automatic commission tracking.
 
 ---
 
-## ✅ Features
+## Features
 
-### 1. **Forward Bookings to Partners**
+### 1. Forward Bookings to Partners
+
 - Select partner from dropdown (Addison Lee, Uber, Bolt, Local Operator, Other)
 - Set commission rate (%)
 - Add partner booking reference
 - Add notes
 - Automatic commission calculation
 
-### 2. **Booking Export**
+### 2. Booking Export
+
 - Auto-generates formatted booking details for partner
 - Includes all customer and journey information
 - Shows commission breakdown
 - One-click copy to clipboard
 
-### 3. **Commission Tracking**
+### 3. Commission Tracking
+
 - View all forwarded bookings
 - Track total commission earned
 - Partner-by-partner breakdown
 - Average commission rate calculation
 
-### 4. **Status Management**
+### 4. Status Management
+
 - New status: "Forwarded"
 - Prevents duplicate forwarding
 - Tracks who forwarded and when
 
 ---
 
-## 🎯 How to Use
+## How to Use
 
-### **Step 1: Forward a Booking**
+### Step 1: Forward a Booking
 
 1. Go to **Admin Dashboard**: https://jesus-travel.site/admin-dashboard.html
 2. Find the enquiry you want to forward
-3. Click **"→ Partner"** button
+3. Click the **"Forward to Partner"** button
 4. Fill in the form:
    - **Partner Name**: Select from dropdown
    - **Commission Rate**: e.g., 15 (for 15%)
    - **Partner Booking Reference**: (optional) Their reference number
    - **Notes**: (optional) Any additional info
-5. Click **"→ Forward to Partner"**
+5. Click **"Forward to Partner"**
 
-### **Step 2: Copy Booking Details**
+### Step 2: Copy Booking Details
 
 After forwarding, you'll see a formatted export:
+
 ```
 BOOKING EXPORT FOR ADDISON LEE
 ==================================================
@@ -76,19 +82,20 @@ Commission Rate: 15%
 Commission Amount: £22.50
 ```
 
-Click **"📋 Copy Booking Details"** to copy this to clipboard.
+Click **"Copy Booking Details"** to copy this to clipboard.
 
-### **Step 3: Send to Partner**
+### Step 3: Send to Partner
 
 - Email the booking details to your partner
 - Or paste into their booking system
 - Or send via WhatsApp/phone
 
-### **Step 4: Track Commissions**
+### Step 4: Track Commissions
 
 Go to **Partner Commissions**: https://jesus-travel.site/partner-commissions.html
 
 You'll see:
+
 - **Total forwarded bookings**
 - **Total booking value**
 - **Total commission earned**
@@ -98,22 +105,27 @@ You'll see:
 
 ---
 
-## 📊 Commission Reports Page
+## Commission Reports Page
 
 ### Summary Cards
+
 - Total Forwarded: Count of all forwarded bookings
 - Total Booking Value: Sum of all quoted prices
 - Total Commission: Sum of all commission amounts
 - Avg Commission Rate: Average % across all bookings
 
 ### Partner Breakdown
+
 Shows for each partner:
+
 - Number of bookings
 - Total value
 - Total commission earned
 
 ### Forwarded Bookings Table
+
 Lists all forwarded bookings with:
+
 - Reference number
 - Customer details
 - Journey details
@@ -124,22 +136,26 @@ Lists all forwarded bookings with:
 
 ---
 
-## 🔌 API Endpoint
+## API Endpoint
 
 ### Forward to Partner
-```
+
+```http
 PUT /api/v1/enquiries/:id/forward-to-partner
 Authorization: Bearer <admin-token>
+Content-Type: application/json
 
-Body:
 {
   "partnerName": "Addison Lee",
   "commissionRate": 15,
   "bookingReference": "AL-2025-456",
   "notes": "Customer prefers Mercedes"
 }
+```
 
-Response:
+**Response:**
+
+```json
 {
   "success": true,
   "data": {
@@ -156,28 +172,34 @@ Response:
 
 ---
 
-## 💡 Business Use Cases
+## Business Use Cases
 
-### 1. **Fleet Capacity Management**
+### 1. Fleet Capacity Management
+
 When your fleet is fully booked, forward overflow to partners
 
-### 2. **Vehicle Type Unavailable**
+### 2. Vehicle Type Unavailable
+
 Customer needs a vehicle type you don't have? Forward to partner
 
-### 3. **Geographic Coverage**
+### 3. Geographic Coverage
+
 Booking outside your service area? Forward to local partner
 
-### 4. **Premium Services**
+### 4. Premium Services
+
 Customer wants luxury vehicle you don't offer? Forward to premium partner
 
-### 5. **Commission Revenue**
+### 5. Commission Revenue
+
 Earn 10-20% commission on bookings you can't fulfill
 
 ---
 
-## 📈 Next Steps (Future Enhancements)
+## Future Enhancements
 
 ### Phase 2: API Integration
+
 - Direct API connection to Addison Lee
 - Real-time availability checks
 - Automatic booking creation
@@ -185,12 +207,14 @@ Earn 10-20% commission on bookings you can't fulfill
 - Automated invoicing
 
 ### Phase 3: Partner Portal
+
 - Partners can view forwarded bookings
 - Accept/reject bookings
 - Update status
 - Submit invoices
 
 ### Phase 4: Analytics
+
 - Monthly commission reports
 - Partner performance metrics
 - Revenue forecasting
@@ -198,11 +222,12 @@ Earn 10-20% commission on bookings you can't fulfill
 
 ---
 
-## 🎉 Ready to Use!
+## Ready to Use
 
 The system is now live at:
+
 - **Admin Dashboard**: https://jesus-travel.site/admin-dashboard.html
 - **Commission Reports**: https://jesus-travel.site/partner-commissions.html
 
-Start forwarding bookings and tracking commissions today! 🚀
+Start forwarding bookings and tracking commissions today!
 
