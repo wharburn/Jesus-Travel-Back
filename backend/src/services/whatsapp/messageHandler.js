@@ -90,6 +90,7 @@ export const processWhatsAppMessage = async (message) => {
       // Notify pricing team
       const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
       if (pricingTeamPhone) {
+        // Message 1: Enquiry details
         await sendWhatsAppMessage(
           pricingTeamPhone,
           `🆕 New Booking Enquiry\n\n` +
@@ -101,13 +102,13 @@ export const processWhatsAppMessage = async (message) => {
             `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
             `Passengers: ${enquiry.passengers}\n` +
             `Vehicle: ${enquiry.vehicleType}\n` +
-            `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
-            `\n━━━━━━━━━━━━━━━━━━━━\n` +
-            `📝 To submit a quote, reply:\n` +
-            `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
-            `Example:\n` +
-            `QUOTE ${enquiry.referenceNumber} £150\n` +
-            `QUOTE ${enquiry.referenceNumber} £200 Includes meet & greet`
+            `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}`
+        );
+
+        // Message 2: Copyable quote template (sent separately so it's easy to copy/paste)
+        await sendWhatsAppMessage(
+          pricingTeamPhone,
+          `📝 Copy this and add your price:\n\n` + `QUOTE ${enquiry.referenceNumber} £`
         );
       }
     }
