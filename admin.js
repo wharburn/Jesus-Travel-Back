@@ -814,7 +814,10 @@ ${
 }
 
 // Documentation dropdown toggle
-function toggleDocsDropdown() {
+function toggleDocsDropdown(event) {
+  if (event) {
+    event.stopPropagation();
+  }
   const dropdown = document.getElementById('docsDropdown');
   dropdown.classList.toggle('hidden');
 }
