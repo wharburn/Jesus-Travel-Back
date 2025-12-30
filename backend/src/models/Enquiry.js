@@ -103,24 +103,52 @@ class Enquiry {
 
   // Find enquiries by status
   static async findByStatus(status, limit = 20, offset = 0) {
-    const ids = await redisClient.zrange(`enquiries:status:${status}`, offset, offset + limit - 1, {
-      rev: true,
-    });
+    try {
+      const ids = await redisClient.zrange(
+        `enquiries:status:${status}`,
+        offset,
+        offset + limit - 1,
+        {
+          REV: true,
+        }
+      );
 
-    const enquiries = await Promise.all(ids.map((id) => this.findById(id)));
+      logger.info(`Found ${ids.length} enquiry IDs for status ${status}`);
 
-    return enquiries.filter((e) => e !== null);
+      if (!ids || ids.length === 0) {
+        return [];
+      }
+
+      const enquiries = await Promise.all(ids.map((id) => this.findById(id)));
+
+      return enquiries.filter((e) => e !== null);
+    } catch (error) {
+      logger.error(`Error in findByStatus(${status}):`, error);
+      return [];
+    }
   }
 
   // Get all enquiries
   static async findAll(limit = 20, offset = 0) {
-    const ids = await redisClient.zrange('enquiries:all', offset, offset + limit - 1, {
-      rev: true,
-    });
+    try {
+      // Get IDs from sorted set (newest first)
+      const ids = await redisClient.zrange('enquiries:all', offset, offset + limit - 1, {
+        REV: true,
+      });
 
-    const enquiries = await Promise.all(ids.map((id) => this.findById(id)));
+      logger.info(`Found ${ids.length} enquiry IDs in sorted set`);
 
-    return enquiries.filter((e) => e !== null);
+      if (!ids || ids.length === 0) {
+        return [];
+      }
+
+      const enquiries = await Promise.all(ids.map((id) => this.findById(id)));
+
+      return enquiries.filter((e) => e !== null);
+    } catch (error) {
+      logger.error('Error in findAll:', error);
+      return [];
+    }
   }
 
   // Update enquiry
