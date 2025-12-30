@@ -5,6 +5,7 @@ import {
   clearAllEnquiries,
   createEnquiry,
   deleteEnquiry,
+  forwardToPartner,
   getEnquiries,
   getEnquiryById,
   rejectQuote,
