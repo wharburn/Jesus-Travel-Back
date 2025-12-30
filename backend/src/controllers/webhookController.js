@@ -20,10 +20,18 @@ export const handleWhatsAppWebhook = async (req, res) => {
       const messageData = webhookData.messageData;
       const senderData = webhookData.senderData;
 
+      // Extract message text from different message types
+      let text = '';
+      if (messageData.textMessageData?.textMessage) {
+        text = messageData.textMessageData.textMessage;
+      } else if (messageData.extendedTextMessageData?.text) {
+        text = messageData.extendedTextMessageData.text;
+      }
+
       // Extract message details
       const message = {
         type: messageData.typeMessage,
-        text: messageData.textMessageData?.textMessage || '',
+        text: text,
         sender: senderData.sender,
         senderName: senderData.senderName,
         chatId: senderData.chatId,
