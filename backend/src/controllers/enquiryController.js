@@ -181,27 +181,50 @@ export const submitQuote = async (req, res, next) => {
 
     logger.info(`Quote submitted for enquiry ${enquiry.referenceNumber}: ${currency}${price}`);
 
-    // Send quote to customer via WhatsApp
-    try {
-      const message =
-        `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
-        `Dear ${enquiry.customerName},\n\n` +
-        `Thank you for your enquiry. Here's your quote:\n\n` +
-        `📍 From: ${enquiry.pickupLocation}\n` +
-        `📍 To: ${enquiry.dropoffLocation}\n` +
-        `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
-        `🚗 Vehicle: ${enquiry.vehicleType}\n\n` +
-        `💰 Total Price: £${price}\n` +
-        `${notes ? `\nNotes: ${notes}\n` : ''}` +
-        `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString()}\n\n` +
-        `Reply "YES" to confirm your booking or contact us for any questions.`;
+    // Prepare quote message for customer
+    const message =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n\n` +
+      `💰 Total Price: £${price}\n` +
+      `${notes ? `\nNotes: ${notes}\n` : ''}` +
+      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString()}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
 
+    // Log the quote message prominently
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('📤 QUOTE TO SEND TO CUSTOMER:');
+    logger.info(`📞 Phone: ${enquiry.customerPhone}`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info(message);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // Try to send quote to customer via WhatsApp (but don't fail if it doesn't work)
+    try {
       await sendWhatsAppMessage(enquiry.customerPhone, message);
+      logger.info(`✅ Quote sent via WhatsApp to ${enquiry.customerPhone}`);
     } catch (error) {
-      logger.error('Failed to send quote to customer:', error);
+      logger.warn(
+        `⚠️ Failed to send quote via WhatsApp to ${enquiry.customerPhone}:`,
+        error.message
+      );
+      logger.warn('💡 Please send the quote manually via SMS/WhatsApp using the message above');
     }
 
-    res.json(successResponse(enquiry.toJSON(), 'Quote submitted successfully'));
+    res.json(
+      successResponse(
+        {
+          ...enquiry.toJSON(),
+          quoteMessage: message,
+          customerPhone: enquiry.customerPhone,
+        },
+        'Quote submitted successfully'
+      )
+    );
   } catch (error) {
     logger.error('Error submitting quote:', error);
     next(error);

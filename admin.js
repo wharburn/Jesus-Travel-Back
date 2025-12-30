@@ -508,14 +508,30 @@ async function submitQuote(e) {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      successEl.textContent = '✅ Quote sent successfully! Customer will receive it via WhatsApp.';
+      // Show the quote message that needs to be sent
+      const quoteMessage = data.data.quoteMessage;
+      const customerPhone = data.data.customerPhone;
+
+      successEl.innerHTML = `
+        ✅ Quote submitted successfully!<br><br>
+        <strong>Customer Phone:</strong> ${customerPhone}<br><br>
+        <strong>Message to send:</strong><br>
+        <textarea readonly class="w-full bg-gray-800 text-white p-2 rounded mt-2 text-sm" rows="10">${quoteMessage}</textarea>
+        <button onclick="navigator.clipboard.writeText(\`${quoteMessage.replace(
+          /`/g,
+          '\\`'
+        )}\`).then(() => alert('Quote message copied! Send it to ${customerPhone}'))"
+                class="mt-2 w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded">
+          📋 Copy Message to Send
+        </button>
+      `;
       successEl.classList.remove('hidden');
 
-      // Reload enquiries after 2 seconds
+      // Reload enquiries after 5 seconds
       setTimeout(() => {
         closeQuoteModal();
         loadEnquiries();
-      }, 2000);
+      }, 5000);
     } else {
       errorEl.textContent = data.error?.message || 'Failed to submit quote';
       errorEl.classList.remove('hidden');
