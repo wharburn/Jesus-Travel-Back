@@ -168,6 +168,44 @@ class Enquiry {
     }
   }
 
+  // Delete all enquiries (for debugging)
+  static async deleteAll() {
+    try {
+      // Get all enquiry keys
+      const enquiryKeys = await redisClient.keys('enquiry:*');
+      const refKeys = await redisClient.keys('enquiry:ref:*');
+
+      let deleted = 0;
+
+      // Delete all enquiry-related keys
+      if (enquiryKeys.length > 0) {
+        await redisClient.del(...enquiryKeys);
+        deleted += enquiryKeys.length;
+      }
+
+      if (refKeys.length > 0) {
+        await redisClient.del(...refKeys);
+      }
+
+      // Clear sorted sets
+      await redisClient.del('enquiries:all');
+      await redisClient.del('enquiries:status:pending_quote');
+      await redisClient.del('enquiries:status:quoted');
+      await redisClient.del('enquiries:status:confirmed');
+      await redisClient.del('enquiries:status:cancelled');
+
+      // Clear counter
+      const year = new Date().getFullYear();
+      await redisClient.del(`counter:ref:${year}`);
+
+      logger.info(`Deleted ${deleted} enquiries from Redis`);
+      return deleted;
+    } catch (error) {
+      logger.error('Error deleting all enquiries:', error);
+      throw error;
+    }
+  }
+
   // Convert to JSON
   toJSON() {
     return {

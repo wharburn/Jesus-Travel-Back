@@ -256,3 +256,20 @@ export const rejectQuote = async (req, res, next) => {
     next(error);
   }
 };
+
+// Clear all enquiries (admin only - for debugging)
+export const clearAllEnquiries = async (req, res, next) => {
+  try {
+    const deleted = await Enquiry.deleteAll();
+
+    res.json(
+      successResponse({
+        deleted,
+        message: 'All enquiries cleared successfully',
+      })
+    );
+  } catch (error) {
+    logger.error('Error clearing enquiries:', error);
+    next(error);
+  }
+};
