@@ -14,25 +14,41 @@ if (!INSTANCE_ID || !TOKEN) {
  */
 export const sendWhatsAppMessage = async (phoneNumber, message) => {
   if (!INSTANCE_ID || !TOKEN) {
-    logger.warn('WhatsApp not configured, skipping message send');
+    logger.warn('⚠️ WhatsApp not configured - INSTANCE_ID or TOKEN missing');
+    logger.warn(`INSTANCE_ID: ${INSTANCE_ID ? 'SET' : 'NOT SET'}`);
+    logger.warn(`TOKEN: ${TOKEN ? 'SET' : 'NOT SET'}`);
     return null;
   }
 
   try {
     // Format phone number (remove + and spaces)
     const formattedPhone = phoneNumber.replace(/[+\s]/g, '');
-    
+
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/sendMessage/${TOKEN}`;
-    
+
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info('📤 SENDING WHATSAPP MESSAGE');
+    logger.info(`📞 To: ${phoneNumber} (formatted: ${formattedPhone})`);
+    logger.info(`🔗 URL: ${GREEN_API_URL}/waInstance${INSTANCE_ID}/sendMessage/***`);
+    logger.info(`💬 Message length: ${message.length} chars`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
     const response = await axios.post(url, {
       chatId: `${formattedPhone}@c.us`,
-      message: message
+      message: message,
     });
 
-    logger.info(`WhatsApp message sent to ${phoneNumber}`);
+    logger.info(`✅ WhatsApp message sent successfully to ${phoneNumber}`);
+    logger.info(`Response:`, JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
-    logger.error('Error sending WhatsApp message:', error.response?.data || error.message);
+    logger.error('❌ Error sending WhatsApp message:');
+    logger.error(`Phone: ${phoneNumber}`);
+    logger.error(`Error:`, error.response?.data || error.message);
+    if (error.response) {
+      logger.error(`Status: ${error.response.status}`);
+      logger.error(`Data:`, JSON.stringify(error.response.data, null, 2));
+    }
     throw error;
   }
 };
@@ -48,14 +64,14 @@ export const sendWhatsAppFile = async (phoneNumber, fileUrl, caption = '') => {
 
   try {
     const formattedPhone = phoneNumber.replace(/[+\s]/g, '');
-    
+
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/sendFileByUrl/${TOKEN}`;
-    
+
     const response = await axios.post(url, {
       chatId: `${formattedPhone}@c.us`,
       urlFile: fileUrl,
       fileName: 'file',
-      caption: caption
+      caption: caption,
     });
 
     logger.info(`WhatsApp file sent to ${phoneNumber}`);
@@ -77,9 +93,9 @@ export const downloadWhatsAppFile = async (idMessage) => {
 
   try {
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/downloadFile/${TOKEN}`;
-    
+
     const response = await axios.post(url, {
-      idMessage: idMessage
+      idMessage: idMessage,
     });
 
     return response.data;
@@ -99,9 +115,9 @@ export const getInstanceStatus = async () => {
 
   try {
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/getStateInstance/${TOKEN}`;
-    
+
     const response = await axios.get(url);
-    
+
     return response.data;
   } catch (error) {
     logger.error('Error getting instance status:', error.response?.data || error.message);
@@ -120,12 +136,12 @@ export const setWebhook = async (webhookUrl) => {
 
   try {
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/setSettings/${TOKEN}`;
-    
+
     const response = await axios.post(url, {
       webhookUrl: webhookUrl,
       webhookUrlToken: '',
       outgoingWebhook: 'yes',
-      incomingWebhook: 'yes'
+      incomingWebhook: 'yes',
     });
 
     logger.info(`Webhook set to: ${webhookUrl}`);
@@ -141,6 +157,5 @@ export default {
   sendWhatsAppFile,
   downloadWhatsAppFile,
   getInstanceStatus,
-  setWebhook
+  setWebhook,
 };
-
