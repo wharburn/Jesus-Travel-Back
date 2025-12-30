@@ -1,13 +1,16 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
-import logger from './utils/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import routes from './routes/index.js';
+import logger from './utils/logger.js';
 
 const app = express();
+
+// Trust proxy - required for Render deployment
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -16,7 +19,7 @@ app.use(helmet());
 const corsOptions = {
   origin: process.env.CORS_ORIGIN?.split(',') || '*',
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
@@ -28,11 +31,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
-  app.use(morgan('combined', {
-    stream: {
-      write: (message) => logger.info(message.trim())
-    }
-  }));
+  app.use(
+    morgan('combined', {
+      stream: {
+        write: (message) => logger.info(message.trim()),
+      },
+    })
+  );
 }
 
 // Rate limiting
@@ -41,7 +46,7 @@ const limiter = rateLimit({
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
@@ -51,7 +56,7 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -64,8 +69,8 @@ app.use((req, res) => {
     success: false,
     error: {
       code: 'NOT_FOUND',
-      message: `Route ${req.method} ${req.url} not found`
-    }
+      message: `Route ${req.method} ${req.url} not found`,
+    },
   });
 });
 
@@ -73,4 +78,3 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 export default app;
-
