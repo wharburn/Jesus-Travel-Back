@@ -11,6 +11,7 @@ let currentPage = 0;
 const pageSize = 20;
 let allEnquiries = [];
 let filteredEnquiries = [];
+let currentQuoteEnquiry = null;
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,6 +35,8 @@ function setupEventListeners() {
   document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 500));
   document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+  document.getElementById('cancelQuote').addEventListener('click', closeQuoteModal);
+  document.getElementById('quoteForm').addEventListener('submit', submitQuote);
 }
 
 // Logout
@@ -148,11 +151,23 @@ function renderEnquiries() {
         ${getSourceBadge(enquiry.source)}
       </td>
       <td class="px-6 py-4">
-        <button onclick="viewEnquiry('${
-          enquiry.id
-        }')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold transition-colors">
-          View
-        </button>
+        <div class="flex space-x-2">
+          <button onclick="viewEnquiry('${
+            enquiry.id
+          }')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold transition-colors">
+            View
+          </button>
+          ${
+            enquiry.status === 'pending_quote'
+              ? `<button onclick='openQuoteModal(${JSON.stringify(enquiry).replace(
+                  /'/g,
+                  '&#39;'
+                )})' class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded text-sm font-semibold transition-colors">
+            Quote
+          </button>`
+              : ''
+          }
+        </div>
       </td>
     </tr>
   `
@@ -367,4 +382,100 @@ function debounce(func, wait) {
 
 function showError(message) {
   alert(message);
+}
+
+// Quote submission functions
+function openQuoteModal(enquiry) {
+  currentQuoteEnquiry = enquiry;
+
+  // Populate enquiry details
+  document.getElementById('quoteEnquiryDetails').innerHTML = `
+    <div class="space-y-1">
+      <p><strong>Reference:</strong> ${enquiry.referenceNumber}</p>
+      <p><strong>Customer:</strong> ${enquiry.customerName}</p>
+      <p><strong>Route:</strong> ${enquiry.pickupLocation} → ${enquiry.dropoffLocation}</p>
+      <p><strong>Date:</strong> ${enquiry.pickupDate} at ${enquiry.pickupTime}</p>
+      <p><strong>Vehicle:</strong> ${enquiry.vehicleType}</p>
+      <p><strong>Passengers:</strong> ${enquiry.passengers}</p>
+    </div>
+  `;
+
+  // Reset form
+  document.getElementById('quoteForm').reset();
+  document.getElementById('quoteError').classList.add('hidden');
+  document.getElementById('quoteSuccess').classList.add('hidden');
+
+  // Set default valid until (48 hours from now)
+  const defaultValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  const localDateTime = new Date(
+    defaultValidUntil.getTime() - defaultValidUntil.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, 16);
+  document.getElementById('quoteValidUntil').value = localDateTime;
+
+  // Show modal
+  document.getElementById('quoteModal').classList.remove('hidden');
+}
+
+function closeQuoteModal() {
+  document.getElementById('quoteModal').classList.add('hidden');
+  currentQuoteEnquiry = null;
+}
+
+async function submitQuote(e) {
+  e.preventDefault();
+
+  if (!currentQuoteEnquiry) return;
+
+  const price = parseFloat(document.getElementById('quotePrice').value);
+  const breakdown = document.getElementById('quoteBreakdown').value.trim();
+  const notes = document.getElementById('quoteNotes').value.trim();
+  const validUntil = document.getElementById('quoteValidUntil').value;
+
+  const errorEl = document.getElementById('quoteError');
+  const successEl = document.getElementById('quoteSuccess');
+
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+
+  try {
+    const body = {
+      price,
+      currency: 'GBP',
+    };
+
+    if (breakdown) body.breakdown = breakdown;
+    if (notes) body.notes = notes;
+    if (validUntil) body.validUntil = new Date(validUntil).toISOString();
+
+    const response = await fetch(`${API_URL}/enquiries/${currentQuoteEnquiry.id}/quote`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      successEl.textContent = '✅ Quote sent successfully! Customer will receive it via WhatsApp.';
+      successEl.classList.remove('hidden');
+
+      // Reload enquiries after 2 seconds
+      setTimeout(() => {
+        closeQuoteModal();
+        loadEnquiries();
+      }, 2000);
+    } else {
+      errorEl.textContent = data.error?.message || 'Failed to submit quote';
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error submitting quote:', error);
+    errorEl.textContent = 'Network error. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
 }
