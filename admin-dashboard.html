@@ -17,20 +17,27 @@
     <!-- Header -->
     <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
       <div class="container mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <img src="images/JTNlogo.png" alt="JT Chauffeur" class="h-12" />
-            <div>
-              <h1 class="text-2xl font-serif text-yellow-500">Admin Dashboard</h1>
-              <p class="text-sm text-gray-400" id="adminName">Loading...</p>
-            </div>
+        <div class="grid grid-cols-3 items-center">
+          <!-- Left - Admin Info -->
+          <div>
+            <h1 class="text-xl font-serif text-yellow-500">Admin Dashboard</h1>
+            <p class="text-sm text-gray-400" id="adminName">Loading...</p>
           </div>
-          <button
-            id="logoutBtn"
-            class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-          >
-            Logout
-          </button>
+
+          <!-- Center - Logo -->
+          <div class="flex justify-center">
+            <img src="images/JTNlogo.png" alt="JT Chauffeur" class="h-16 w-auto" />
+          </div>
+
+          <!-- Right - Logout -->
+          <div class="flex justify-end">
+            <button
+              id="logoutBtn"
+              class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </header>
