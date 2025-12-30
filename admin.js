@@ -145,7 +145,7 @@ function renderEnquiries() {
         <div class="text-sm text-gray-400">${enquiry.pickupTime}</div>
       </td>
       <td class="px-6 py-4">
-        ${getStatusBadge(enquiry.status)}
+        ${getStatusBadge(enquiry.status, enquiry.quotedPrice)}
       </td>
       <td class="px-6 py-4">
         ${getSourceBadge(enquiry.source)}
@@ -383,12 +383,13 @@ function viewEnquiry(id) {
 }
 
 // Helper functions
-function getStatusBadge(status) {
+function getStatusBadge(status, quotedPrice) {
   const badges = {
     pending_quote:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-900 text-blue-300">Pending Quote</span>',
-    quoted:
-      '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span>',
+    quoted: quotedPrice
+      ? `<div><span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span><div class="text-lg font-bold text-green-400 mt-1">£${quotedPrice}</div></div>`
+      : '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span>',
     confirmed:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-900 text-green-300">Confirmed</span>',
     cancelled:
