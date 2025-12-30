@@ -21,8 +21,16 @@ export const sendWhatsAppMessage = async (phoneNumber, message) => {
   }
 
   try {
-    // Format phone number (remove + and spaces)
-    const formattedPhone = phoneNumber.replace(/[+\s]/g, '');
+    // Format phone number for Green API
+    let formattedPhone = phoneNumber.replace(/[+\s\-()]/g, '');
+
+    // Convert UK numbers starting with 0 to international format (44)
+    if (formattedPhone.startsWith('0') && formattedPhone.length === 11) {
+      formattedPhone = '44' + formattedPhone.substring(1);
+    }
+
+    // Ensure it doesn't start with + (Green API doesn't want it)
+    formattedPhone = formattedPhone.replace(/^\+/, '');
 
     const url = `${GREEN_API_URL}/waInstance${INSTANCE_ID}/sendMessage/${TOKEN}`;
 
