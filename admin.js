@@ -307,6 +307,53 @@ function viewEnquiry(id) {
             : ''
         }
 
+        ${
+          enquiry.quotedPrice
+            ? `
+        <!-- Quote Information -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">Quote Information</h3>
+          <div class="bg-gradient-to-r from-yellow-900/30 to-yellow-800/30 rounded-lg p-4 border border-yellow-700/50">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="text-sm text-gray-400">Quoted Price</div>
+                <div class="text-2xl font-bold text-yellow-400">£${enquiry.quotedPrice}</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Valid Until</div>
+                <div class="font-semibold text-gray-300">${
+                  enquiry.quoteValidUntil
+                    ? new Date(enquiry.quoteValidUntil).toLocaleString('en-GB', {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })
+                    : 'N/A'
+                }</div>
+              </div>
+            </div>
+            ${
+              enquiry.quoteBreakdown
+                ? `
+            <div class="mt-3 pt-3 border-t border-yellow-700/30">
+              <div class="text-sm text-gray-400 mb-1">Breakdown/Notes</div>
+              <div class="text-gray-300 whitespace-pre-wrap">${escapeHtml(
+                enquiry.quoteBreakdown
+              )}</div>
+            </div>
+            `
+                : ''
+            }
+            <div class="mt-3 pt-3 border-t border-yellow-700/30 text-xs text-gray-400">
+              Quoted by: ${enquiry.quotedBy || 'N/A'} • ${
+                enquiry.quotedAt ? new Date(enquiry.quotedAt).toLocaleString() : 'N/A'
+              }
+            </div>
+          </div>
+        </div>
+        `
+            : ''
+        }
+
         <!-- Status & Source -->
         <div class="grid grid-cols-2 gap-4">
           <div>

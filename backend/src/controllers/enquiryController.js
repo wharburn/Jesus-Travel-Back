@@ -44,9 +44,10 @@ export const createEnquiry = async (req, res, next) => {
           `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
           `\n━━━━━━━━━━━━━━━━━━━━\n` +
           `📝 To submit a quote, reply:\n` +
-          `QUOTE ${enquiry.referenceNumber} £150\n\n` +
-          `Or with notes:\n` +
-          `QUOTE ${enquiry.referenceNumber} £150 Includes meet & greet`;
+          `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
+          `Example:\n` +
+          `QUOTE ${enquiry.referenceNumber} £150\n` +
+          `QUOTE ${enquiry.referenceNumber} £200 Includes meet & greet`;
 
         await sendWhatsAppMessage(pricingTeamPhone, message);
       }
