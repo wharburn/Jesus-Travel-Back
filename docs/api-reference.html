@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Reference - JT Navigator</title>
+    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        min-height: 100vh;
+      }
+
+      .doc-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+      }
+
+      .doc-header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        padding: 40px;
+        border-bottom: 4px solid #d4af37;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .logo-container img {
+        height: 60px;
+        margin-right: 20px;
+      }
+
+      .doc-header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .doc-header .subtitle {
+        font-size: 16px;
+        color: #d4af37;
+      }
+
+      .back-link {
+        display: inline-block;
+        color: #d4af37;
+        text-decoration: none;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      .doc-content {
+        padding: 40px;
+        line-height: 1.8;
+      }
+
+      h2 {
+        color: #1a1a1a;
+        font-size: 26px;
+        margin: 40px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #d4af37;
+      }
+
+      h3 {
+        color: #333;
+        font-size: 20px;
+        margin: 30px 0 15px 0;
+      }
+
+      h4 {
+        color: #555;
+        font-size: 16px;
+        margin: 20px 0 10px 0;
+        font-weight: bold;
+      }
+
+      p {
+        margin-bottom: 15px;
+        color: #555;
+      }
+
+      .endpoint-card {
+        background: #f8f9fa;
+        border-left: 4px solid #d4af37;
+        padding: 24px;
+        margin: 24px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .method-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 10px;
+      }
+
+      .method-get {
+        background: #10b981;
+        color: white;
+      }
+
+      .method-post {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .method-put {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .method-delete {
+        background: #ef4444;
+        color: white;
+      }
+
+      .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 16px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .info-box {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      ul,
+      ol {
+        margin-left: 25px;
+        margin-bottom: 15px;
+      }
+
+      li {
+        margin-bottom: 8px;
+      }
+
+      a {
+        color: #d4af37;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .footer {
+        background: #1a1a1a;
+        color: white;
+        padding: 30px 40px;
+        text-align: center;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      table th {
+        background: #d4af37;
+        color: white;
+        padding: 14px;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+
+      table tr:hover {
+        background: #f9fafb;
+      }
+
+      code {
+        background: #f1f5f9;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #e11d48;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc-wrapper">
+      <!-- Header -->
+      <div class="doc-header">
+        <div class="logo-container">
+          <img src="../images/JT logo.png" alt="JT Navigator Logo" />
+          <div>
+            <h1>API Reference</h1>
+            <p class="subtitle">Complete REST API documentation for JT Navigator</p>
+          </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Documentation</a>
+      </div>
+
+      <!-- Content -->
+      <div class="doc-content">
+        <div class="info-box">
+          <strong>🌐 Base URL:</strong> https://jesus-travel-back.onrender.com/api
+        </div>
+
+        <h2>Authentication</h2>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-post">POST</span> /auth/login</h3>
+          <p>Authenticate admin user and receive JWT token.</p>
+
+          <h4>Request Body:</h4>
+          <div class="code-block">
+            { "email": "admin@jesus-travel.com", "password": "JesusWayne6667" }
+          </div>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "user": {
+            "email": "admin@jesus-travel.com", "role": "admin" } }
+          </div>
+
+          <h4>Error Response (401 Unauthorized):</h4>
+          <div class="code-block">{ "success": false, "error": "Invalid credentials" }</div>
+        </div>
+
+        <div class="warning-box">
+          <strong>🔐 Protected Routes:</strong> All routes below require authentication. Include the
+          JWT token in the Authorization header:
+          <div class="code-block">Authorization: Bearer YOUR_JWT_TOKEN</div>
+        </div>
+
+        <h2>Enquiries</h2>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-post">POST</span> /enquiries</h3>
+          <p>Create a new booking enquiry (public endpoint - no auth required).</p>
+
+          <h4>Request Body:</h4>
+          <div class="code-block">
+            { "customerName": "John Smith", "customerPhone": "+447700123456", "customerEmail":
+            "john@example.com", "pickupLocation": "Heathrow Airport", "dropoffLocation": "Central
+            London", "pickupDate": "2025-01-15", "pickupTime": "14:00", "passengers": 2,
+            "vehicleType": "Saloon", "specialRequests": "Meet & greet required" }
+          </div>
+
+          <h4>Response (201 Created):</h4>
+          <div class="code-block">
+            { "success": true, "data": { "id": "abc123", "referenceNumber": "JT-2025-000123",
+            "status": "pending_quote", "customerName": "John Smith", ... } }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-get">GET</span> /enquiries</h3>
+          <p>Get all enquiries (requires authentication).</p>
+
+          <h4>Query Parameters:</h4>
+          <table>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td><code>status</code></td>
+              <td>string</td>
+              <td>Filter by status (pending_quote, quoted, confirmed, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>limit</code></td>
+              <td>number</td>
+              <td>Number of results (default: 50)</td>
+            </tr>
+            <tr>
+              <td><code>offset</code></td>
+              <td>number</td>
+              <td>Pagination offset (default: 0)</td>
+            </tr>
+          </table>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "data": [ { "id": "abc123", "referenceNumber": "JT-2025-000123",
+            "status": "pending_quote", "customerName": "John Smith", "customerPhone":
+            "+447700123456", "pickupLocation": "Heathrow Airport", "dropoffLocation": "Central
+            London", "pickupDate": "2025-01-15", "pickupTime": "14:00", "createdAt":
+            "2025-01-10T10:30:00Z" } ], "total": 1 }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-get">GET</span> /enquiries/:id</h3>
+          <p>Get a specific enquiry by ID.</p>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "data": { "id": "abc123", "referenceNumber": "JT-2025-000123",
+            "status": "quoted", "quote": { "price": 150, "currency": "GBP", "notes": "Includes meet
+            & greet", "validUntil": "2025-01-17T14:00:00Z" }, ... } }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-put">PUT</span> /enquiries/:id/quote</h3>
+          <p>Submit a quote for an enquiry (requires authentication).</p>
+
+          <h4>Request Body:</h4>
+          <div class="code-block">
+            { "price": 150, "currency": "GBP", "notes": "Includes meet & greet and 30 mins waiting
+            time", "validUntil": "2025-01-17T14:00:00Z", "breakdown": { "basePrice": 120,
+            "meetGreet": 20, "waitingTime": 10 } }
+          </div>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "data": { "id": "abc123", "status": "quoted", "quote": { "price":
+            150, "currency": "GBP", "notes": "Includes meet & greet and 30 mins waiting time",
+            "validUntil": "2025-01-17T14:00:00Z" } }, "message": "Quote sent successfully" }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3>
+            <span class="method-badge method-put">PUT</span> /enquiries/:id/forward-to-partner
+          </h3>
+          <p>Forward an enquiry to a partner company.</p>
+
+          <h4>Request Body:</h4>
+          <div class="code-block">
+            { "partnerName": "ABC Chauffeurs", "commissionRate": 15, "bookingReference":
+            "ABC-12345", "notes": "Customer prefers luxury vehicle" }
+          </div>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "data": { "id": "abc123", "status": "forwarded_to_partner",
+            "partnerInfo": { "partnerName": "ABC Chauffeurs", "commissionRate": 15,
+            "bookingReference": "ABC-12345" } } }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-delete">DELETE</span> /enquiries/:id</h3>
+          <p>Delete an enquiry (requires authentication).</p>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "message": "Enquiry deleted successfully" }
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <h3><span class="method-badge method-delete">DELETE</span> /enquiries/clear-all</h3>
+          <p>Delete all enquiries (requires authentication). Use with caution!</p>
+
+          <h4>Response (200 OK):</h4>
+          <div class="code-block">
+            { "success": true, "message": "All enquiries cleared", "deletedCount": 42 }
+          </div>
+        </div>
+
+        <h2>Status Codes</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Meaning</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>200</strong></td>
+              <td>OK</td>
+              <td>Request successful</td>
+            </tr>
+            <tr>
+              <td><strong>201</strong></td>
+              <td>Created</td>
+              <td>Resource created successfully</td>
+            </tr>
+            <tr>
+              <td><strong>400</strong></td>
+              <td>Bad Request</td>
+              <td>Invalid request data</td>
+            </tr>
+            <tr>
+              <td><strong>401</strong></td>
+              <td>Unauthorized</td>
+              <td>Authentication required or failed</td>
+            </tr>
+            <tr>
+              <td><strong>404</strong></td>
+              <td>Not Found</td>
+              <td>Resource not found</td>
+            </tr>
+            <tr>
+              <td><strong>500</strong></td>
+              <td>Internal Server Error</td>
+              <td>Server error occurred</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Enquiry Status Values</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pending_quote</code></td>
+              <td>Enquiry received, waiting for quote</td>
+            </tr>
+            <tr>
+              <td><code>quoted</code></td>
+              <td>Quote sent to customer</td>
+            </tr>
+            <tr>
+              <td><code>confirmed</code></td>
+              <td>Customer accepted quote</td>
+            </tr>
+            <tr>
+              <td><code>cancelled</code></td>
+              <td>Booking cancelled</td>
+            </tr>
+            <tr>
+              <td><code>completed</code></td>
+              <td>Service completed</td>
+            </tr>
+            <tr>
+              <td><code>forwarded_to_partner</code></td>
+              <td>Forwarded to partner company</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Example: Creating an Enquiry with JavaScript</h2>
+
+        <div class="code-block">
+          const createEnquiry = async () => { try { const response = await
+          fetch('https://jesus-travel-back.onrender.com/api/enquiries', { method: 'POST', headers: {
+          'Content-Type': 'application/json' }, body: JSON.stringify({ customerName: 'John Smith',
+          customerPhone: '+447700123456', customerEmail: 'john@example.com', pickupLocation:
+          'Heathrow Airport', dropoffLocation: 'Central London', pickupDate: '2025-01-15',
+          pickupTime: '14:00', passengers: 2, vehicleType: 'Saloon' }) }); const data = await
+          response.json(); if (data.success) { console.log('Enquiry created:',
+          data.data.referenceNumber); } else { console.error('Error:', data.error); } } catch
+          (error) { console.error('Network error:', error); } };
+        </div>
+
+        <h2>Example: Authenticated Request</h2>
+
+        <div class="code-block">
+          const getEnquiries = async (token) => { try { const response = await
+          fetch('https://jesus-travel-back.onrender.com/api/enquiries', { method: 'GET', headers: {
+          'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }); const data =
+          await response.json(); if (data.success) { console.log('Enquiries:', data.data); } else {
+          console.error('Error:', data.error); } } catch (error) { console.error('Network error:',
+          error); } };
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p><strong>JT Navigator</strong> - Professional Chauffeur Services</p>
+        <p>© 2025 JT Chauffeur Services. All rights reserved.</p>
+        <p>
+          <a href="index.html">← Back to Documentation</a> |
+          <a href="../admin-dashboard.html">Admin Dashboard</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote Submission System - JT Navigator</title>
+    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        min-height: 100vh;
+      }
+
+      .doc-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+      }
+
+      .doc-header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        padding: 40px;
+        border-bottom: 4px solid #d4af37;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .logo-container img {
+        height: 60px;
+        margin-right: 20px;
+      }
+
+      .doc-header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .doc-header .subtitle {
+        font-size: 16px;
+        color: #d4af37;
+      }
+
+      .back-link {
+        display: inline-block;
+        color: #d4af37;
+        text-decoration: none;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      .doc-content {
+        padding: 40px;
+        line-height: 1.8;
+      }
+
+      h2 {
+        color: #1a1a1a;
+        font-size: 26px;
+        margin: 40px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #d4af37;
+      }
+
+      h3 {
+        color: #333;
+        font-size: 20px;
+        margin: 30px 0 15px 0;
+      }
+
+      h4 {
+        color: #555;
+        font-size: 16px;
+        margin: 20px 0 10px 0;
+        font-weight: bold;
+      }
+
+      p {
+        margin-bottom: 15px;
+        color: #555;
+      }
+
+      .step-card {
+        background: #f8f9fa;
+        border-left: 4px solid #d4af37;
+        padding: 24px;
+        margin: 24px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .step-number {
+        display: inline-block;
+        background: #d4af37;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 36px;
+        font-weight: bold;
+        font-size: 18px;
+        margin-right: 12px;
+      }
+
+      .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 16px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .info-box {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .success-box {
+        background: #d1fae5;
+        border-left: 4px solid #10b981;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      ul,
+      ol {
+        margin-left: 25px;
+        margin-bottom: 15px;
+      }
+
+      li {
+        margin-bottom: 8px;
+      }
+
+      a {
+        color: #d4af37;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .footer {
+        background: #1a1a1a;
+        color: white;
+        padding: 30px 40px;
+        text-align: center;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      table th {
+        background: #d4af37;
+        color: white;
+        padding: 14px;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+
+      table tr:hover {
+        background: #f9fafb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc-wrapper">
+      <!-- Header -->
+      <div class="doc-header">
+        <div class="logo-container">
+          <img src="../images/JT logo.png" alt="JT Navigator Logo" />
+          <div>
+            <h1>Quote Submission System</h1>
+            <p class="subtitle">Complete guide for submitting and managing quotes</p>
+          </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Documentation</a>
+      </div>
+
+      <!-- Content -->
+      <div class="doc-content">
+        <div class="info-box">
+          <strong>📌 Overview:</strong> The JT Navigator quote system supports two methods for
+          submitting quotes to customers: WhatsApp (for pricing team) and Admin Dashboard (web
+          interface).
+        </div>
+
+        <h2>Complete Workflow</h2>
+
+        <div class="step-card">
+          <h3><span class="step-number">1</span> Customer Submits Enquiry</h3>
+          <p>Customers can submit booking enquiries through:</p>
+          <ul>
+            <li><strong>Website Form:</strong> https://jesus-travel.site/test.html</li>
+            <li><strong>WhatsApp:</strong> Direct message to business WhatsApp number</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">2</span> System Creates Enquiry</h3>
+          <p>The system automatically:</p>
+          <ul>
+            <li>Saves enquiry to database with unique reference (e.g., JT-2025-000123)</li>
+            <li>Sets status to <code>pending_quote</code></li>
+            <li>Sends confirmation to customer</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">3</span> Pricing Team Gets Notified</h3>
+          <p>Pricing team receives a WhatsApp notification:</p>
+          <div class="code-block">
+            NEW BOOKING ENQUIRY Ref: JT-2025-000123 Customer: John Smith Phone: +447700123456 From:
+            Heathrow Airport To: Central London Date: 2025-01-15 at 14:00 Passengers: 2 Vehicle:
+            Saloon ━━━━━━━━━━━━━━━━━━━━ To submit a quote, reply: QUOTE JT-2025-000123 £150 Or with
+            notes: QUOTE JT-2025-000123 £150 Includes meet & greet
+          </div>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">4</span> Pricing Team Submits Quote</h3>
+
+          <h4>Option A: WhatsApp Reply</h4>
+          <p>Simply reply to the notification message:</p>
+
+          <p><strong>Basic Quote:</strong></p>
+          <div class="code-block">QUOTE JT-2025-000123 £150</div>
+
+          <p><strong>Quote with Notes:</strong></p>
+          <div class="code-block">
+            QUOTE JT-2025-000123 £150 Includes meet & greet and 30 mins waiting time
+          </div>
+
+          <h4>Option B: Admin Dashboard</h4>
+          <ol>
+            <li>Navigate to <a href="../admin-dashboard.html">Admin Dashboard</a></li>
+            <li>Login with admin credentials</li>
+            <li>Locate the enquiry (status will show "Pending Quote")</li>
+            <li>Click the yellow <strong>"Quote"</strong> button</li>
+            <li>
+              Complete the quote form:
+              <ul>
+                <li><strong>Price</strong> (required)</li>
+                <li><strong>Breakdown</strong> (optional)</li>
+                <li><strong>Notes</strong> (optional)</li>
+                <li><strong>Valid Until</strong> (default: 48 hours)</li>
+              </ul>
+            </li>
+            <li>Click <strong>"Send Quote"</strong></li>
+          </ol>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">5</span> System Processes Quote</h3>
+          <p>The system automatically:</p>
+          <ul>
+            <li>Updates enquiry status to <code>quoted</code></li>
+            <li>Records price, notes, and validity period</li>
+            <li>Sends confirmation to pricing team</li>
+            <li><strong>Sends quote to customer via WhatsApp</strong></li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">6</span> Customer Receives Quote</h3>
+          <p>Customer receives WhatsApp message:</p>
+          <div class="code-block">
+            QUOTE READY - JT-2025-000123 Dear John Smith, Thank you for your enquiry. Here's your
+            quote: From: Heathrow Airport To: Central London Date: 2025-01-15 at 14:00 Vehicle:
+            Saloon Passengers: 2 Total Price: £150 Notes: Includes meet & greet and 30 mins waiting
+            time This quote is valid until 17 Jan 2025, 14:00 Reply "YES" to confirm your booking or
+            contact us for any questions.
+          </div>
+        </div>
+
+        <div class="step-card">
+          <h3><span class="step-number">7</span> Customer Responds</h3>
+          <ul>
+            <li><strong>Reply "YES"</strong> - Booking confirmed automatically</li>
+            <li><strong>Reply "NO"</strong> - Booking cancelled</li>
+            <li><strong>No reply</strong> - Quote expires after 48 hours</li>
+          </ul>
+        </div>
+
+        <h2>WhatsApp Quote Format</h2>
+
+        <div class="code-block">QUOTE &lt;reference-number&gt; &lt;price&gt; [optional notes]</div>
+
+        <p><strong>Valid Examples:</strong></p>
+        <ul>
+          <li><code>QUOTE JT-2025-000123 £150</code></li>
+          <li><code>QUOTE JT-2025-000123 150</code> (pound symbol optional)</li>
+          <li><code>QUOTE JT-2025-000123 £150 Includes meet & greet</code></li>
+        </ul>
+
+        <div class="warning-box">
+          <strong>⚠️ Important:</strong> The pricing team WhatsApp number must match exactly with
+          the <code>PRICING_TEAM_PHONE</code> environment variable in Render for WhatsApp quote
+          submissions to work.
+        </div>
+
+        <h2>Format Rules</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Element</th>
+              <th>Required?</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>QUOTE</strong></td>
+              <td>✅ Required</td>
+              <td>Case insensitive (QUOTE, quote, Quote all work)</td>
+            </tr>
+            <tr>
+              <td><strong>Reference Number</strong></td>
+              <td>✅ Required</td>
+              <td>Must match exactly (e.g., JT-2025-000123)</td>
+            </tr>
+            <tr>
+              <td><strong>Price</strong></td>
+              <td>✅ Required</td>
+              <td>With or without £ symbol (£150 or 150)</td>
+            </tr>
+            <tr>
+              <td><strong>Notes</strong></td>
+              <td>❌ Optional</td>
+              <td>Anything after the price will be included</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Troubleshooting</h2>
+
+        <h3>Quote Not Accepted</h3>
+        <p>If your quote isn't accepted, check:</p>
+        <ul>
+          <li>Reference number is correct (copy/paste from notification)</li>
+          <li>Enquiry status is "pending_quote" (check admin dashboard)</li>
+          <li>You're sending from the registered pricing team number</li>
+        </ul>
+
+        <h3>No Confirmation Received</h3>
+        <p>If you don't get a confirmation:</p>
+        <ul>
+          <li>Wait 30 seconds and check admin dashboard</li>
+          <li>Verify WhatsApp connection is stable</li>
+          <li>Use admin dashboard as backup</li>
+        </ul>
+
+        <div class="success-box">
+          <strong>✅ Best Practice:</strong> Use the admin dashboard when you need to add detailed
+          breakdowns or set custom validity periods. Use WhatsApp for quick, simple quotes.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p><strong>JT Navigator</strong> - Professional Chauffeur Services</p>
+        <p>© 2025 JT Chauffeur Services. All rights reserved.</p>
+        <p>
+          <a href="index.html">← Back to Documentation</a> |
+          <a href="../admin-dashboard.html">Admin Dashboard</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

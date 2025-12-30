@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JT Navigator - System Documentation</title>
+    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .doc-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+      }
+
+      .doc-header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        padding: 40px;
+        border-bottom: 4px solid #d4af37;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .logo-container img {
+        height: 80px;
+        margin-right: 20px;
+      }
+
+      .doc-header h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+
+      .doc-header .subtitle {
+        font-size: 18px;
+        color: #d4af37;
+      }
+
+      .nav-bar {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .nav-bar ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .nav-bar li {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .nav-bar a {
+        display: block;
+        padding: 16px 24px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+      }
+
+      .nav-bar a:hover {
+        background: #d4af37;
+        color: white;
+        border-bottom-color: #b8941f;
+      }
+
+      .doc-content {
+        padding: 40px;
+      }
+
+      .doc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .doc-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 24px;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .doc-card:hover {
+        border-color: #d4af37;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .doc-card-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .doc-card h3 {
+        color: #1a1a1a;
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+
+      .doc-card p {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .doc-card a {
+        display: inline-block;
+        margin-top: 16px;
+        color: #d4af37;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .doc-card a:hover {
+        color: #b8941f;
+      }
+
+      .footer {
+        background: #1a1a1a;
+        color: white;
+        padding: 30px 40px;
+        text-align: center;
+      }
+
+      .footer p {
+        margin-bottom: 10px;
+      }
+
+      .footer a {
+        color: #d4af37;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc-wrapper">
+      <!-- Header -->
+      <div class="doc-header">
+        <div class="logo-container">
+          <img src="../images/JT logo.png" alt="JT Navigator Logo" />
+          <div>
+            <h1>JT Navigator</h1>
+            <p class="subtitle">Complete System Documentation</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="nav-bar">
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="quote-system.html">Quote System</a></li>
+          <li><a href="environment-variables.html">Environment Setup</a></li>
+          <li><a href="partner-system.html">Partner System</a></li>
+          <li><a href="deployment.html">Deployment</a></li>
+        </ul>
+      </nav>
+
+      <!-- Content -->
+      <div class="doc-content">
+        <h2 style="margin-bottom: 30px; color: #1a1a1a; font-size: 28px">Documentation Library</h2>
+
+        <div class="doc-grid">
+          <!-- Quote System -->
+          <div class="doc-card" onclick="window.location.href='quote-system.html'">
+            <div class="doc-card-icon">💰</div>
+            <h3>Quote Submission System</h3>
+            <p>
+              Complete guide for submitting quotes via WhatsApp or Admin Dashboard. Includes
+              workflow, examples, and troubleshooting.
+            </p>
+            <a href="quote-system.html">Read Guide →</a>
+          </div>
+
+          <!-- Environment Variables -->
+          <div class="doc-card" onclick="window.location.href='environment-variables.html'">
+            <div class="doc-card-icon">⚙️</div>
+            <h3>Environment Variables</h3>
+            <p>
+              Complete reference for all Render environment variables including database, WhatsApp,
+              AI services, and configuration.
+            </p>
+            <a href="environment-variables.html">View Reference →</a>
+          </div>
+
+          <!-- Partner System -->
+          <div class="doc-card" onclick="window.location.href='partner-system.html'">
+            <div class="doc-card-icon">🤝</div>
+            <h3>Partner Forwarding System</h3>
+            <p>
+              Guide for forwarding bookings to partners (Addison Lee, Uber, Bolt) with automatic
+              commission tracking.
+            </p>
+            <a href="partner-system.html">Learn More →</a>
+          </div>
+
+          <!-- Deployment Guide -->
+          <div class="doc-card" onclick="window.location.href='deployment.html'">
+            <div class="doc-card-icon">🚀</div>
+            <h3>Deployment Guide</h3>
+            <p>
+              Step-by-step instructions for deploying the backend to Render and frontend to
+              Bluehost.
+            </p>
+            <a href="deployment.html">Deploy Now →</a>
+          </div>
+
+          <!-- Pricing Team Guide -->
+          <div class="doc-card" onclick="window.location.href='pricing-team.html'">
+            <div class="doc-card-icon">📱</div>
+            <h3>Pricing Team Guide</h3>
+            <p>
+              WhatsApp instructions for pricing team to submit quotes, format rules, and examples.
+            </p>
+            <a href="pricing-team.html">View Guide →</a>
+          </div>
+
+          <!-- Admin Dashboard -->
+          <div class="doc-card" onclick="window.location.href='../admin-dashboard.html'">
+            <div class="doc-card-icon">📊</div>
+            <h3>Admin Dashboard</h3>
+            <p>
+              Access the admin dashboard to manage enquiries, submit quotes, and forward to
+              partners.
+            </p>
+            <a href="../admin-dashboard.html">Open Dashboard →</a>
+          </div>
+
+          <!-- API Reference -->
+          <div class="doc-card" onclick="window.location.href='api-reference.html'">
+            <div class="doc-card-icon">🔌</div>
+            <h3>API Reference</h3>
+            <p>
+              Complete API documentation including endpoints, request/response formats, and
+              authentication.
+            </p>
+            <a href="api-reference.html">View API Docs →</a>
+          </div>
+
+          <!-- Multilingual Setup -->
+          <div class="doc-card" onclick="window.location.href='multilingual.html'">
+            <div class="doc-card-icon">🌍</div>
+            <h3>Multilingual Setup</h3>
+            <p>Guide for implementing and managing the 7-language support system on the website.</p>
+            <a href="multilingual.html">Setup Languages →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p><strong>JT Navigator</strong> - Professional Chauffeur Services</p>
+        <p>© 2025 JT Chauffeur Services. All rights reserved.</p>
+        <p>
+          <a href="https://jesus-travel.site">Visit Website</a> |
+          <a href="../admin-dashboard.html">Admin Dashboard</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Environment Variables - JT Navigator</title>
+    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        min-height: 100vh;
+      }
+
+      .doc-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+      }
+
+      .doc-header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        padding: 40px;
+        border-bottom: 4px solid #d4af37;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .logo-container img {
+        height: 60px;
+        margin-right: 20px;
+      }
+
+      .doc-header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .doc-header .subtitle {
+        font-size: 16px;
+        color: #d4af37;
+      }
+
+      .back-link {
+        display: inline-block;
+        color: #d4af37;
+        text-decoration: none;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      .doc-content {
+        padding: 40px;
+        line-height: 1.8;
+      }
+
+      h2 {
+        color: #1a1a1a;
+        font-size: 26px;
+        margin: 40px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #d4af37;
+      }
+
+      h3 {
+        color: #333;
+        font-size: 20px;
+        margin: 30px 0 15px 0;
+      }
+
+      p {
+        margin-bottom: 15px;
+        color: #555;
+      }
+
+      .var-section {
+        background: #f8f9fa;
+        border-left: 4px solid #d4af37;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .var-name {
+        font-family: 'Courier New', monospace;
+        background: #1e293b;
+        color: #10b981;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .var-value {
+        font-family: 'Courier New', monospace;
+        background: #1e293b;
+        color: #f59e0b;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .required-badge {
+        display: inline-block;
+        background: #dc2626;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+
+      .optional-badge {
+        display: inline-block;
+        background: #6b7280;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+
+      .info-box {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 16px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      table th {
+        background: #d4af37;
+        color: white;
+        padding: 14px;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+
+      table tr:hover {
+        background: #f9fafb;
+      }
+
+      .footer {
+        background: #1a1a1a;
+        color: white;
+        padding: 30px 40px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc-wrapper">
+      <!-- Header -->
+      <div class="doc-header">
+        <div class="logo-container">
+          <img src="../images/JT logo.png" alt="JT Navigator Logo" />
+          <div>
+            <h1>Environment Variables Reference</h1>
+            <p class="subtitle">Complete configuration guide for Render deployment</p>
+          </div>
+        </div>
+        <a href="index.html" class="back-link">← Back to Documentation</a>
+      </div>
+
+      <!-- Content -->
+      <div class="doc-content">
+        <div class="info-box">
+          <strong>📍 Where to Set These:</strong> Render Dashboard → Your Service → Environment Tab
+          → Add Environment Variable
+        </div>
+
+        <h2>🔧 Server Configuration</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">NODE_ENV</span> <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">production</span></p>
+          <p>
+            <strong>Description:</strong> Sets the application environment mode. Must be
+            "production" for Render deployment.
+          </p>
+        </div>
+
+        <div class="var-section">
+          <h3><span class="var-name">PORT</span> <span class="required-badge">REQUIRED</span></h3>
+          <p><strong>Value:</strong> <span class="var-value">3000</span></p>
+          <p>
+            <strong>Description:</strong> Port number for the server. Render automatically sets
+            this, but 3000 is the default.
+          </p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">FRONTEND_URL</span> <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">https://jesus-travel.site</span></p>
+          <p><strong>Description:</strong> Your frontend website URL for CORS configuration.</p>
+        </div>
+
+        <h2>💾 Database Configuration (Upstash Redis)</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_REDIS_REST_URL</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p>
+            <strong>Example:</strong>
+            <span class="var-value">https://light-pika-5042.upstash.io</span>
+          </p>
+          <p>
+            <strong>Description:</strong> Upstash Redis REST API URL. Get this from your Upstash
+            dashboard.
+          </p>
+          <p><strong>How to get:</strong></p>
+          <ol>
+            <li>
+              Go to <a href="https://console.upstash.com" target="_blank">console.upstash.com</a>
+            </li>
+            <li>Select your Redis database</li>
+            <li>Copy the "REST URL" from the dashboard</li>
+          </ol>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_REDIS_REST_TOKEN</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">AYQxASQgNTk...</span></p>
+          <p><strong>Description:</strong> Upstash Redis authentication token.</p>
+          <p>
+            <strong>How to get:</strong> Same location as REST URL in Upstash dashboard - copy "REST
+            TOKEN"
+          </p>
+        </div>
+
+        <h2>🤖 AI Services (Upstash Vector)</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_VECTOR_REST_URL</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p>
+            <strong>Example:</strong>
+            <span class="var-value">https://next-tuna-49434-eu1-vector.upstash.io</span>
+          </p>
+          <p>
+            <strong>Description:</strong> Upstash Vector database for AI embeddings and semantic
+            search.
+          </p>
+          <p><strong>How to get:</strong></p>
+          <ol>
+            <li>Go to Upstash console</li>
+            <li>Create a Vector database</li>
+            <li>Copy the REST URL</li>
+          </ol>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_VECTOR_REST_TOKEN</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">AbQxASQgN...</span></p>
+          <p><strong>Description:</strong> Authentication token for Upstash Vector.</p>
+        </div>
+
+        <h2>🔍 Search Configuration (Upstash Search)</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_SEARCH_REST_URL</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p>
+            <strong>Example:</strong>
+            <span class="var-value">https://live-wildcat-28816-eu1-search.upstash.io</span>
+          </p>
+          <p><strong>Description:</strong> Upstash Search for semantic enquiry search.</p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">UPSTASH_SEARCH_REST_TOKEN</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">AcQxASQgN...</span></p>
+          <p><strong>Description:</strong> Authentication token for Upstash Search.</p>
+        </div>
+
+        <h2>🧠 OpenRouter AI</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">OPENROUTER_API_KEY</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">sk-or-v1-abc123...</span></p>
+          <p><strong>Description:</strong> OpenRouter API key for AI-powered responses.</p>
+          <p><strong>How to get:</strong></p>
+          <ol>
+            <li>Go to <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></li>
+            <li>Sign up / Log in</li>
+            <li>Go to Keys section</li>
+            <li>Create new API key</li>
+          </ol>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">OPENROUTER_MODEL</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p>
+            <strong>Default:</strong> <span class="var-value">anthropic/claude-3.5-sonnet</span>
+          </p>
+          <p>
+            <strong>Description:</strong> AI model to use. Defaults to Claude 3.5 Sonnet if not
+            specified.
+          </p>
+        </div>
+
+        <h2>📱 WhatsApp Configuration (Green API)</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">GREEN_API_INSTANCE_ID</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">7103123456</span></p>
+          <p><strong>Description:</strong> Your Green API WhatsApp instance ID.</p>
+          <p><strong>How to get:</strong></p>
+          <ol>
+            <li>Go to <a href="https://green-api.com" target="_blank">green-api.com</a></li>
+            <li>Sign up and create an instance</li>
+            <li>Copy the Instance ID from dashboard</li>
+            <li>Scan QR code to connect WhatsApp</li>
+          </ol>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">GREEN_API_TOKEN</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">abc123def456...</span></p>
+          <p><strong>Description:</strong> Green API authentication token for your instance.</p>
+          <p>
+            <strong>How to get:</strong> Found in the same location as Instance ID in Green API
+            dashboard
+          </p>
+        </div>
+
+        <h2>🔐 Admin Authentication</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">ADMIN_JWT_SECRET</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p>
+            <strong>Example:</strong>
+            <span class="var-value">your-super-secret-jwt-key-change-this</span>
+          </p>
+          <p>
+            <strong>Description:</strong> Secret key for signing JWT tokens. Must be a strong random
+            string.
+          </p>
+          <p><strong>How to generate:</strong></p>
+          <div class="code-block">openssl rand -base64 32</div>
+          <p>Run this command in terminal to generate a secure random key.</p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">ADMIN_DEFAULT_EMAIL</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">admin@jesus-travel.com</span></p>
+          <p><strong>Description:</strong> Default admin email for login.</p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">ADMIN_DEFAULT_PASSWORD</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">JesusWayne6667</span></p>
+          <p>
+            <strong>Description:</strong> Default admin password. Change this to something secure!
+          </p>
+          <div class="warning-box">
+            <strong>⚠️ Security Warning:</strong> Change the default password immediately after
+            first login!
+          </div>
+        </div>
+
+        <h2>🏢 Business Configuration</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">BUSINESS_NAME</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">JT Chauffeur Services</span></p>
+          <p>
+            <strong>Description:</strong> Your business name displayed in messages and
+            notifications.
+          </p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">BUSINESS_PHONE</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">+447700900000</span></p>
+          <p><strong>Description:</strong> Main business phone number (include country code).</p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">BUSINESS_EMAIL</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">bookings@jtchauffeur.com</span></p>
+          <p><strong>Description:</strong> Main business email for bookings and enquiries.</p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">BUSINESS_WHATSAPP</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">+447700900000</span></p>
+          <p>
+            <strong>Description:</strong> Business WhatsApp number (must match Green API instance).
+          </p>
+        </div>
+
+        <h2>💰 Pricing Team Configuration</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">PRICING_TEAM_PHONE</span>
+            <span class="required-badge">REQUIRED</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">+447700900001</span></p>
+          <p><strong>Description:</strong> WhatsApp number for pricing team to submit quotes.</p>
+          <div class="info-box">
+            <strong>💡 Important:</strong> This number must match exactly (including country code)
+            for quote submissions via WhatsApp to work.
+          </div>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">PRICING_TEAM_EMAIL</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Value:</strong> <span class="var-value">pricing@jtchauffeur.com</span></p>
+          <p><strong>Description:</strong> Email for pricing team notifications.</p>
+        </div>
+
+        <h2>📊 Optional Services</h2>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">DEEPGRAM_API_KEY</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">your-deepgram-api-key</span></p>
+          <p>
+            <strong>Description:</strong> Deepgram API key for voice-to-text features (future use).
+          </p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">ELEVENLABS_API_KEY</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">sk_your-elevenlabs-api-key</span></p>
+          <p>
+            <strong>Description:</strong> ElevenLabs API key for text-to-voice features (future
+            use).
+          </p>
+        </div>
+
+        <div class="var-section">
+          <h3>
+            <span class="var-name">ELEVENLABS_VOICE_ID</span>
+            <span class="optional-badge">OPTIONAL</span>
+          </h3>
+          <p><strong>Example:</strong> <span class="var-value">your-voice-id</span></p>
+          <p><strong>Description:</strong> ElevenLabs voice ID for text-to-speech.</p>
+        </div>
+
+        <h2>📝 Quick Setup Checklist</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Required?</th>
+              <th>Where to Get</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="var-name">NODE_ENV</span></td>
+              <td>✅ Required</td>
+              <td>Set to "production"</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">UPSTASH_REDIS_REST_URL</span></td>
+              <td>✅ Required</td>
+              <td>console.upstash.com</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">UPSTASH_REDIS_REST_TOKEN</span></td>
+              <td>✅ Required</td>
+              <td>console.upstash.com</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">OPENROUTER_API_KEY</span></td>
+              <td>✅ Required</td>
+              <td>openrouter.ai</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">GREEN_API_INSTANCE_ID</span></td>
+              <td>✅ Required</td>
+              <td>green-api.com</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">GREEN_API_TOKEN</span></td>
+              <td>✅ Required</td>
+              <td>green-api.com</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">ADMIN_JWT_SECRET</span></td>
+              <td>✅ Required</td>
+              <td>Generate with openssl</td>
+            </tr>
+            <tr>
+              <td><span class="var-name">PRICING_TEAM_PHONE</span></td>
+              <td>✅ Required</td>
+              <td>Your pricing team WhatsApp</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warning-box">
+          <strong>⚠️ Security Best Practices:</strong>
+          <ul>
+            <li>Never commit .env files to Git</li>
+            <li>Use strong, unique passwords</li>
+            <li>Rotate API keys regularly</li>
+            <li>Keep tokens secure and private</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p><strong>JT Navigator</strong> - Professional Chauffeur Services</p>
+        <p>© 2025 JT Chauffeur Services. All rights reserved.</p>
+        <p>
+          <a href="index.html">← Back to Documentation</a> |
+          <a href="../admin-dashboard.html">Admin Dashboard</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
