@@ -24,6 +24,15 @@ class Enquiry {
     this.quoteBreakdown = data.quoteBreakdown || null;
     this.quoteValidUntil = data.quoteValidUntil || null;
     this.source = data.source || 'whatsapp'; // whatsapp, web, phone
+    // Partner forwarding fields
+    this.forwardedToPartner = data.forwardedToPartner || false;
+    this.partnerName = data.partnerName || null;
+    this.partnerCommissionRate = data.partnerCommissionRate || null; // Percentage (e.g., 15 for 15%)
+    this.partnerCommissionAmount = data.partnerCommissionAmount || null; // Calculated amount
+    this.forwardedAt = data.forwardedAt || null;
+    this.forwardedBy = data.forwardedBy || null;
+    this.partnerBookingReference = data.partnerBookingReference || null;
+    this.partnerNotes = data.partnerNotes || null;
     this.conversationHistory = data.conversationHistory || [];
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = data.updatedAt || new Date().toISOString();

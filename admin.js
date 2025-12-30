@@ -151,7 +151,7 @@ function renderEnquiries() {
         ${getSourceBadge(enquiry.source)}
       </td>
       <td class="px-6 py-4">
-        <div class="flex space-x-2">
+        <div class="flex space-x-2 flex-wrap gap-1">
           <button onclick="viewEnquiry('${
             enquiry.id
           }')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm font-semibold transition-colors">
@@ -164,6 +164,16 @@ function renderEnquiries() {
                   '&#39;'
                 )})' class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded text-sm font-semibold transition-colors">
             Quote
+          </button>`
+              : ''
+          }
+          ${
+            !enquiry.forwardedToPartner && enquiry.status !== 'cancelled'
+              ? `<button onclick='openForwardModal(${JSON.stringify(enquiry).replace(
+                  /'/g,
+                  '&#39;'
+                )})' class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm font-semibold transition-colors">
+            → Partner
           </button>`
               : ''
           }
@@ -395,6 +405,8 @@ function getStatusBadge(status, quotedPrice) {
       : '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span>',
     confirmed:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-900 text-green-300">Confirmed</span>',
+    forwarded:
+      '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-900 text-orange-300">→ Forwarded</span>',
     cancelled:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-900 text-red-300">Cancelled</span>',
   };
@@ -585,5 +597,209 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
   } catch (error) {
     console.error('Error deleting enquiry:', error);
     alert(`❌ Network error: ${error.message}`);
+  }
+}
+
+// Partner forwarding functions
+let currentForwardEnquiry = null;
+
+function openForwardModal(enquiry) {
+  currentForwardEnquiry = enquiry;
+
+  const modal = document.createElement('div');
+  modal.id = 'forwardModal';
+  modal.className =
+    'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+  modal.innerHTML = `
+    <div class="bg-gray-900 rounded-lg max-w-2xl w-full border border-gray-800">
+      <div class="bg-gray-800 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+        <h2 class="text-2xl font-serif text-yellow-500">Forward to Partner</h2>
+        <button onclick="closeForwardModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <!-- Enquiry Details -->
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <h3 class="text-lg font-semibold text-yellow-500 mb-2">Booking Details</h3>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div><span class="text-gray-400">Reference:</span> <span class="font-mono text-yellow-500">${
+              enquiry.referenceNumber
+            }</span></div>
+            <div><span class="text-gray-400">Customer:</span> ${escapeHtml(
+              enquiry.customerName
+            )}</div>
+            <div class="col-span-2"><span class="text-gray-400">Route:</span> ${escapeHtml(
+              enquiry.pickupLocation
+            )} → ${escapeHtml(enquiry.dropoffLocation)}</div>
+            <div><span class="text-gray-400">Date:</span> ${enquiry.pickupDate}</div>
+            <div><span class="text-gray-400">Time:</span> ${enquiry.pickupTime}</div>
+            <div><span class="text-gray-400">Vehicle:</span> ${escapeHtml(
+              enquiry.vehicleType
+            )}</div>
+            <div><span class="text-gray-400">Passengers:</span> ${enquiry.passengers}</div>
+            ${
+              enquiry.quotedPrice
+                ? `<div class="col-span-2"><span class="text-gray-400">Quoted Price:</span> <span class="text-xl font-bold text-green-400">£${enquiry.quotedPrice}</span></div>`
+                : ''
+            }
+          </div>
+        </div>
+
+        <!-- Partner Selection Form -->
+        <form id="forwardForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Partner Name *</label>
+            <select id="partnerName" required class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-yellow-500 focus:outline-none">
+              <option value="">Select Partner...</option>
+              <option value="Addison Lee">Addison Lee</option>
+              <option value="Uber">Uber</option>
+              <option value="Bolt">Bolt</option>
+              <option value="Local Operator">Local Operator</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Commission Rate (%)</label>
+            <input type="number" id="commissionRate" min="0" max="100" step="0.1" placeholder="e.g., 15" class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-yellow-500 focus:outline-none" />
+            ${
+              enquiry.quotedPrice
+                ? `<div class="text-sm text-gray-400 mt-1">Commission will be calculated from quoted price: £${enquiry.quotedPrice}</div>`
+                : ''
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Partner Booking Reference</label>
+            <input type="text" id="bookingReference" placeholder="Partner's booking reference number" class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-yellow-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-300 mb-2">Notes</label>
+            <textarea id="partnerNotes" rows="3" placeholder="Any additional notes..." class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-yellow-500 focus:outline-none"></textarea>
+          </div>
+
+          <div id="forwardError" class="hidden bg-red-900/30 border border-red-700 rounded p-3 text-red-300 text-sm"></div>
+          <div id="forwardSuccess" class="hidden bg-green-900/30 border border-green-700 rounded p-3 text-green-300 text-sm"></div>
+
+          <div class="flex space-x-3">
+            <button type="submit" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded transition-colors">
+              → Forward to Partner
+            </button>
+            <button type="button" onclick="closeForwardModal()" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded transition-colors">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Handle form submission
+  document.getElementById('forwardForm').addEventListener('submit', submitForward);
+}
+
+function closeForwardModal() {
+  const modal = document.getElementById('forwardModal');
+  if (modal) {
+    modal.remove();
+  }
+  currentForwardEnquiry = null;
+}
+
+async function submitForward(e) {
+  e.preventDefault();
+
+  const partnerName = document.getElementById('partnerName').value;
+  const commissionRate = document.getElementById('commissionRate').value;
+  const bookingReference = document.getElementById('bookingReference').value;
+  const notes = document.getElementById('partnerNotes').value;
+
+  const errorEl = document.getElementById('forwardError');
+  const successEl = document.getElementById('forwardSuccess');
+
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+
+  try {
+    const response = await fetch(
+      `${API_URL}/enquiries/${currentForwardEnquiry.id}/forward-to-partner`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          partnerName,
+          commissionRate: commissionRate ? parseFloat(commissionRate) : null,
+          bookingReference: bookingReference || null,
+          notes: notes || null,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      // Show export data
+      const exportData = data.data.exportData;
+      const exportText = `
+BOOKING EXPORT FOR ${partnerName.toUpperCase()}
+${'='.repeat(50)}
+
+Reference: ${exportData.referenceNumber}
+Customer: ${exportData.customerName}
+Phone: ${exportData.customerPhone}
+Email: ${exportData.customerEmail || 'N/A'}
+
+JOURNEY DETAILS:
+Pickup: ${exportData.pickupLocation}
+Dropoff: ${exportData.dropoffLocation}
+Date: ${exportData.pickupDate}
+Time: ${exportData.pickupTime}
+
+VEHICLE & PASSENGERS:
+Vehicle Type: ${exportData.vehicleType}
+Passengers: ${exportData.passengers}
+Special Requests: ${exportData.specialRequests || 'None'}
+
+PRICING:
+Quoted Price: £${exportData.quotedPrice || 'N/A'}
+${exportData.commissionRate ? `Commission Rate: ${exportData.commissionRate}%` : ''}
+${
+  exportData.commissionAmount ? `Commission Amount: £${exportData.commissionAmount.toFixed(2)}` : ''
+}
+      `.trim();
+
+      successEl.innerHTML = `
+        ✅ Booking forwarded to ${partnerName} successfully!<br><br>
+        <textarea readonly class="w-full bg-gray-800 text-white p-3 rounded mt-2 text-sm font-mono" rows="20">${exportText}</textarea>
+        <button onclick="navigator.clipboard.writeText(\`${exportText.replace(
+          /`/g,
+          '\\`'
+        )}\`).then(() => alert('Booking details copied!'))"
+                class="mt-2 w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded">
+          📋 Copy Booking Details
+        </button>
+        <button onclick="closeForwardModal(); loadEnquiries();"
+                class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
+          ✓ Done
+        </button>
+      `;
+      successEl.classList.remove('hidden');
+
+      // Hide form
+      document.getElementById('forwardForm').querySelector('button[type="submit"]').disabled = true;
+    } else {
+      errorEl.textContent = data.error?.message || 'Failed to forward booking';
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error forwarding to partner:', error);
+    errorEl.textContent = `Network error: ${error.message}`;
+    errorEl.classList.remove('hidden');
   }
 }

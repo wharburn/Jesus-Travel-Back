@@ -286,6 +286,78 @@ export const rejectQuote = async (req, res, next) => {
   }
 };
 
+export const forwardToPartner = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { partnerName, commissionRate, bookingReference, notes } = req.body;
+
+    const enquiry = await Enquiry.findById(id);
+    if (!enquiry) {
+      return res.status(404).json(errorResponse('NOT_FOUND', 'Enquiry not found'));
+    }
+
+    if (enquiry.forwardedToPartner) {
+      return res
+        .status(400)
+        .json(errorResponse('ALREADY_FORWARDED', 'Enquiry already forwarded to a partner'));
+    }
+
+    // Calculate commission amount if price is available
+    let commissionAmount = null;
+    if (enquiry.quotedPrice && commissionRate) {
+      commissionAmount = (enquiry.quotedPrice * commissionRate) / 100;
+    }
+
+    // Update enquiry with partner forwarding details
+    await enquiry.update({
+      forwardedToPartner: true,
+      partnerName,
+      partnerCommissionRate: commissionRate || null,
+      partnerCommissionAmount: commissionAmount,
+      partnerBookingReference: bookingReference || null,
+      partnerNotes: notes || null,
+      forwardedAt: new Date().toISOString(),
+      forwardedBy: req.user.id,
+      status: 'forwarded', // New status for forwarded bookings
+    });
+
+    logger.info(
+      `Enquiry ${enquiry.referenceNumber} forwarded to ${partnerName} by ${req.user.email}`
+    );
+
+    // Generate booking export data for partner
+    const exportData = {
+      referenceNumber: enquiry.referenceNumber,
+      customerName: enquiry.customerName,
+      customerPhone: enquiry.customerPhone,
+      customerEmail: enquiry.customerEmail,
+      pickupLocation: enquiry.pickupLocation,
+      dropoffLocation: enquiry.dropoffLocation,
+      pickupDate: enquiry.pickupDate,
+      pickupTime: enquiry.pickupTime,
+      passengers: enquiry.passengers,
+      vehicleType: enquiry.vehicleType,
+      specialRequests: enquiry.specialRequests,
+      quotedPrice: enquiry.quotedPrice,
+      commissionRate: commissionRate,
+      commissionAmount: commissionAmount,
+    };
+
+    res.json(
+      successResponse(
+        {
+          enquiry: enquiry.toJSON(),
+          exportData,
+        },
+        'Enquiry forwarded to partner successfully'
+      )
+    );
+  } catch (error) {
+    logger.error('Error forwarding to partner:', error);
+    next(error);
+  }
+};
+
 // Delete single enquiry (admin only)
 export const deleteEnquiry = async (req, res, next) => {
   try {

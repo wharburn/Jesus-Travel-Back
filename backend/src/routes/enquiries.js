@@ -37,10 +37,27 @@ const submitQuoteValidation = [
   body('notes').optional().trim(),
 ];
 
+const forwardToPartnerValidation = [
+  body('partnerName').trim().notEmpty().withMessage('Partner name is required'),
+  body('commissionRate')
+    .optional()
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('Commission rate must be between 0 and 100'),
+  body('bookingReference').optional().trim(),
+  body('notes').optional().trim(),
+];
+
 // Admin routes (require authentication) - Must be before /:id routes
 router.delete('/clear-all', authenticate, clearAllEnquiries);
 router.get('/', authenticate, getEnquiries);
 router.put('/:id/quote', authenticate, submitQuoteValidation, validate, submitQuote);
+router.put(
+  '/:id/forward-to-partner',
+  authenticate,
+  forwardToPartnerValidation,
+  validate,
+  forwardToPartner
+);
 router.post('/:id/resend-quote', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
