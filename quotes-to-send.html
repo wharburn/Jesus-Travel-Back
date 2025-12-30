@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quotes to Send - JT Chauffeur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">📤 Quotes Ready to Send</h1>
+      <p class="text-gray-400 mb-8">Copy these messages and send them to customers via WhatsApp</p>
+
+      <div id="loading" class="text-center py-12">
+        <div class="text-yellow-500 text-xl">⏳ Loading quotes...</div>
+      </div>
+
+      <div id="quotesContainer" class="space-y-6 hidden"></div>
+
+      <div id="error" class="hidden bg-red-900 border border-red-500 rounded p-4 mb-6"></div>
+    </div>
+
+    <script>
+      const API_BASE_URL = 'https://jesus-travel-back.onrender.com/api';
+
+      async function loadQuotes() {
+        const loading = document.getElementById('loading');
+        const container = document.getElementById('quotesContainer');
+        const errorDiv = document.getElementById('error');
+
+        try {
+          const token = localStorage.getItem('adminToken');
+          if (!token) {
+            window.location.href = '/admin-dashboard.html';
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/enquiries`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error?.message || 'Failed to load enquiries');
+          }
+
+          // Filter only quoted enquiries
+          const quotedEnquiries = data.data.filter((e) => e.status === 'quoted');
+
+          loading.classList.add('hidden');
+
+          if (quotedEnquiries.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-center py-12">No quotes to send</p>';
+            container.classList.remove('hidden');
+            return;
+          }
+
+          // Display each quote
+          container.innerHTML = quotedEnquiries
+            .map((enquiry) => {
+              const quoteMessage = generateQuoteMessage(enquiry);
+              return `
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <div class="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 class="text-xl font-bold text-yellow-500">${enquiry.referenceNumber}</h3>
+                      <p class="text-gray-400">${enquiry.customerName}</p>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-2xl font-bold text-green-400">£${enquiry.quotedPrice}</div>
+                      <div class="text-sm text-gray-400">${new Date(enquiry.quotedAt).toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <div class="text-sm font-semibold mb-2">📞 Send to:</div>
+                    <div class="bg-gray-900 rounded p-3 font-mono text-green-400 text-lg">
+                      ${enquiry.customerPhone}
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <div class="text-sm font-semibold mb-2">💬 Message:</div>
+                    <textarea readonly class="w-full bg-gray-900 text-white p-4 rounded font-mono text-sm" rows="12">${quoteMessage}</textarea>
+                  </div>
+
+                  <button onclick="copyQuote('${enquiry.referenceNumber}', \`${quoteMessage.replace(/`/g, '\\`')}\`, '${enquiry.customerPhone}')" 
+                          class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded transition-colors">
+                    📋 Copy Message
+                  </button>
+                </div>
+              `;
+            })
+            .join('');
+
+          container.classList.remove('hidden');
+        } catch (error) {
+          console.error('Error loading quotes:', error);
+          loading.classList.add('hidden');
+          errorDiv.textContent = `❌ Error: ${error.message}`;
+          errorDiv.classList.remove('hidden');
+        }
+      }
+
+      function generateQuoteMessage(enquiry) {
+        const validUntil = new Date(enquiry.quoteValidUntil).toLocaleString('en-GB', {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        });
+
+        return `✅ Quote Ready - ${enquiry.referenceNumber}
+
+Dear ${enquiry.customerName},
+
+Thank you for your enquiry. Here's your quote:
+
+📍 From: ${enquiry.pickupLocation}
+📍 To: ${enquiry.dropoffLocation}
+📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}
+🚗 Vehicle: ${enquiry.vehicleType}
+👥 Passengers: ${enquiry.passengers}
+
+💰 Total Price: £${enquiry.quotedPrice}
+${enquiry.quoteBreakdown ? `\n📝 Notes: ${enquiry.quoteBreakdown}\n` : ''}
+This quote is valid until ${validUntil}
+
+Reply "YES" to confirm your booking or contact us for any questions.`;
+      }
+
+      function copyQuote(ref, message, phone) {
+        navigator.clipboard.writeText(message).then(() => {
+          alert(`✅ Quote ${ref} copied!\n\nNow send it to ${phone} via WhatsApp`);
+        });
+      }
+
+      // Load quotes on page load
+      loadQuotes();
+    </script>
+  </body>
+</html>
+
