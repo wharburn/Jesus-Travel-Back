@@ -2,9 +2,14 @@
 const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
 
 document.addEventListener('DOMContentLoaded', function () {
-  const bookingForm = document.getElementById('bookingForm');
-  const quoteResult = document.getElementById('quoteResult');
-  const bookingSummary = document.getElementById('bookingSummary');
+  const bookingForm = document.getElementById('booking-form');
+  const quoteResult = document.getElementById('quote-result');
+  const bookingSummary = document.getElementById('booking-summary');
+
+  // Exit if not on booking page
+  if (!bookingForm) {
+    return;
+  }
 
   bookingForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -12,16 +17,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Get form values
     const formData = {
       name: document.getElementById('clientName').value.trim(),
-      email: document.getElementById('clientEmail').value.trim(),
-      phone: document.getElementById('clientPhone').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
       passengers: document.getElementById('passengers').value,
-      date: document.getElementById('journeyDate').value,
-      time: document.getElementById('journeyTime').value,
-      pickup: document.getElementById('pickupLocation').value.trim(),
-      dropoff: document.getElementById('dropoffLocation').value.trim(),
-      flight: document.getElementById('flightNumber').value.trim(),
+      date: document.getElementById('date').value,
+      time: document.getElementById('time').value,
+      pickup: document.getElementById('pickup').value.trim(),
+      dropoff: document.getElementById('dropoff').value.trim(),
+      flight: document.getElementById('flight').value.trim(),
       vehicle: document.getElementById('vehicleType').value,
-      notes: document.getElementById('specialNotes').value.trim(),
+      notes: document.getElementById('notes').value.trim(),
     };
 
     // Validate required fields
