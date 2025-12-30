@@ -1,0 +1,174 @@
+// Booking Form Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingForm = document.getElementById('bookingForm');
+    const quoteResult = document.getElementById('quoteResult');
+    const bookingSummary = document.getElementById('bookingSummary');
+
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Get form values
+        const formData = {
+            name: document.getElementById('clientName').value.trim(),
+            email: document.getElementById('clientEmail').value.trim(),
+            phone: document.getElementById('clientPhone').value.trim(),
+            passengers: document.getElementById('passengers').value,
+            date: document.getElementById('journeyDate').value,
+            time: document.getElementById('journeyTime').value,
+            pickup: document.getElementById('pickupLocation').value.trim(),
+            dropoff: document.getElementById('dropoffLocation').value.trim(),
+            flight: document.getElementById('flightNumber').value.trim(),
+            vehicle: document.getElementById('vehicleType').value,
+            notes: document.getElementById('specialNotes').value.trim()
+        };
+
+        // Validate required fields
+        if (!formData.name || !formData.email || !formData.phone || !formData.date || 
+            !formData.time || !formData.pickup || !formData.dropoff || !formData.vehicle) {
+            alert(getTranslation('booking.validation.required'));
+            return;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            alert(getTranslation('booking.validation.email'));
+            return;
+        }
+
+        // Build booking summary
+        let summaryHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.name"></p>
+                        <p class="font-semibold">${escapeHtml(formData.name)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.email"></p>
+                        <p class="font-semibold">${escapeHtml(formData.email)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.phone"></p>
+                        <p class="font-semibold">${escapeHtml(formData.phone)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.passengers"></p>
+                        <p class="font-semibold">${formData.passengers}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.date"></p>
+                        <p class="font-semibold">${formatDate(formData.date)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.time"></p>
+                        <p class="font-semibold">${formData.time}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.pickup"></p>
+                        <p class="font-semibold">${escapeHtml(formData.pickup)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.dropoff"></p>
+                        <p class="font-semibold">${escapeHtml(formData.dropoff)}</p>
+                    </div>
+        `;
+
+        if (formData.flight) {
+            summaryHTML += `
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.flight"></p>
+                        <p class="font-semibold">${escapeHtml(formData.flight)}</p>
+                    </div>
+            `;
+        }
+
+        summaryHTML += `
+                    <div>
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.vehicle"></p>
+                        <p class="font-semibold" data-i18n="booking.vehicle.${formData.vehicle}"></p>
+                    </div>
+        `;
+
+        if (formData.notes) {
+            summaryHTML += `
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-600" data-i18n="booking.summary.notes"></p>
+                        <p class="font-semibold">${escapeHtml(formData.notes)}</p>
+                    </div>
+            `;
+        }
+
+        summaryHTML += `
+                </div>
+            </div>
+        `;
+
+        // Display summary
+        bookingSummary.innerHTML = summaryHTML;
+        
+        // Show result section
+        quoteResult.classList.remove('hidden');
+        
+        // Apply translations to new content
+        if (typeof updatePageLanguage === 'function') {
+            updatePageLanguage(localStorage.getItem('language') || 'en');
+        }
+
+        // Scroll to result
+        quoteResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Optional: Send to backend (uncomment when ready)
+        // sendBookingToBackend(formData);
+    });
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Helper function to format date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const lang = localStorage.getItem('language') || 'en';
+        return date.toLocaleDateString(lang, options);
+    }
+
+    // Helper function to get translation
+    function getTranslation(key) {
+        const lang = localStorage.getItem('language') || 'en';
+        const keys = key.split('.');
+        let value = window.translations[lang];
+        
+        for (const k of keys) {
+            if (value && typeof value === 'object') {
+                value = value[k];
+            } else {
+                return key;
+            }
+        }
+        
+        return value || key;
+    }
+
+    // Optional: Function to send booking data to backend
+    // function sendBookingToBackend(data) {
+    //     fetch('/api/bookings', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(data)
+    //     })
+    //     .then(response => response.json())
+    //     .then(result => {
+    //         console.log('Booking submitted:', result);
+    //     })
+    //     .catch(error => {
+    //         console.error('Error submitting booking:', error);
+    //     });
+    // }
+});

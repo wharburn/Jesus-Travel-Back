@@ -1,0 +1,47 @@
+<!-- Language Switcher Component -->
+<!-- Add this below the "Book Now" button in the header section of each HTML file -->
+
+<div class="absolute top-36 sm:top-40 md:top-44 right-4 sm:right-8 md:right-12 z-50">
+  <div class="relative">
+    <button id="language-toggle" class="flex items-center space-x-2 bg-transparent border-2 border-jt-gold text-jt-gold font-bold py-2 px-4 rounded hover:bg-jt-gold hover:text-black transition-all duration-300 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+      </svg>
+      <span id="current-language">English</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </button>
+    
+    <div id="language-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 border-2 border-jt-gold rounded-lg shadow-xl overflow-hidden">
+      <button data-lang="en" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇬🇧</span>
+        <span>English</span>
+      </button>
+      <button data-lang="es" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇪🇸</span>
+        <span>Español</span>
+      </button>
+      <button data-lang="fr" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇫🇷</span>
+        <span>Français</span>
+      </button>
+      <button data-lang="pt" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇵🇹</span>
+        <span>Português</span>
+      </button>
+      <button data-lang="zh" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇨🇳</span>
+        <span>中文</span>
+      </button>
+      <button data-lang="ja" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇯🇵</span>
+        <span>日本語</span>
+      </button>
+      <button data-lang="ar" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+        <span class="text-lg">🇸🇦</span>
+        <span>العربية</span>
+      </button>
+    </div>
+  </div>
+</div>
