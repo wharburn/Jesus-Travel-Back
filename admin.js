@@ -388,7 +388,10 @@ function getStatusBadge(status, quotedPrice) {
     pending_quote:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-900 text-blue-300">Pending Quote</span>',
     quoted: quotedPrice
-      ? `<div><span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span><div class="text-lg font-bold text-green-400 mt-1">£${quotedPrice}</div></div>`
+      ? `<div class="flex flex-col items-start gap-1">
+           <div class="text-xl font-bold text-green-400">£${quotedPrice}</div>
+           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span>
+         </div>`
       : '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-900 text-purple-300">Quoted</span>',
     confirmed:
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-900 text-green-300">Confirmed</span>',
