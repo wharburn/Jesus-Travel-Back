@@ -95,6 +95,11 @@ class Enquiry {
     try {
       const key = `enquiry:${id}`;
       const data = await redisClient.get(key);
+
+      logger.info(
+        `Raw data from Redis for ${id}: type=${typeof data}, value=${String(data).substring(0, 100)}`
+      );
+
       if (!data) return null;
 
       const parsed = JSON.parse(data);
