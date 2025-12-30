@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test WhatsApp - JT Chauffeur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-8">📱 WhatsApp Test</h1>
+
+      <!-- Test Send Message -->
+      <div class="bg-gray-800 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Send Test Message</h2>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Phone Number (with +)</label>
+          <input
+            type="text"
+            id="phoneNumber"
+            placeholder="+447304021303"
+            class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Message</label>
+          <textarea
+            id="message"
+            rows="4"
+            placeholder="Test message"
+            class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded text-white"
+          >Hello! This is a test message from JT Chauffeur Services.</textarea>
+        </div>
+
+        <button
+          id="sendBtn"
+          class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-bold"
+        >
+          📤 Send Test Message
+        </button>
+
+        <pre id="result" class="mt-4 bg-gray-900 p-4 rounded text-sm overflow-auto hidden"></pre>
+      </div>
+
+      <!-- Check Instance Status -->
+      <div class="bg-gray-800 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Green API Instance Status</h2>
+        
+        <button
+          id="statusBtn"
+          class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold"
+        >
+          🔍 Check Status
+        </button>
+
+        <pre id="statusResult" class="mt-4 bg-gray-900 p-4 rounded text-sm overflow-auto hidden"></pre>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
+
+      // Send test message
+      document.getElementById('sendBtn').addEventListener('click', async () => {
+        const resultEl = document.getElementById('result');
+        const phone = document.getElementById('phoneNumber').value;
+        const message = document.getElementById('message').value;
+
+        if (!phone || !message) {
+          alert('Please enter phone number and message');
+          return;
+        }
+
+        resultEl.textContent = 'Sending...';
+        resultEl.classList.remove('hidden');
+
+        try {
+          const token = localStorage.getItem('adminToken');
+          
+          if (!token) {
+            resultEl.textContent = '❌ No admin token found. Please login first.';
+            return;
+          }
+
+          // Create a test enquiry first
+          const createResponse = await fetch(`${API_URL}/enquiries`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customerName: 'Test Customer',
+              customerPhone: phone,
+              customerEmail: 'test@example.com',
+              pickupLocation: 'Test Pickup',
+              dropoffLocation: 'Test Dropoff',
+              pickupDate: '2025-01-15',
+              pickupTime: '14:00',
+              passengers: 2,
+              vehicleType: 'Saloon',
+              specialRequests: 'WhatsApp test',
+              source: 'web',
+            }),
+          });
+
+          const enquiryData = await createResponse.json();
+
+          if (!enquiryData.success) {
+            resultEl.textContent = `❌ Failed to create test enquiry:\n${JSON.stringify(enquiryData, null, 2)}`;
+            return;
+          }
+
+          const enquiryId = enquiryData.data.id;
+
+          // Submit quote (which should trigger WhatsApp send)
+          const quoteResponse = await fetch(`${API_URL}/enquiries/${enquiryId}/quote`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              price: 50,
+              notes: 'Test quote via WhatsApp test page',
+            }),
+          });
+
+          const quoteData = await quoteResponse.json();
+
+          resultEl.textContent = `✅ Quote submitted!\n\n${JSON.stringify(quoteData, null, 2)}\n\nCheck Render logs to see if WhatsApp message was sent.`;
+        } catch (error) {
+          resultEl.textContent = `❌ ERROR:\n${error.message}`;
+        }
+      });
+
+      // Check status
+      document.getElementById('statusBtn').addEventListener('click', async () => {
+        const resultEl = document.getElementById('statusResult');
+        resultEl.textContent = 'Checking status...';
+        resultEl.classList.remove('hidden');
+
+        resultEl.textContent = 'Status check not implemented yet.\n\nPlease check Render logs for WhatsApp configuration status.';
+      });
+    </script>
+  </body>
+</html>
+
