@@ -1,7 +1,7 @@
-import logger from '../../utils/logger.js';
-import { sendWhatsAppMessage } from './client.js';
-import { processWithAI } from '../ai/openrouter.js';
 import Enquiry from '../../models/Enquiry.js';
+import logger from '../../utils/logger.js';
+import { processWithAI } from '../ai/openrouter.js';
+import { sendWhatsAppMessage } from './client.js';
 
 /**
  * Process incoming WhatsApp message
@@ -9,12 +9,22 @@ import Enquiry from '../../models/Enquiry.js';
 export const processWhatsAppMessage = async (message) => {
   try {
     const { text, sender, senderName } = message;
-    
+
     logger.info(`Processing message from ${senderName} (${sender}): ${text}`);
 
     // Extract phone number from sender (remove @c.us)
     const phoneNumber = sender.replace('@c.us', '');
     const formattedPhone = `+${phoneNumber}`;
+
+    // Check if this is from the pricing team submitting a quote
+    const pricingTeamPhone = process.env.PRICING_TEAM_PHONE?.replace(/[+\s]/g, '');
+    if (pricingTeamPhone && phoneNumber === pricingTeamPhone) {
+      const quoteMatch = text.match(/QUOTE\s+(JT-\d{4}-\d{6})\s+£?(\d+(?:\.\d{2})?)/i);
+      if (quoteMatch) {
+        await handlePricingTeamQuote(quoteMatch[1], parseFloat(quoteMatch[2]), text);
+        return;
+      }
+    }
 
     // Check for simple commands first
     if (text.toLowerCase() === 'help') {
@@ -37,7 +47,7 @@ export const processWhatsAppMessage = async (message) => {
     // Process with AI for booking enquiries
     const aiResponse = await processWithAI(text, {
       customerPhone: formattedPhone,
-      customerName: senderName
+      customerName: senderName,
     });
 
     // Send AI response
@@ -51,7 +61,7 @@ export const processWhatsAppMessage = async (message) => {
         ...aiResponse.enquiryData,
         customerPhone: formattedPhone,
         customerName: senderName,
-        source: 'whatsapp'
+        source: 'whatsapp',
       };
 
       const enquiry = new Enquiry(enquiryData);
@@ -63,8 +73,8 @@ export const processWhatsAppMessage = async (message) => {
       await sendWhatsAppMessage(
         formattedPhone,
         `✅ Your booking request has been received!\n\n` +
-        `Reference: ${enquiry.referenceNumber}\n\n` +
-        `Our team will review your request and send you a quote shortly. Thank you!`
+          `Reference: ${enquiry.referenceNumber}\n\n` +
+          `Our team will review your request and send you a quote shortly. Thank you!`
       );
 
       // Notify pricing team
@@ -73,21 +83,26 @@ export const processWhatsAppMessage = async (message) => {
         await sendWhatsAppMessage(
           pricingTeamPhone,
           `🆕 New Booking Enquiry\n\n` +
-          `Ref: ${enquiry.referenceNumber}\n` +
-          `Customer: ${enquiry.customerName}\n` +
-          `From: ${enquiry.pickupLocation}\n` +
-          `To: ${enquiry.dropoffLocation}\n` +
-          `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
-          `Passengers: ${enquiry.passengers}\n` +
-          `Vehicle: ${enquiry.vehicleType}\n` +
-          `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
-          `\nPlease review and submit a quote.`
+            `Ref: ${enquiry.referenceNumber}\n` +
+            `Customer: ${enquiry.customerName}\n` +
+            `Phone: ${enquiry.customerPhone}\n` +
+            `From: ${enquiry.pickupLocation}\n` +
+            `To: ${enquiry.dropoffLocation}\n` +
+            `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+            `Passengers: ${enquiry.passengers}\n` +
+            `Vehicle: ${enquiry.vehicleType}\n` +
+            `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
+            `\n━━━━━━━━━━━━━━━━━━━━\n` +
+            `📝 To submit a quote, reply:\n` +
+            `QUOTE ${enquiry.referenceNumber} £150\n\n` +
+            `Or with notes:\n` +
+            `QUOTE ${enquiry.referenceNumber} £150 Includes meet & greet`
         );
       }
     }
   } catch (error) {
     logger.error('Error processing WhatsApp message:', error);
-    
+
     // Send error message to user
     try {
       const phoneNumber = message.sender.replace('@c.us', '');
@@ -102,7 +117,8 @@ export const processWhatsAppMessage = async (message) => {
 };
 
 const sendHelpMessage = async (phoneNumber) => {
-  const helpMessage = `🚗 JT Chauffeur Services - Help\n\n` +
+  const helpMessage =
+    `🚗 JT Chauffeur Services - Help\n\n` +
     `I can help you book a chauffeur service!\n\n` +
     `Just tell me:\n` +
     `• Where you need to be picked up\n` +
@@ -131,7 +147,91 @@ const handleQuoteRejection = async (phoneNumber) => {
   );
 };
 
-export default {
-  processWhatsAppMessage
+/**
+ * Handle quote submission from pricing team via WhatsApp
+ */
+const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
+  try {
+    logger.info(`Pricing team quote received for ${referenceNumber}: £${price}`);
+
+    // Find the enquiry by reference number
+    const enquiry = await Enquiry.findByReference(referenceNumber);
+
+    if (!enquiry) {
+      await sendWhatsAppMessage(
+        process.env.PRICING_TEAM_PHONE,
+        `❌ Error: Enquiry ${referenceNumber} not found. Please check the reference number.`
+      );
+      return;
+    }
+
+    if (enquiry.status !== 'pending_quote') {
+      await sendWhatsAppMessage(
+        process.env.PRICING_TEAM_PHONE,
+        `⚠️ Warning: Enquiry ${referenceNumber} already has status "${enquiry.status}". Quote not updated.`
+      );
+      return;
+    }
+
+    // Extract optional notes from the message (everything after the price)
+    const notesMatch = fullMessage.match(/QUOTE\s+JT-\d{4}-\d{6}\s+£?\d+(?:\.\d{2})?\s+(.+)/is);
+    const notes = notesMatch ? notesMatch[1].trim() : '';
+
+    // Calculate quote validity (48 hours from now)
+    const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+    // Update enquiry with quote
+    await enquiry.update({
+      status: 'quoted',
+      quotedPrice: price,
+      quotedBy: 'pricing-team',
+      quotedAt: new Date().toISOString(),
+      quoteBreakdown: notes || null,
+      quoteValidUntil,
+    });
+
+    logger.info(`Quote submitted for ${referenceNumber}: £${price}`);
+
+    // Confirm to pricing team
+    await sendWhatsAppMessage(
+      process.env.PRICING_TEAM_PHONE,
+      `✅ Quote submitted successfully!\n\n` +
+        `Ref: ${referenceNumber}\n` +
+        `Price: £${price}\n` +
+        `Customer: ${enquiry.customerName}\n\n` +
+        `The customer will receive the quote now.`
+    );
+
+    // Send quote to customer
+    const customerMessage =
+      `✅ Quote Ready - ${referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${price}\n` +
+      `${notes ? `\n📝 Notes: ${notes}\n` : ''}` +
+      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+
+    logger.info(`Quote sent to customer ${enquiry.customerPhone}`);
+  } catch (error) {
+    logger.error('Error handling pricing team quote:', error);
+    await sendWhatsAppMessage(
+      process.env.PRICING_TEAM_PHONE,
+      `❌ Error processing quote: ${error.message}`
+    );
+  }
 };
 
+export default {
+  processWhatsAppMessage,
+};

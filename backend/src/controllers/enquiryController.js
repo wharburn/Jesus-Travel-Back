@@ -35,13 +35,18 @@ export const createEnquiry = async (req, res, next) => {
           `🆕 New Booking Enquiry\n\n` +
           `Ref: ${enquiry.referenceNumber}\n` +
           `Customer: ${enquiry.customerName}\n` +
+          `Phone: ${enquiry.customerPhone}\n` +
           `From: ${enquiry.pickupLocation}\n` +
           `To: ${enquiry.dropoffLocation}\n` +
           `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
           `Passengers: ${enquiry.passengers}\n` +
           `Vehicle: ${enquiry.vehicleType}\n` +
           `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
-          `\nPlease review and submit a quote.`;
+          `\n━━━━━━━━━━━━━━━━━━━━\n` +
+          `📝 To submit a quote, reply:\n` +
+          `QUOTE ${enquiry.referenceNumber} £150\n\n` +
+          `Or with notes:\n` +
+          `QUOTE ${enquiry.referenceNumber} £150 Includes meet & greet`;
 
         await sendWhatsAppMessage(pricingTeamPhone, message);
       }
