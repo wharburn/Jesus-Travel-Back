@@ -53,7 +53,8 @@
           loading.classList.add('hidden');
 
           if (quotedEnquiries.length === 0) {
-            container.innerHTML = '<p class="text-gray-400 text-center py-12">No quotes to send</p>';
+            container.innerHTML =
+              '<p class="text-gray-400 text-center py-12">No quotes to send</p>';
             container.classList.remove('hidden');
             return;
           }
@@ -71,7 +72,9 @@
                     </div>
                     <div class="text-right">
                       <div class="text-2xl font-bold text-green-400">£${enquiry.quotedPrice}</div>
-                      <div class="text-sm text-gray-400">${new Date(enquiry.quotedAt).toLocaleString()}</div>
+                      <div class="text-sm text-gray-400">${new Date(
+                        enquiry.quotedAt
+                      ).toLocaleString()}</div>
                     </div>
                   </div>
 
@@ -87,10 +90,20 @@
                     <textarea readonly class="w-full bg-gray-900 text-white p-4 rounded font-mono text-sm" rows="12">${quoteMessage}</textarea>
                   </div>
 
-                  <button onclick="copyQuote('${enquiry.referenceNumber}', \`${quoteMessage.replace(/`/g, '\\`')}\`, '${enquiry.customerPhone}')" 
-                          class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded transition-colors">
-                    📋 Copy Message
-                  </button>
+                  <div class="grid grid-cols-2 gap-4">
+                    <button onclick="copyQuote('${
+                      enquiry.referenceNumber
+                    }', \`${quoteMessage.replace(/`/g, '\\`')}\`, '${enquiry.customerPhone}')"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded transition-colors">
+                      📋 Copy Message
+                    </button>
+                    <button onclick="sendQuoteNow('${enquiry.id}', '${enquiry.referenceNumber}', '${
+                enquiry.customerPhone
+              }')"
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded transition-colors">
+                      📤 Send via WhatsApp
+                    </button>
+                  </div>
                 </div>
               `;
             })
@@ -136,9 +149,36 @@ Reply "YES" to confirm your booking or contact us for any questions.`;
         });
       }
 
+      async function sendQuoteNow(enquiryId, ref, phone) {
+        if (!confirm(`Send quote ${ref} to ${phone} via WhatsApp?`)) {
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem('adminToken');
+          const response = await fetch(`${API_BASE_URL}/enquiries/${enquiryId}/resend-quote`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            alert(`✅ Quote ${ref} sent successfully to ${phone}!`);
+          } else {
+            alert(`❌ Failed to send quote: ${data.error?.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error('Error sending quote:', error);
+          alert(`❌ Network error: ${error.message}`);
+        }
+      }
+
       // Load quotes on page load
       loadQuotes();
     </script>
   </body>
 </html>
-

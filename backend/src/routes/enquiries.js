@@ -41,6 +41,60 @@ const submitQuoteValidation = [
 router.delete('/clear-all', authenticate, clearAllEnquiries);
 router.get('/', authenticate, getEnquiries);
 router.put('/:id/quote', authenticate, submitQuoteValidation, validate, submitQuote);
+router.post('/:id/resend-quote', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const Enquiry = (await import('../models/Enquiry.js')).default;
+    const { sendWhatsAppMessage } = await import('../services/whatsapp/client.js');
+    const logger = (await import('../utils/logger.js')).default;
+
+    const enquiry = await Enquiry.findById(id);
+
+    if (!enquiry) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Enquiry not found' },
+      });
+    }
+
+    if (enquiry.status !== 'quoted') {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATUS', message: 'Enquiry must have quoted status' },
+      });
+    }
+
+    const customerMessage =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${enquiry.quotedPrice}\n` +
+      `${enquiry.quoteBreakdown ? `\n📝 Notes: ${enquiry.quoteBreakdown}\n` : ''}` +
+      `\nThis quote is valid until ${new Date(enquiry.quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+    logger.info(`✅ Quote resent to ${enquiry.customerPhone} for ${enquiry.referenceNumber}`);
+
+    res.json({
+      success: true,
+      data: { message: 'Quote sent successfully', phone: enquiry.customerPhone },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: { code: 'SEND_ERROR', message: error.message },
+    });
+  }
+});
 router.delete('/:id', authenticate, deleteEnquiry);
 
 // Public routes
