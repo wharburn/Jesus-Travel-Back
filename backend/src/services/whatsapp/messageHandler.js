@@ -19,9 +19,19 @@ export const processWhatsAppMessage = async (message) => {
     // Check if this is from the pricing team submitting a quote
     const pricingTeamPhone = process.env.PRICING_TEAM_PHONE?.replace(/[+\s]/g, '');
     if (pricingTeamPhone && phoneNumber === pricingTeamPhone) {
-      const quoteMatch = text.match(/QUOTE\s+(JT-\d{4}-\d{6})\s+£?(\d+(?:\.\d{2})?)/i);
-      if (quoteMatch) {
-        await handlePricingTeamQuote(quoteMatch[1], parseFloat(quoteMatch[2]), text);
+      // Method 1: Full format with reference number
+      const fullQuoteMatch = text.match(/QUOTE\s+(JT-\d{4}-\d{6})\s+£?(\d+(?:\.\d{2})?)/i);
+      if (fullQuoteMatch) {
+        await handlePricingTeamQuote(fullQuoteMatch[1], parseFloat(fullQuoteMatch[2]), text);
+        return;
+      }
+
+      // Method 2: Simple price reply (just the number)
+      const simplePriceMatch = text.match(/^£?(\d+(?:\.\d{2})?)(?:\s+(.+))?$/);
+      if (simplePriceMatch) {
+        const price = parseFloat(simplePriceMatch[1]);
+        const notes = simplePriceMatch[2] || '';
+        await handleSimplePriceQuote(formattedPhone, price, notes);
         return;
       }
     }
@@ -149,7 +159,83 @@ const handleQuoteRejection = async (phoneNumber) => {
 };
 
 /**
- * Handle quote submission from pricing team via WhatsApp
+ * Handle simple price quote (just a number reply)
+ */
+const handleSimplePriceQuote = async (pricingTeamPhone, price, notes) => {
+  try {
+    logger.info(`Simple price quote received: £${price}`);
+
+    // Find the most recent pending_quote enquiry
+    const allEnquiries = await Enquiry.findAll();
+    const pendingEnquiries = allEnquiries
+      .filter((e) => e.status === 'pending_quote')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (pendingEnquiries.length === 0) {
+      await sendWhatsAppMessage(
+        pricingTeamPhone,
+        `❌ No pending enquiries found.\n\nPlease use the full format:\nQUOTE JT-2025-XXXXXX £${price}`
+      );
+      return;
+    }
+
+    const enquiry = pendingEnquiries[0];
+
+    // Calculate quote validity (48 hours from now)
+    const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+    // Update enquiry with quote
+    await enquiry.update({
+      status: 'quoted',
+      quotedPrice: price,
+      quotedBy: 'pricing-team',
+      quotedAt: new Date().toISOString(),
+      quoteBreakdown: notes || null,
+      quoteValidUntil,
+    });
+
+    logger.info(`Quote submitted for ${enquiry.referenceNumber}: £${price}`);
+
+    // Confirm to pricing team
+    await sendWhatsAppMessage(
+      pricingTeamPhone,
+      `✅ Quote submitted successfully!\n\n` +
+        `Ref: ${enquiry.referenceNumber}\n` +
+        `Customer: ${enquiry.customerName}\n` +
+        `Price: £${price}\n` +
+        `${notes ? `Notes: ${notes}\n` : ''}` +
+        `\nThe customer will receive the quote now.`
+    );
+
+    // Send quote to customer
+    const customerMessage =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${price}\n` +
+      `${notes ? `\n📝 Notes: ${notes}\n` : ''}` +
+      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+
+    logger.info(`Quote sent to customer ${enquiry.customerPhone}`);
+  } catch (error) {
+    logger.error('Error handling simple price quote:', error);
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error processing quote: ${error.message}`);
+  }
+};
+
+/**
+ * Handle quote submission from pricing team via WhatsApp (full format)
  */
 const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
   try {
