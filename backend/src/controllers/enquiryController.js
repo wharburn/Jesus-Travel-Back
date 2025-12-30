@@ -5,6 +5,9 @@ import logger from '../utils/logger.js';
 
 export const createEnquiry = async (req, res, next) => {
   try {
+    // Log incoming request for debugging
+    logger.info('Received enquiry request:', JSON.stringify(req.body));
+
     const enquiryData = {
       customerName: req.body.customerName,
       customerPhone: req.body.customerPhone,
