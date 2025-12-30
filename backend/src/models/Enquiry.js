@@ -36,7 +36,7 @@ class Enquiry {
     const key = `enquiry:${this.id}`;
 
     // Save to Redis (primary storage)
-    await redisClient.set(key, JSON.stringify(this));
+    await redisClient.set(key, JSON.stringify(this.toJSON()));
 
     // Add to index for listing
     await redisClient.zadd('enquiries:all', {
@@ -177,6 +177,7 @@ class Enquiry {
       quoteBreakdown: this.quoteBreakdown,
       quoteValidUntil: this.quoteValidUntil,
       source: this.source,
+      conversationHistory: this.conversationHistory || [],
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

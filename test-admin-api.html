@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Admin API</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Admin API Test</h1>
+
+    <!-- Login Test -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">1. Test Login</h2>
+      <button id="testLogin" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+        Test Login
+      </button>
+      <pre id="loginResult" class="mt-4 bg-gray-900 p-4 rounded text-sm overflow-auto"></pre>
+    </div>
+
+    <!-- Get Enquiries Test -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">2. Test Get Enquiries</h2>
+      <button id="testEnquiries" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+        Get Enquiries
+      </button>
+      <pre id="enquiriesResult" class="mt-4 bg-gray-900 p-4 rounded text-sm overflow-auto"></pre>
+    </div>
+
+    <!-- Create Test Enquiry -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">3. Create Test Enquiry</h2>
+      <button id="testCreate" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">
+        Create Test Enquiry
+      </button>
+      <pre id="createResult" class="mt-4 bg-gray-900 p-4 rounded text-sm overflow-auto"></pre>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
+    let token = null;
+
+    // Test Login
+    document.getElementById('testLogin').addEventListener('click', async () => {
+      const resultEl = document.getElementById('loginResult');
+      resultEl.textContent = 'Testing login...';
+
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'admin@jtchauffeur.com',
+            password: 'ChangeThisPassword123!'
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.data.token) {
+          token = data.data.token;
+          localStorage.setItem('testToken', token);
+          resultEl.textContent = `✅ LOGIN SUCCESS!\n\nToken: ${token.substring(0, 50)}...\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultEl.textContent = `❌ LOGIN FAILED\n\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultEl.textContent = `❌ ERROR: ${error.message}`;
+      }
+    });
+
+    // Test Get Enquiries
+    document.getElementById('testEnquiries').addEventListener('click', async () => {
+      const resultEl = document.getElementById('enquiriesResult');
+      
+      // Try to get token from storage if not in memory
+      if (!token) {
+        token = localStorage.getItem('testToken');
+      }
+
+      if (!token) {
+        resultEl.textContent = '❌ No token! Please login first.';
+        return;
+      }
+
+      resultEl.textContent = 'Fetching enquiries...';
+
+      try {
+        const response = await fetch(`${API_URL}/enquiries?limit=100`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          const count = data.data.enquiries?.length || 0;
+          resultEl.textContent = `✅ SUCCESS! Found ${count} enquiries\n\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultEl.textContent = `❌ FAILED\n\nStatus: ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultEl.textContent = `❌ ERROR: ${error.message}`;
+      }
+    });
+
+    // Test Create Enquiry
+    document.getElementById('testCreate').addEventListener('click', async () => {
+      const resultEl = document.getElementById('createResult');
+      resultEl.textContent = 'Creating test enquiry...';
+
+      try {
+        const response = await fetch(`${API_URL}/enquiries`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: 'Test Customer',
+            customerPhone: '+447700123456',
+            customerEmail: 'test@example.com',
+            pickupLocation: 'Heathrow Airport',
+            dropoffLocation: 'London City',
+            pickupDate: '2025-01-15',
+            pickupTime: '14:00',
+            passengers: 2,
+            vehicleType: 'Saloon',
+            specialRequests: 'Test booking from API test page',
+            source: 'web'
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          resultEl.textContent = `✅ ENQUIRY CREATED!\n\nReference: ${data.data.referenceNumber}\n\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultEl.textContent = `❌ FAILED\n\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultEl.textContent = `❌ ERROR: ${error.message}`;
+      }
+    });
+
+    // Auto-load token on page load
+    window.addEventListener('load', () => {
+      token = localStorage.getItem('testToken');
+      if (token) {
+        document.getElementById('loginResult').textContent = `Token loaded from storage:\n${token.substring(0, 50)}...`;
+      }
+    });
+  </script>
+</body>
+</html>
+
