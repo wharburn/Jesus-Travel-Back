@@ -212,9 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Secret Admin Access - Hold logo for 5 seconds
-  const logo = document.querySelector(
-    'a[href="index.html"] img, a[href="/"] img, a[href="./"] img'
-  );
+  const logo = document.querySelector('img[src*="logo.png"]');
 
   if (logo) {
     let pressTimer;
