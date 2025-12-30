@@ -38,6 +38,13 @@ function setupEventListeners() {
   document.getElementById('cancelQuote').addEventListener('click', closeQuoteModal);
   document.getElementById('quoteForm').addEventListener('submit', submitQuote);
 
+  // Documentation dropdown toggle
+  document.getElementById('docsBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dropdown = document.getElementById('docsDropdown');
+    dropdown.classList.toggle('hidden');
+  });
+
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     const dropdown = document.getElementById('docsDropdown');
@@ -811,13 +818,4 @@ ${
     errorEl.textContent = `Network error: ${error.message}`;
     errorEl.classList.remove('hidden');
   }
-}
-
-// Documentation dropdown toggle
-function toggleDocsDropdown(event) {
-  if (event) {
-    event.stopPropagation();
-  }
-  const dropdown = document.getElementById('docsDropdown');
-  dropdown.classList.toggle('hidden');
 }
