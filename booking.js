@@ -1,43 +1,53 @@
 // Booking Form Handler
-document.addEventListener('DOMContentLoaded', function() {
-    const bookingForm = document.getElementById('bookingForm');
-    const quoteResult = document.getElementById('quoteResult');
-    const bookingSummary = document.getElementById('bookingSummary');
+const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
 
-    bookingForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+document.addEventListener('DOMContentLoaded', function () {
+  const bookingForm = document.getElementById('bookingForm');
+  const quoteResult = document.getElementById('quoteResult');
+  const bookingSummary = document.getElementById('bookingSummary');
 
-        // Get form values
-        const formData = {
-            name: document.getElementById('clientName').value.trim(),
-            email: document.getElementById('clientEmail').value.trim(),
-            phone: document.getElementById('clientPhone').value.trim(),
-            passengers: document.getElementById('passengers').value,
-            date: document.getElementById('journeyDate').value,
-            time: document.getElementById('journeyTime').value,
-            pickup: document.getElementById('pickupLocation').value.trim(),
-            dropoff: document.getElementById('dropoffLocation').value.trim(),
-            flight: document.getElementById('flightNumber').value.trim(),
-            vehicle: document.getElementById('vehicleType').value,
-            notes: document.getElementById('specialNotes').value.trim()
-        };
+  bookingForm.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-        // Validate required fields
-        if (!formData.name || !formData.email || !formData.phone || !formData.date || 
-            !formData.time || !formData.pickup || !formData.dropoff || !formData.vehicle) {
-            alert(getTranslation('booking.validation.required'));
-            return;
-        }
+    // Get form values
+    const formData = {
+      name: document.getElementById('clientName').value.trim(),
+      email: document.getElementById('clientEmail').value.trim(),
+      phone: document.getElementById('clientPhone').value.trim(),
+      passengers: document.getElementById('passengers').value,
+      date: document.getElementById('journeyDate').value,
+      time: document.getElementById('journeyTime').value,
+      pickup: document.getElementById('pickupLocation').value.trim(),
+      dropoff: document.getElementById('dropoffLocation').value.trim(),
+      flight: document.getElementById('flightNumber').value.trim(),
+      vehicle: document.getElementById('vehicleType').value,
+      notes: document.getElementById('specialNotes').value.trim(),
+    };
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            alert(getTranslation('booking.validation.email'));
-            return;
-        }
+    // Validate required fields
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.date ||
+      !formData.time ||
+      !formData.pickup ||
+      !formData.dropoff ||
+      !formData.vehicle
+    ) {
+      alert(getTranslation('booking.validation.required'));
+      return;
+    }
 
-        // Build booking summary
-        let summaryHTML = `
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert(getTranslation('booking.validation.email'));
+      return;
+    }
+
+    // Build booking summary
+    let summaryHTML = `
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -74,101 +84,131 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
         `;
 
-        if (formData.flight) {
-            summaryHTML += `
+    if (formData.flight) {
+      summaryHTML += `
                     <div>
                         <p class="text-sm text-gray-600" data-i18n="booking.summary.flight"></p>
                         <p class="font-semibold">${escapeHtml(formData.flight)}</p>
                     </div>
             `;
-        }
+    }
 
-        summaryHTML += `
+    summaryHTML += `
                     <div>
                         <p class="text-sm text-gray-600" data-i18n="booking.summary.vehicle"></p>
                         <p class="font-semibold" data-i18n="booking.vehicle.${formData.vehicle}"></p>
                     </div>
         `;
 
-        if (formData.notes) {
-            summaryHTML += `
+    if (formData.notes) {
+      summaryHTML += `
                     <div class="md:col-span-2">
                         <p class="text-sm text-gray-600" data-i18n="booking.summary.notes"></p>
                         <p class="font-semibold">${escapeHtml(formData.notes)}</p>
                     </div>
             `;
-        }
+    }
 
-        summaryHTML += `
+    summaryHTML += `
                 </div>
             </div>
         `;
 
-        // Display summary
-        bookingSummary.innerHTML = summaryHTML;
-        
-        // Show result section
-        quoteResult.classList.remove('hidden');
-        
-        // Apply translations to new content
-        if (typeof updatePageLanguage === 'function') {
-            updatePageLanguage(localStorage.getItem('language') || 'en');
-        }
+    // Display summary
+    bookingSummary.innerHTML = summaryHTML;
 
-        // Scroll to result
-        quoteResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Show result section
+    quoteResult.classList.remove('hidden');
 
-        // Optional: Send to backend (uncomment when ready)
-        // sendBookingToBackend(formData);
-    });
-
-    // Helper function to escape HTML
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    // Apply translations to new content
+    if (typeof updatePageLanguage === 'function') {
+      updatePageLanguage(localStorage.getItem('language') || 'en');
     }
 
-    // Helper function to format date
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const lang = localStorage.getItem('language') || 'en';
-        return date.toLocaleDateString(lang, options);
+    // Scroll to result
+    quoteResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Send to backend
+    sendBookingToBackend(formData);
+  });
+
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Helper function to format date
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const lang = localStorage.getItem('language') || 'en';
+    return date.toLocaleDateString(lang, options);
+  }
+
+  // Helper function to get translation
+  function getTranslation(key) {
+    const lang = localStorage.getItem('language') || 'en';
+    const keys = key.split('.');
+    let value = window.translations[lang];
+
+    for (const k of keys) {
+      if (value && typeof value === 'object') {
+        value = value[k];
+      } else {
+        return key;
+      }
     }
 
-    // Helper function to get translation
-    function getTranslation(key) {
-        const lang = localStorage.getItem('language') || 'en';
-        const keys = key.split('.');
-        let value = window.translations[lang];
-        
-        for (const k of keys) {
-            if (value && typeof value === 'object') {
-                value = value[k];
-            } else {
-                return key;
-            }
-        }
-        
-        return value || key;
-    }
+    return value || key;
+  }
 
-    // Optional: Function to send booking data to backend
-    // function sendBookingToBackend(data) {
-    //     fetch('/api/bookings', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(data)
-    //     })
-    //     .then(response => response.json())
-    //     .then(result => {
-    //         console.log('Booking submitted:', result);
-    //     })
-    //     .catch(error => {
-    //         console.error('Error submitting booking:', error);
-    //     });
-    // }
+  // Function to send booking data to backend
+  function sendBookingToBackend(data) {
+    // Show loading state
+    const submitButton = bookingForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending...';
+
+    fetch(`${API_URL}/enquiries`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customerName: data.name,
+        email: data.email,
+        phone: data.phone,
+        pickupLocation: data.pickup,
+        dropoffLocation: data.dropoff,
+        pickupDate: data.date,
+        pickupTime: data.time,
+        passengers: parseInt(data.passengers),
+        vehicleType: data.vehicle,
+        flightNumber: data.flight,
+        notes: data.notes,
+        tripType: 'Airport Transfer',
+        source: 'web',
+      }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log('Booking submitted successfully:', result);
+        // Show success message
+        alert('Booking request submitted successfully! We will contact you shortly.');
+        // Reset form
+        bookingForm.reset();
+      })
+      .catch((error) => {
+        console.error('Error submitting booking:', error);
+        alert('Failed to submit booking. Please try again or contact us directly.');
+      })
+      .finally(() => {
+        // Restore button state
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+      });
+  }
 });
