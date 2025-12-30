@@ -36,15 +36,15 @@ const submitQuoteValidation = [
   body('notes').optional().trim(),
 ];
 
+// Admin routes (require authentication) - Must be before /:id routes
+router.delete('/clear-all', authenticate, clearAllEnquiries);
+router.get('/', authenticate, getEnquiries);
+router.put('/:id/quote', authenticate, submitQuoteValidation, validate, submitQuote);
+
 // Public routes
 router.post('/', createEnquiryValidation, validate, createEnquiry);
 router.get('/:id', getEnquiryById);
 router.put('/:id/accept', acceptQuote);
 router.put('/:id/reject', rejectQuote);
-
-// Admin routes (require authentication)
-router.get('/', authenticate, getEnquiries);
-router.put('/:id/quote', authenticate, submitQuoteValidation, validate, submitQuote);
-router.delete('/clear-all', authenticate, clearAllEnquiries);
 
 export default router;
