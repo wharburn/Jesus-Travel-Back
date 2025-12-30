@@ -40,20 +40,31 @@ class Enquiry {
     this.updatedAt = new Date().toISOString();
     const key = `enquiry:${this.id}`;
 
+    logger.info(`Saving enquiry ${this.id} with reference ${this.referenceNumber}`);
+
+    // Convert to JSON and log for debugging
+    const jsonData = this.toJSON();
+    const jsonString = JSON.stringify(jsonData);
+    logger.info(
+      `JSON string length: ${jsonString.length}, first 200 chars: ${jsonString.substring(0, 200)}`
+    );
+
     // Save to Redis (primary storage)
-    await redisClient.set(key, JSON.stringify(this.toJSON()));
+    await redisClient.set(key, jsonString);
 
     // Add to index for listing
-    await redisClient.zadd('enquiries:all', {
+    const zaddResult1 = await redisClient.zadd('enquiries:all', {
       score: Date.now(),
       member: this.id,
     });
+    logger.info(`Added to enquiries:all sorted set, result: ${zaddResult1}`);
 
     // Add to status index
-    await redisClient.zadd(`enquiries:status:${this.status}`, {
+    const zaddResult2 = await redisClient.zadd(`enquiries:status:${this.status}`, {
       score: Date.now(),
       member: this.id,
     });
+    logger.info(`Added to enquiries:status:${this.status} sorted set, result: ${zaddResult2}`);
 
     // Add reference number mapping
     await redisClient.set(`enquiry:ref:${this.referenceNumber}`, this.id);
