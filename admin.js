@@ -561,9 +561,6 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
   try {
     const token = localStorage.getItem('adminToken');
 
-    console.log('Deleting enquiry:', enquiryId);
-    console.log('API URL:', `${API_URL}/enquiries/${enquiryId}`);
-
     const response = await fetch(`${API_URL}/enquiries/${enquiryId}`, {
       method: 'DELETE',
       headers: {
@@ -572,19 +569,18 @@ async function deleteEnquiry(enquiryId, referenceNumber) {
       },
     });
 
-    console.log('Delete response status:', response.status);
-
     const data = await response.json();
-    console.log('Delete response data:', data);
 
     if (response.ok && data.success) {
+      // Successfully deleted
+      await loadEnquiries(); // Reload the list first
       alert(`✅ Enquiry ${referenceNumber} deleted successfully`);
-      loadEnquiries(); // Reload the list
     } else {
+      // Failed to delete
       alert(`❌ Failed to delete enquiry: ${data.error?.message || 'Unknown error'}`);
     }
   } catch (error) {
     console.error('Error deleting enquiry:', error);
-    alert(`❌ Network error: ${error.message}\n\nCheck console for details.`);
+    alert(`❌ Network error: ${error.message}`);
   }
 }
