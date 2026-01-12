@@ -50,6 +50,27 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Root endpoint - Welcome message
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to JT Chauffeur Services API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      apiHealth: '/api/v1/health',
+      api: '/api/v1',
+      documentation: {
+        enquiries: '/api/v1/enquiries',
+        auth: '/api/v1/auth',
+        bookings: '/api/v1/bookings',
+        analytics: '/api/v1/analytics',
+      },
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Health check endpoint (no rate limit)
 app.get('/health', (req, res) => {
   res.status(200).json({
