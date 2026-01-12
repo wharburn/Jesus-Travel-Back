@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../config/redis.js';
-import { indexEnquiry } from '../services/searchService.js';
+import { indexEnquiry, removeEnquiryFromIndex } from '../services/searchService.js';
 import logger from '../utils/logger.js';
 
 // In-memory fallback storage for development when Redis is unavailable

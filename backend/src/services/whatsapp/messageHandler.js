@@ -1,5 +1,6 @@
 import Enquiry from '../../models/Enquiry.js';
 import logger from '../../utils/logger.js';
+import { getSetting } from '../../utils/settings.js';
 import { processWithAI } from '../ai/openrouter.js';
 import { sendWhatsAppMessage } from './client.js';
 
@@ -17,7 +18,10 @@ export const processWhatsAppMessage = async (message) => {
     const formattedPhone = `+${phoneNumber}`;
 
     // Check if this is from the pricing team submitting a quote
-    const pricingTeamPhone = process.env.PRICING_TEAM_PHONE?.replace(/[+\s]/g, '');
+    const pricingTeamPhoneFromSettings = await getSetting('pricingTeam.phone');
+    const pricingTeamPhone = (
+      pricingTeamPhoneFromSettings || process.env.PRICING_TEAM_PHONE
+    )?.replace(/[+\s]/g, '');
 
     logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     logger.info('🔍 PRICING TEAM CHECK');

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging Out...</title>
+</head>
+<body>
+  <h1>Logging out...</h1>
+  <script>
+    // Clear all admin data
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    
+    // Redirect to login page
+    setTimeout(() => {
+      window.location.href = 'admin.html';
+    }, 500);
+  </script>
+</body>
+</html>
+

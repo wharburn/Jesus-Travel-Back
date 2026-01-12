@@ -6,6 +6,7 @@ import driverRoutes from './drivers.js';
 import enquiryRoutes from './enquiries.js';
 import healthRoutes from './health.js';
 import searchRoutes from './search.js';
+import settingsRoutes from './settings.js';
 import vehicleRoutes from './vehicles.js';
 import webhookRoutes from './webhooks.js';
 
@@ -23,5 +24,6 @@ router.use('/drivers', driverRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/search', searchRoutes);
+router.use('/settings', settingsRoutes);
 
 export default router;
