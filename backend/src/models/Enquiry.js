@@ -3,6 +3,13 @@ import redisClient from '../config/redis.js';
 import { indexEnquiry } from '../services/searchService.js';
 import logger from '../utils/logger.js';
 
+// In-memory fallback storage for development when Redis is unavailable
+const inMemoryStorage = {
+  enquiries: new Map(),
+  refMap: new Map(),
+  statusIndex: new Map(),
+};
+
 class Enquiry {
   constructor(data) {
     this.id = data.id || uuidv4();
@@ -51,45 +58,61 @@ class Enquiry {
 
     logger.info(`Saving enquiry ${this.id} with reference ${this.referenceNumber}`);
 
-    // Convert to JSON object (Upstash Redis will handle serialization)
+    // Convert to JSON object
     const jsonData = this.toJSON();
 
-    // Save to Redis (primary storage) - Upstash automatically handles JSON serialization
-    await redisClient.set(key, jsonData);
+    try {
+      // Try to save to Redis (primary storage)
+      await redisClient.set(key, jsonData);
 
-    // Add to index for listing
-    const zaddResult1 = await redisClient.zadd('enquiries:all', {
-      score: Date.now(),
-      member: this.id,
-    });
-    logger.info(`Added to enquiries:all sorted set, result: ${zaddResult1}`);
+      // Add to index for listing
+      const zaddResult1 = await redisClient.zadd('enquiries:all', {
+        score: Date.now(),
+        member: this.id,
+      });
+      logger.info(`Added to enquiries:all sorted set, result: ${zaddResult1}`);
 
-    // Add to status index
-    const zaddResult2 = await redisClient.zadd(`enquiries:status:${this.status}`, {
-      score: Date.now(),
-      member: this.id,
-    });
-    logger.info(`Added to enquiries:status:${this.status} sorted set, result: ${zaddResult2}`);
+      // Add to status index
+      const zaddResult2 = await redisClient.zadd(`enquiries:status:${this.status}`, {
+        score: Date.now(),
+        member: this.id,
+      });
+      logger.info(`Added to enquiries:status:${this.status} sorted set, result: ${zaddResult2}`);
 
-    // Add reference number mapping
-    await redisClient.set(`enquiry:ref:${this.referenceNumber}`, this.id);
+      // Add reference number mapping
+      await redisClient.set(`enquiry:ref:${this.referenceNumber}`, this.id);
+    } catch (error) {
+      // Fallback to in-memory storage if Redis is unavailable
+      logger.warn(`Redis unavailable, using in-memory storage for enquiry ${this.id}`);
+      inMemoryStorage.enquiries.set(this.id, jsonData);
+      inMemoryStorage.refMap.set(this.referenceNumber, this.id);
 
-    // Index in Upstash Search for AI-powered search
-    await indexEnquiry({
-      id: this.id,
-      referenceNumber: this.referenceNumber,
-      customerName: this.customerName,
-      email: this.customerEmail,
-      phone: this.customerPhone,
-      pickupLocation: this.pickupLocation,
-      dropoffLocation: this.dropoffLocation,
-      tripType: `${this.pickupLocation} to ${this.dropoffLocation}`,
-      vehicleType: this.vehicleType,
-      status: this.status,
-      source: this.source,
-      notes: this.specialRequests,
-      createdAt: this.createdAt,
-    });
+      if (!inMemoryStorage.statusIndex.has(this.status)) {
+        inMemoryStorage.statusIndex.set(this.status, []);
+      }
+      inMemoryStorage.statusIndex.get(this.status).push(this.id);
+    }
+
+    // Try to index in Upstash Search (optional, don't fail if it doesn't work)
+    try {
+      await indexEnquiry({
+        id: this.id,
+        referenceNumber: this.referenceNumber,
+        customerName: this.customerName,
+        email: this.customerEmail,
+        phone: this.customerPhone,
+        pickupLocation: this.pickupLocation,
+        dropoffLocation: this.dropoffLocation,
+        tripType: `${this.pickupLocation} to ${this.dropoffLocation}`,
+        vehicleType: this.vehicleType,
+        status: this.status,
+        source: this.source,
+        notes: this.specialRequests,
+        createdAt: this.createdAt,
+      });
+    } catch (error) {
+      logger.warn(`Failed to index enquiry in search: ${error.message}`);
+    }
 
     logger.info(`Enquiry ${this.id} saved successfully`);
     return this;
@@ -148,7 +171,7 @@ class Enquiry {
   // Get all enquiries
   static async findAll(limit = 20, offset = 0) {
     try {
-      // Get IDs from sorted set (newest first)
+      // Try Redis first
       const ids = await redisClient.zrange('enquiries:all', offset, offset + limit - 1, {
         REV: true,
       });
@@ -163,8 +186,15 @@ class Enquiry {
 
       return enquiries.filter((e) => e !== null);
     } catch (error) {
-      logger.error('Error in findAll:', error);
-      return [];
+      logger.warn('Redis unavailable in findAll, using in-memory storage');
+
+      // Fallback to in-memory storage
+      const allEnquiries = Array.from(inMemoryStorage.enquiries.values())
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(offset, offset + limit)
+        .map((data) => new Enquiry(data));
+
+      return allEnquiries;
     }
   }
 
