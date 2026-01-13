@@ -590,19 +590,81 @@ function viewEnquiry(id) {
           </div>
         </div>
 
-        <!-- Distance, Duration & Price -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-gray-800 rounded-lg p-4">
-            <div class="text-sm text-gray-400">Distance</div>
-            <div id="routeDistance" class="text-2xl font-bold text-yellow-500">--</div>
+        ${
+          enquiry.aiEstimate
+            ? `
+        <!-- AI Estimate (from Backend) -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">🤖 AI Price Estimate</h3>
+          <div class="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-4 border border-blue-700/50">
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <div class="text-sm text-gray-400">AI Estimated Price</div>
+                <div class="text-2xl font-bold text-blue-400">£${
+                  enquiry.aiEstimate.totalPrice
+                }</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Distance</div>
+                <div class="text-2xl font-bold text-blue-400">${enquiry.aiEstimate.distance}</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Duration</div>
+                <div class="text-2xl font-bold text-blue-400">${enquiry.aiEstimate.duration}</div>
+              </div>
+            </div>
+            ${
+              enquiry.aiEstimate.breakdown
+                ? `
+            <div class="mt-3 pt-3 border-t border-blue-700/30">
+              <div class="text-sm text-gray-400 mb-1">Breakdown</div>
+              <div class="text-sm text-gray-300">${escapeHtml(enquiry.aiEstimate.breakdown)}</div>
+            </div>
+            `
+                : ''
+            }
+            <div class="mt-2 text-xs text-gray-500">
+              Calculated automatically when booking was created
+            </div>
           </div>
-          <div class="bg-gray-800 rounded-lg p-4">
-            <div class="text-sm text-gray-400">Estimated Duration</div>
-            <div id="routeDuration" class="text-2xl font-bold text-yellow-500">--</div>
+        </div>
+        `
+            : `
+        <!-- No AI Estimate Available -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">🤖 AI Price Estimate</h3>
+          <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-center text-gray-400 py-4">
+              <div class="text-3xl mb-2">⚠️</div>
+              <div class="font-semibold mb-1">AI Estimate Not Available</div>
+              <div class="text-sm text-gray-500">
+                This booking was created before AI estimates were enabled, or the Google Maps API key was not configured.
+              </div>
+            </div>
           </div>
-          <div class="bg-gray-800 rounded-lg p-4">
-            <div class="text-sm text-gray-400">Estimated Price</div>
-            <div id="estimatedPrice" class="text-2xl font-bold text-yellow-500">--</div>
+        </div>
+        `
+        }
+
+        <!-- Distance, Duration & Price (from Map) -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">📍 Route Information (Live from Map)</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-gray-800 rounded-lg p-4">
+              <div class="text-sm text-gray-400">Distance</div>
+              <div id="routeDistance" class="text-2xl font-bold text-yellow-500">--</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4">
+              <div class="text-sm text-gray-400">Estimated Duration</div>
+              <div id="routeDuration" class="text-2xl font-bold text-yellow-500">--</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4">
+              <div class="text-sm text-gray-400">Estimated Price</div>
+              <div id="estimatedPrice" class="text-2xl font-bold text-yellow-500">--</div>
+            </div>
+          </div>
+          <div class="mt-2 text-xs text-gray-500">
+            Calculated live from Google Maps when you open this modal
           </div>
         </div>
 
