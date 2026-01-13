@@ -7,11 +7,21 @@ const router = express.Router();
 
 const loginValidation = [
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required')
+  body('password').notEmpty().withMessage('Password is required'),
 ];
 
 router.post('/login', loginValidation, validate, login);
 router.post('/logout', logout);
 
-export default router;
+// Debug endpoint to check JWT secret configuration
+router.get('/debug/jwt-config', (req, res) => {
+  const jwtSecret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET;
+  res.json({
+    hasJwtSecret: !!process.env.JWT_SECRET,
+    hasAdminJwtSecret: !!process.env.ADMIN_JWT_SECRET,
+    secretLength: jwtSecret?.length || 0,
+    secretPreview: jwtSecret ? jwtSecret.substring(0, 5) + '...' : 'NONE',
+  });
+});
 
+export default router;
