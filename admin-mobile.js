@@ -352,55 +352,46 @@ function viewEnquiry(id) {
               <div class="font-semibold">${escapeHtml(enquiry.customerName)}</div>
             </div>
             <div>
-              <div class="text-sm text-gray-400">Phone</div>
-              <div class="font-semibold">${escapeHtml(enquiry.customerPhone)}</div>
+              <div class="text-sm text-gray-400">Date</div>
+              <div class="font-semibold">${formatDate(enquiry.pickupDate)}</div>
             </div>
             ${
               enquiry.customerEmail
                 ? `
-            <div class="col-span-2">
+            <div>
               <div class="text-sm text-gray-400">Email</div>
               <div class="font-semibold">${escapeHtml(enquiry.customerEmail)}</div>
             </div>
             `
                 : ''
             }
-          </div>
-        </div>
-
-        <!-- Journey Details -->
-        <div>
-          <h3 class="text-lg font-semibold text-yellow-500 mb-3">Journey Details</h3>
-          <div class="space-y-3">
             <div>
+              <div class="text-sm text-gray-400">Time</div>
+              <div class="font-semibold">${enquiry.pickupTime}</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Phone</div>
+              <div class="font-semibold">${escapeHtml(enquiry.customerPhone)}</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Passengers</div>
+              <div class="font-semibold">${enquiry.passengers}</div>
+            </div>
+            <div class="col-span-2">
               <div class="text-sm text-gray-400">Pickup Location</div>
               <div class="font-semibold text-green-400">📍 ${escapeHtml(
                 enquiry.pickupLocation
               )}</div>
             </div>
-            <div>
+            <div class="col-span-2">
               <div class="text-sm text-gray-400">Dropoff Location</div>
               <div class="font-semibold text-red-400">📍 ${escapeHtml(
                 enquiry.dropoffLocation
               )}</div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <div class="text-sm text-gray-400">Date</div>
-                <div class="font-semibold">${formatDate(enquiry.pickupDate)}</div>
-              </div>
-              <div>
-                <div class="text-sm text-gray-400">Time</div>
-                <div class="font-semibold">${enquiry.pickupTime}</div>
-              </div>
-              <div>
-                <div class="text-sm text-gray-400">Passengers</div>
-                <div class="font-semibold">${enquiry.passengers}</div>
-              </div>
-              <div>
-                <div class="text-sm text-gray-400">Vehicle Type</div>
-                <div class="font-semibold">${escapeHtml(enquiry.vehicleType)}</div>
-              </div>
+            <div>
+              <div class="text-sm text-gray-400">Vehicle Type</div>
+              <div class="font-semibold">${escapeHtml(enquiry.vehicleType)}</div>
             </div>
           </div>
         </div>
@@ -408,15 +399,28 @@ function viewEnquiry(id) {
         ${
           enquiry.specialRequests
             ? `
+        <!-- Special Requests -->
         <div>
           <h3 class="text-lg font-semibold text-yellow-500 mb-3">Special Requests</h3>
-          <div class="bg-gray-800 rounded-lg p-4 text-gray-300">
-            ${escapeHtml(enquiry.specialRequests)}
+          <div class="bg-gray-800 rounded-lg p-4">
+            <div class="text-gray-300">${escapeHtml(enquiry.specialRequests)}</div>
           </div>
         </div>
         `
             : ''
         }
+
+        <!-- Status & Source -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <div class="text-sm text-gray-400 mb-2">Status</div>
+            ${getStatusBadge(enquiry.status)}
+          </div>
+          <div>
+            <div class="text-sm text-gray-400 mb-2">Source</div>
+            ${getSourceBadge(enquiry.source)}
+          </div>
+        </div>
 
         ${
           enquiry.quotedPrice
@@ -465,15 +469,11 @@ function viewEnquiry(id) {
             : ''
         }
 
-        <!-- Status & Source -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <div class="text-sm text-gray-400">Status</div>
-            ${getStatusBadge(enquiry.status)}
-          </div>
-          <div>
-            <div class="text-sm text-gray-400">Source</div>
-            ${getSourceBadge(enquiry.source)}
+        <!-- Driver Information -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">Driver Information</h3>
+          <div class="bg-gray-800 rounded-lg p-4">
+            <div class="font-semibold text-white">Not assigned as yet</div>
           </div>
         </div>
 
