@@ -1,31 +1,42 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-<head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-J0D6EQV0B0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J0D6EQV0B0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
 
-  gtag('config', 'G-J0D6EQV0B0');
-</script>
+      gtag('config', 'G-J0D6EQV0B0');
+    </script>
 
-
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MDNQBPNN');</script>
-<!-- End Google Tag Manager -->
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', 'GTM-MDNQBPNN');
+    </script>
+    <!-- End Google Tag Manager -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Book Your Transfer | JESUS TRAVEL</title>
-    <meta name="description" content="Premium executive chauffeur service in London and Portugal. Professional airport transfers, corporate travel, and bespoke transportation solutions with luxury vehicles and experienced drivers.">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta
+      name="description"
+      content="Premium executive chauffeur service in London and Portugal. Professional airport transfers, corporate travel, and bespoke transportation solutions with luxury vehicles and experienced drivers."
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -37,50 +48,101 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             },
             colors: {
               'jt-gold': '#CAA85D',
-            }
+            },
           },
         },
-      }
+      };
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Translations Script -->
     <script src="./translations.js"></script>
-<style>
-  html, body {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    background-color: #000;
-    font-family: 'Inter', sans-serif;
-  }
-  /* Chrome mobile fix for language dropdown */
-  #language-toggle {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  #language-dropdown {
-    pointer-events: auto !important;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    will-change: opacity, visibility;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  #language-dropdown:not(.hidden) {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-</style>
-</head>
-<body class="bg-black text-white">
+    <style>
+      html,
+      body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #000;
+        font-family: 'Inter', sans-serif;
+      }
+      /* Chrome mobile fix for language dropdown */
+      #language-toggle {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      #language-dropdown {
+        pointer-events: auto !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        will-change: opacity, visibility;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
+      #language-dropdown:not(.hidden) {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      /* Google Places Autocomplete Dark Theme */
+      .pac-container {
+        background-color: #1f2937 !important;
+        border: 1px solid #374151 !important;
+        border-radius: 0.5rem !important;
+        margin-top: 4px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+
+      .pac-item {
+        background-color: #1f2937 !important;
+        border-top: 1px solid #374151 !important;
+        color: #d1d5db !important;
+        padding: 8px 12px !important;
+        cursor: pointer !important;
+      }
+
+      .pac-item:hover {
+        background-color: #caa85d !important;
+        color: #000 !important;
+      }
+
+      .pac-item-selected {
+        background-color: #374151 !important;
+      }
+
+      .pac-item-query {
+        color: #fff !important;
+        font-weight: 500 !important;
+      }
+
+      .pac-matched {
+        color: #caa85d !important;
+        font-weight: 600 !important;
+      }
+
+      .pac-icon {
+        display: none !important;
+      }
+
+      .pac-logo:after {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-black text-white">
     <!-- Header with Logo -->
-    <header class="fixed top-0 left-0 right-0 z-40 py-6 px-4 sm:px-8 md:px-12 bg-black/80 backdrop-blur-sm">
+    <header
+      class="fixed top-0 left-0 right-0 z-40 py-6 px-4 sm:px-8 md:px-12 bg-black/80 backdrop-blur-sm"
+    >
       <!-- Logo on top right -->
       <div class="absolute top-6 right-4 sm:right-8 md:right-12">
         <img
@@ -91,44 +153,91 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
 
       <!-- Language Switcher -->
-      <div class="absolute top-6 left-1/2 -translate-x-1/2 md:top-32 md:left-auto md:right-12 md:translate-x-0 z-50">
+      <div
+        class="absolute top-6 left-1/2 -translate-x-1/2 md:top-32 md:left-auto md:right-12 md:translate-x-0 z-50"
+      >
         <div class="relative">
-          <button id="language-toggle" class="flex items-center space-x-2 bg-transparent border-2 border-jt-gold text-jt-gold font-bold py-2 px-4 rounded hover:bg-jt-gold hover:text-black transition-all duration-300 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+          <button
+            id="language-toggle"
+            class="flex items-center space-x-2 bg-transparent border-2 border-jt-gold text-jt-gold font-bold py-2 px-4 rounded hover:bg-jt-gold hover:text-black transition-all duration-300 text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+              ></path>
             </svg>
             <span id="current-language">English</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          
-          <div id="language-dropdown" class="hidden absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 mt-2 w-48 bg-gray-900 border-2 border-jt-gold rounded-lg shadow-xl overflow-hidden z-[100]">
-            <button data-lang="en" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+
+          <div
+            id="language-dropdown"
+            class="hidden absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 mt-2 w-48 bg-gray-900 border-2 border-jt-gold rounded-lg shadow-xl overflow-hidden z-[100]"
+          >
+            <button
+              data-lang="en"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇬🇧</span>
               <span>English</span>
             </button>
-            <button data-lang="es" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="es"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇪🇸</span>
               <span>Español</span>
             </button>
-            <button data-lang="fr" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="fr"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇫🇷</span>
               <span>Français</span>
             </button>
-            <button data-lang="pt" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="pt"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇵🇹</span>
               <span>Português</span>
             </button>
-            <button data-lang="zh" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="zh"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇨🇳</span>
               <span>中文</span>
             </button>
-            <button data-lang="ja" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="ja"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇯🇵</span>
               <span>日本語</span>
             </button>
-            <button data-lang="ar" class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2">
+            <button
+              data-lang="ar"
+              class="w-full text-left px-4 py-3 text-white hover:bg-jt-gold hover:text-black transition-colors duration-200 flex items-center space-x-2"
+            >
               <span class="text-lg">🇸🇦</span>
               <span>العربية</span>
             </button>
@@ -138,9 +247,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
       <!-- Back to Home -->
       <div class="absolute top-6 left-4 sm:left-8 md:left-12">
-        <a href="./index.html" class="flex items-center space-x-2 text-white hover:text-jt-gold transition-colors duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        <a
+          href="./index.html"
+          class="flex items-center space-x-2 text-white hover:text-jt-gold transition-colors duration-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
           </svg>
           <span class="font-medium" data-i18n="booking.backToHome">Back to Home</span>
         </a>
@@ -151,32 +274,84 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="container mx-auto px-4 max-w-4xl">
         <!-- Page Title -->
         <div class="text-center mb-12">
-          <h1 class="text-4xl md:text-5xl font-serif mb-4" data-i18n="booking.title">Book Your Transfer</h1>
+          <h1 class="text-4xl md:text-5xl font-serif mb-4" data-i18n="booking.title">
+            Book Your Transfer
+          </h1>
           <div class="w-24 h-px bg-jt-gold mx-auto mb-6"></div>
-          <p class="text-gray-300 text-lg" data-i18n="booking.subtitle">Fill in your details and receive an instant quote</p>
+          <p class="text-gray-300 text-lg" data-i18n="booking.subtitle">
+            Fill in your details and receive an instant quote
+          </p>
         </div>
 
         <!-- Booking Form -->
         <form id="booking-form" class="bg-gray-900 rounded-lg p-8 shadow-2xl">
           <!-- Client Information -->
           <div class="mb-8">
-            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.clientInfo">Client Information</h2>
+            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.clientInfo">
+              Client Information
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="clientName" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.clientName">Full Name *</label>
-                <input type="text" id="clientName" name="clientName" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., John Smith">
+                <label
+                  for="clientName"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.clientName"
+                  >Full Name *</label
+                >
+                <input
+                  type="text"
+                  id="clientName"
+                  name="clientName"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                  placeholder="e.g., John Smith"
+                />
               </div>
               <div>
-                <label for="email" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.email">Email Address *</label>
-                <input type="email" id="email" name="email" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., john.smith@company.com">
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.email"
+                  >Email Address *</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                  placeholder="e.g., john.smith@company.com"
+                />
               </div>
               <div>
-                <label for="phone" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.phone">Phone Number *</label>
-                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., +44 7700 123456">
+                <label
+                  for="phone"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.phone"
+                  >Phone Number *</label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                  placeholder="e.g., +44 7700 123456"
+                />
               </div>
               <div>
-                <label for="passengers" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.passengers">Number of Passengers *</label>
-                <select id="passengers" name="passengers" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white">
+                <label
+                  for="passengers"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.passengers"
+                  >Number of Passengers *</label
+                >
+                <select
+                  id="passengers"
+                  name="passengers"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                >
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
@@ -191,31 +366,116 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
           <!-- Journey Details -->
           <div class="mb-8">
-            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.journeyDetails">Journey Details</h2>
+            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.journeyDetails">
+              Journey Details
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="date" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.date">Date *</label>
-                <input type="date" id="date" name="date" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white">
+                <label
+                  for="date"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.date"
+                  >Date *</label
+                >
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                />
               </div>
               <div>
-                <label for="time" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.time">Time *</label>
-                <input type="time" id="time" name="time" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white">
+                <label
+                  for="time"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.time"
+                  >Time *</label
+                >
+                <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                />
               </div>
               <div>
-                <label for="pickup" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.pickup">Pickup Location *</label>
-                <input type="text" id="pickup" name="pickup" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., Heathrow Terminal 5 or Park Lane Hotel">
+                <label
+                  for="pickup"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.pickup"
+                  >Pickup Location *</label
+                >
+                <div class="relative">
+                  <input
+                    type="text"
+                    id="pickup"
+                    name="pickup"
+                    required
+                    class="w-full px-4 py-3 pr-28 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                    placeholder="Start typing address..."
+                    autocomplete="off"
+                  />
+                  <div
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs pointer-events-none"
+                  >
+                    📍 Autocomplete
+                  </div>
+                </div>
               </div>
               <div>
-                <label for="dropoff" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.dropoff">Drop-off Location *</label>
-                <input type="text" id="dropoff" name="dropoff" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., Gatwick South Terminal or Central London">
+                <label
+                  for="dropoff"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.dropoff"
+                  >Drop-off Location *</label
+                >
+                <div class="relative">
+                  <input
+                    type="text"
+                    id="dropoff"
+                    name="dropoff"
+                    required
+                    class="w-full px-4 py-3 pr-28 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                    placeholder="Start typing address..."
+                    autocomplete="off"
+                  />
+                  <div
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs pointer-events-none"
+                  >
+                    📍 Autocomplete
+                  </div>
+                </div>
               </div>
               <div>
-                <label for="flight" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.flight">Flight Number (Optional)</label>
-                <input type="text" id="flight" name="flight" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., BA123, EK7, VS3">
+                <label
+                  for="flight"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.flight"
+                  >Flight Number (Optional)</label
+                >
+                <input
+                  type="text"
+                  id="flight"
+                  name="flight"
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                  placeholder="e.g., BA123, EK7, VS3"
+                />
               </div>
               <div>
-                <label for="vehicleType" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.vehicleType">Vehicle Type *</label>
-                <select id="vehicleType" name="vehicleType" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white">
+                <label
+                  for="vehicleType"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.vehicleType"
+                  >Vehicle Type *</label
+                >
+                <select
+                  id="vehicleType"
+                  name="vehicleType"
+                  required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                >
                   <option value="">Select a vehicle</option>
                   <option value="saloon">Saloon (1-3 passengers)</option>
                   <option value="mpv">MPV (4-5 passengers)</option>
@@ -228,34 +488,74 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
           <!-- Additional Information -->
           <div class="mb-8">
-            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.additionalInfo">Additional Information</h2>
+            <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.additionalInfo">
+              Additional Information
+            </h2>
             <div>
-              <label for="notes" class="block text-sm font-medium text-gray-300 mb-2" data-i18n="booking.notes">Special Requests or Notes</label>
-              <textarea id="notes" name="notes" rows="4" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white" placeholder="e.g., Child seats required, extra luggage space needed, meet & greet service, accessibility requirements, dietary preferences for refreshments"></textarea>
+              <label
+                for="notes"
+                class="block text-sm font-medium text-gray-300 mb-2"
+                data-i18n="booking.notes"
+                >Special Requests or Notes</label
+              >
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                placeholder="e.g., Child seats required, extra luggage space needed, meet & greet service, accessibility requirements, dietary preferences for refreshments"
+              ></textarea>
             </div>
           </div>
 
           <!-- Submit Button -->
           <div class="flex justify-center">
-            <button type="submit" class="bg-jt-gold text-black font-bold py-4 px-12 rounded-lg hover:bg-yellow-600 transition-all duration-300 uppercase tracking-widest text-lg shadow-lg">
+            <button
+              type="submit"
+              class="bg-jt-gold text-black font-bold py-4 px-12 rounded-lg hover:bg-yellow-600 transition-all duration-300 uppercase tracking-widest text-lg shadow-lg"
+            >
               <span data-i18n="booking.submit">Get Quote</span>
             </button>
           </div>
         </form>
 
         <!-- Quote Result -->
-        <div id="quote-result" class="hidden mt-8 bg-gray-900 rounded-lg p-8 border-2 border-jt-gold">
+        <div
+          id="quote-result"
+          class="hidden mt-8 bg-gray-900 rounded-lg p-8 border-2 border-jt-gold"
+        >
           <div class="text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-jt-gold mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-16 h-16 mx-auto text-jt-gold mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
             </svg>
-            <h3 class="text-2xl font-serif text-jt-gold mb-4" data-i18n="booking.thankYou">Thank You for Your Booking Request!</h3>
-            <p class="text-gray-300 text-lg mb-6" data-i18n="booking.confirmation">We have received your booking details and will get back to you shortly with a quote.</p>
+            <h3 class="text-2xl font-serif text-jt-gold mb-4" data-i18n="booking.thankYou">
+              Thank You for Your Booking Request!
+            </h3>
+            <p class="text-gray-300 text-lg mb-6" data-i18n="booking.confirmation">
+              We have received your booking details and will get back to you shortly with a quote.
+            </p>
             <div class="bg-gray-800 rounded-lg p-6 mb-6">
-              <h4 class="font-semibold text-jt-gold mb-4" data-i18n="booking.bookingSummary">Booking Summary:</h4>
+              <h4 class="font-semibold text-jt-gold mb-4" data-i18n="booking.bookingSummary">
+                Booking Summary:
+              </h4>
               <div id="booking-summary" class="text-left space-y-2 text-gray-300"></div>
             </div>
-            <p class="text-sm text-gray-400" data-i18n="booking.contactInfo">You will receive a confirmation email at the address provided. If you have any urgent questions, please call us at <a href="tel:+447850672664" class="text-jt-gold hover:underline">+44 7850 672664</a></p>
+            <p class="text-sm text-gray-400" data-i18n="booking.contactInfo">
+              You will receive a confirmation email at the address provided. If you have any urgent
+              questions, please call us at
+              <a href="tel:+447850672664" class="text-jt-gold hover:underline">+44 7850 672664</a>
+            </p>
           </div>
         </div>
       </div>
@@ -271,39 +571,152 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               alt="JESUS TRAVEL Logo"
               class="h-16 md:h-20 w-auto mb-2 mx-auto md:mx-0 bg-transparent opacity-100"
             />
-            <p class="text-sm text-gray-400" data-i18n="footer.certifiedOperator">Certified Tour Operator</p>
-            <p class="text-sm text-gray-400" data-i18n="footer.companyNumber">Company nr 11233885</p>
+            <p class="text-sm text-gray-400" data-i18n="footer.certifiedOperator">
+              Certified Tour Operator
+            </p>
+            <p class="text-sm text-gray-400" data-i18n="footer.companyNumber">
+              Company nr 11233885
+            </p>
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-white mb-4" data-i18n="footer.contactUs">Contact Us</h3>
+            <h3 class="text-lg font-semibold text-white mb-4" data-i18n="footer.contactUs">
+              Contact Us
+            </h3>
             <ul class="space-y-2">
               <li class="flex items-center justify-center md:justify-start">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-jt-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                <a href="mailto:info@jesus-travel.com" class="hover:text-jt-gold transition-colors">info@jesus-travel.com</a>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 mr-3 text-jt-gold"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <a href="mailto:info@jesus-travel.com" class="hover:text-jt-gold transition-colors"
+                  >info@jesus-travel.com</a
+                >
               </li>
               <li class="flex items-center justify-center md:justify-start">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3 text-jt-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                <a href="tel:+447850672664" class="hover:text-jt-gold transition-colors">+44 7850 672664</a>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 mr-3 text-jt-gold"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  ></path>
+                </svg>
+                <a href="tel:+447850672664" class="hover:text-jt-gold transition-colors"
+                  >+44 7850 672664</a
+                >
               </li>
             </ul>
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-white mb-4" data-i18n="footer.followUs">Follow Us</h3>
+            <h3 class="text-lg font-semibold text-white mb-4" data-i18n="footer.followUs">
+              Follow Us
+            </h3>
             <div class="flex justify-center md:justify-start space-x-4">
-              <a href="#" aria-label="WhatsApp" class="text-gray-400 hover:text-jt-gold transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.206 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"></path></svg></a>
-              <a href="https://www.facebook.com/degree.of.excellence/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="text-gray-400 hover:text-jt-gold transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z"></path></svg></a>
-              <a href="https://www.instagram.com/jesustravelltd" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-gray-400 hover:text-jt-gold transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.359 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.359-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.948s-.014-3.667-.072-4.947c-.2-4.359-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg></a>
-              <a href="https://www.youtube.com/watch?v=DCfZfH1KmSA" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="text-gray-400 hover:text-jt-gold transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg></a>
+              <a
+                href="#"
+                aria-label="WhatsApp"
+                class="text-gray-400 hover:text-jt-gold transition-colors"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.206 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"
+                  ></path></svg
+              ></a>
+              <a
+                href="https://www.facebook.com/degree.of.excellence/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                class="text-gray-400 hover:text-jt-gold transition-colors"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z"
+                  ></path></svg
+              ></a>
+              <a
+                href="https://www.instagram.com/jesustravelltd"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                class="text-gray-400 hover:text-jt-gold transition-colors"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.359 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.359-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.948s-.014-3.667-.072-4.947c-.2-4.359-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"
+                  ></path></svg
+              ></a>
+              <a
+                href="https://www.youtube.com/watch?v=DCfZfH1KmSA"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                class="text-gray-400 hover:text-jt-gold transition-colors"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"
+                  ></path></svg
+              ></a>
             </div>
           </div>
         </div>
         <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
-          <p><a href="./cookies-policy.html" class="hover:text-jt-gold transition-colors">Cookies Policy</a> | <span data-i18n="footer.copyright">&copy; 2024 Jesus Travel Ltd. All Rights Reserved.</span> | <a href="./disclaimer.html" class="hover:text-jt-gold transition-colors">Disclaimer</a></p>
+          <p>
+            <a href="./cookies-policy.html" class="hover:text-jt-gold transition-colors"
+              >Cookies Policy</a
+            >
+            |
+            <span data-i18n="footer.copyright"
+              >&copy; 2024 Jesus Travel Ltd. All Rights Reserved.</span
+            >
+            |
+            <a href="./disclaimer.html" class="hover:text-jt-gold transition-colors">Disclaimer</a>
+          </p>
         </div>
       </div>
     </footer>
 
+    <!-- Google Maps Places API -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtkzW3zbExrKKowMYZy83pQp9I5fciM2Y&libraries=places&callback=initAutocomplete"
+      async
+      defer
+    ></script>
+
     <script src="./script.js"></script>
     <script src="./booking.js"></script>
-</body>
+  </body>
 </html>

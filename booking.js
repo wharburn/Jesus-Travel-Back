@@ -8,6 +8,52 @@ const ACTIVE_API_URL =
     ? LOCAL_API_URL
     : API_URL;
 
+// Global variables for autocomplete
+let pickupAutocomplete;
+let dropoffAutocomplete;
+
+// Initialize Google Places Autocomplete
+window.initAutocomplete = function () {
+  console.log('🗺️ Initializing Google Places Autocomplete...');
+
+  const pickupInput = document.getElementById('pickup');
+  const dropoffInput = document.getElementById('dropoff');
+
+  if (!pickupInput || !dropoffInput) {
+    console.warn('Pickup or dropoff input not found');
+    return;
+  }
+
+  // Configure autocomplete options
+  const options = {
+    componentRestrictions: { country: ['uk', 'pt'] }, // Restrict to UK and Portugal
+    fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+    types: ['establishment', 'geocode'], // Allow both places and addresses
+  };
+
+  // Initialize autocomplete for pickup
+  pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
+  pickupAutocomplete.addListener('place_changed', function () {
+    const place = pickupAutocomplete.getPlace();
+    if (place.formatted_address) {
+      pickupInput.value = place.formatted_address;
+      console.log('✅ Pickup location selected:', place.formatted_address);
+    }
+  });
+
+  // Initialize autocomplete for dropoff
+  dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
+  dropoffAutocomplete.addListener('place_changed', function () {
+    const place = dropoffAutocomplete.getPlace();
+    if (place.formatted_address) {
+      dropoffInput.value = place.formatted_address;
+      console.log('✅ Dropoff location selected:', place.formatted_address);
+    }
+  });
+
+  console.log('✅ Google Places Autocomplete initialized');
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   const bookingForm = document.getElementById('booking-form');
   const quoteResult = document.getElementById('quote-result');
