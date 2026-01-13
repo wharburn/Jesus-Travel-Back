@@ -789,14 +789,18 @@ function initializeRouteMap(pickupAddress, dropoffAddress, vehicleType = 'Standa
   directionsRenderer.setMap(map);
 
   // Calculate and display route
+  console.log('🗺️ Requesting route:', { origin: pickupAddress, destination: dropoffAddress });
+
   directionsService.route(
     {
       origin: pickupAddress,
       destination: dropoffAddress,
       travelMode: google.maps.TravelMode.DRIVING,
+      region: 'uk', // Bias results to UK
     },
     (result, status) => {
       if (status === 'OK') {
+        console.log('✅ Route found successfully');
         directionsRenderer.setDirections(result);
 
         // Display route information
@@ -814,13 +818,38 @@ function initializeRouteMap(pickupAddress, dropoffAddress, vehicleType = 'Standa
           priceElement.textContent = `£${estimatedPrice}`;
         }
       } else {
-        console.error('Directions request failed:', status);
+        console.error('❌ Directions request failed:', status);
+        console.error('Pickup:', pickupAddress);
+        console.error('Dropoff:', dropoffAddress);
+
+        let errorMessage = 'Unable to load route';
+        let errorDetails = status;
+
+        if (status === 'NOT_FOUND') {
+          errorMessage = 'Route Not Found';
+          errorDetails =
+            'The addresses may be incomplete or invalid. Please check the pickup and dropoff locations.';
+        } else if (status === 'ZERO_RESULTS') {
+          errorMessage = 'No Route Available';
+          errorDetails = 'No driving route exists between these locations.';
+        } else if (status === 'OVER_QUERY_LIMIT') {
+          errorMessage = 'API Quota Exceeded';
+          errorDetails = 'Google Maps API quota limit reached. Please try again later.';
+        } else if (status === 'REQUEST_DENIED') {
+          errorMessage = 'Request Denied';
+          errorDetails = 'API key may be restricted or invalid.';
+        }
+
         mapElement.innerHTML = `
           <div class="flex items-center justify-center h-full text-red-400">
-            <div class="text-center">
-              <div class="text-2xl mb-2">⚠️</div>
-              <div>Unable to load route</div>
-              <div class="text-sm text-gray-500 mt-1">${status}</div>
+            <div class="text-center p-6">
+              <div class="text-4xl mb-3">⚠️</div>
+              <div class="text-lg font-semibold mb-2">${errorMessage}</div>
+              <div class="text-sm text-gray-400 mb-4">${errorDetails}</div>
+              <div class="text-xs text-gray-600 space-y-1">
+                <div><strong>Pickup:</strong> ${pickupAddress}</div>
+                <div><strong>Dropoff:</strong> ${dropoffAddress}</div>
+              </div>
             </div>
           </div>
         `;
