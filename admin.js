@@ -470,8 +470,8 @@ function viewEnquiry(id) {
           </div>
         </div>
 
-        <!-- Distance & Duration -->
-        <div class="grid grid-cols-2 gap-4">
+        <!-- Distance, Duration & Price -->
+        <div class="grid grid-cols-3 gap-4">
           <div class="bg-gray-800 rounded-lg p-4">
             <div class="text-sm text-gray-400">Distance</div>
             <div id="routeDistance" class="text-2xl font-bold text-yellow-500">--</div>
@@ -479,6 +479,10 @@ function viewEnquiry(id) {
           <div class="bg-gray-800 rounded-lg p-4">
             <div class="text-sm text-gray-400">Estimated Duration</div>
             <div id="routeDuration" class="text-2xl font-bold text-yellow-500">--</div>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-4">
+            <div class="text-sm text-gray-400">Estimated Price</div>
+            <div id="estimatedPrice" class="text-2xl font-bold text-yellow-500">--</div>
           </div>
         </div>
 
@@ -563,15 +567,40 @@ function viewEnquiry(id) {
 
   // Initialize map after modal is in DOM
   setTimeout(() => {
-    initializeRouteMap(enquiry.pickupLocation, enquiry.dropoffLocation);
+    initializeRouteMap(enquiry.pickupLocation, enquiry.dropoffLocation, enquiry.vehicleType);
   }, 100);
 }
 
+// Pricing rules (matching backend)
+const PRICING_RULES = {
+  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0 },
+  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5 },
+  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0 },
+  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8 },
+  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5 },
+  mpv: { base_fare: 100.0, per_km_rate: 3.8 }, // Fallback for lowercase
+  sedan: { base_fare: 50.0, per_km_rate: 2.0 }, // Fallback for lowercase
+};
+
+// Calculate estimated price based on distance and vehicle type
+function calculateEstimatedPrice(distanceKm, vehicleType) {
+  const pricing = PRICING_RULES[vehicleType] || PRICING_RULES['Standard Sedan'];
+  const baseFare = pricing.base_fare;
+  const distanceCharge = distanceKm * pricing.per_km_rate;
+  const subtotal = baseFare + distanceCharge;
+
+  // Round to nearest 0.50
+  const total = Math.round(subtotal / 0.5) * 0.5;
+
+  return total.toFixed(2);
+}
+
 // Initialize Google Maps with route
-function initializeRouteMap(pickupAddress, dropoffAddress) {
+function initializeRouteMap(pickupAddress, dropoffAddress, vehicleType = 'Standard Sedan') {
   const mapElement = document.getElementById('routeMap');
   const distanceElement = document.getElementById('routeDistance');
   const durationElement = document.getElementById('routeDuration');
+  const priceElement = document.getElementById('estimatedPrice');
 
   if (!mapElement) {
     console.error('Map element not available');
@@ -646,11 +675,17 @@ function initializeRouteMap(pickupAddress, dropoffAddress) {
 
         // Display route information
         const route = result.routes[0].legs[0];
+        const distanceKm = route.distance.value / 1000; // Convert meters to km
+
         if (distanceElement) {
           distanceElement.textContent = route.distance.text;
         }
         if (durationElement) {
           durationElement.textContent = route.duration.text;
+        }
+        if (priceElement) {
+          const estimatedPrice = calculateEstimatedPrice(distanceKm, vehicleType);
+          priceElement.textContent = `£${estimatedPrice}`;
         }
       } else {
         console.error('Directions request failed:', status);
@@ -668,6 +703,9 @@ function initializeRouteMap(pickupAddress, dropoffAddress) {
         }
         if (durationElement) {
           durationElement.textContent = 'N/A';
+        }
+        if (priceElement) {
+          priceElement.textContent = 'N/A';
         }
       }
     }
