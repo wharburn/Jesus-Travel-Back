@@ -12,12 +12,17 @@ const pageSize = 20;
 let allEnquiries = [];
 let filteredEnquiries = [];
 let currentQuoteEnquiry = null;
+let activeStatusFilter = null; // 'pending_quote', 'quoted', 'confirmed', or null for all
+let currentSortBy = 'date-desc';
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
   loadAdminInfo();
   loadEnquiries();
   setupEventListeners();
+
+  // Set "All" filter as active by default
+  setStatusFilter(null);
 });
 
 // Load admin user info
@@ -30,13 +35,39 @@ function loadAdminInfo() {
 function setupEventListeners() {
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('refreshBtn').addEventListener('click', loadEnquiries);
-  document.getElementById('filterStatus').addEventListener('change', applyFilters);
-  document.getElementById('filterSource').addEventListener('change', applyFilters);
-  document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 500));
+  document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+  document.getElementById('sortBy').addEventListener('change', (e) => {
+    currentSortBy = e.target.value;
+    applyFilters();
+  });
+
+  // Filter buttons
+  document.getElementById('filterAll').addEventListener('click', () => setStatusFilter(null));
+  document
+    .getElementById('filterPendingQuote')
+    .addEventListener('click', () => setStatusFilter('pending_quote'));
+  document
+    .getElementById('filterQuoted')
+    .addEventListener('click', () => setStatusFilter('quoted'));
+  document
+    .getElementById('filterConfirmed')
+    .addEventListener('click', () => setStatusFilter('confirmed'));
+
+  // Pagination
   document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+
+  // Quote modal
   document.getElementById('cancelQuote').addEventListener('click', closeQuoteModal);
   document.getElementById('quoteForm').addEventListener('submit', submitQuote);
+
+  // Column sorting
+  document.querySelectorAll('th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const sortKey = th.getAttribute('data-sort');
+      handleColumnSort(sortKey);
+    });
+  });
 
   // Documentation dropdown toggle
   document.getElementById('docsBtn').addEventListener('click', (e) => {
@@ -53,6 +84,47 @@ function setupEventListeners() {
       dropdown.classList.add('hidden');
     }
   });
+}
+
+// Set status filter and update UI
+function setStatusFilter(status) {
+  activeStatusFilter = status;
+
+  // Update button styles
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.classList.remove('bg-blue-600', 'bg-purple-600', 'bg-green-600', 'bg-yellow-600');
+    btn.classList.add('bg-gray-700');
+  });
+
+  if (status === null) {
+    document.getElementById('filterAll').classList.remove('bg-gray-700');
+    document.getElementById('filterAll').classList.add('bg-yellow-600');
+  } else if (status === 'pending_quote') {
+    document.getElementById('filterPendingQuote').classList.remove('bg-gray-700');
+    document.getElementById('filterPendingQuote').classList.add('bg-blue-600');
+  } else if (status === 'quoted') {
+    document.getElementById('filterQuoted').classList.remove('bg-gray-700');
+    document.getElementById('filterQuoted').classList.add('bg-purple-600');
+  } else if (status === 'confirmed') {
+    document.getElementById('filterConfirmed').classList.remove('bg-gray-700');
+    document.getElementById('filterConfirmed').classList.add('bg-green-600');
+  }
+
+  applyFilters();
+}
+
+// Handle column sorting
+function handleColumnSort(sortKey) {
+  const sortMap = {
+    ref: 'date-desc',
+    customer: 'customer-asc',
+    date: 'date-desc',
+    status: 'status-asc',
+  };
+
+  currentSortBy = sortMap[sortKey] || 'date-desc';
+  document.getElementById('sortBy').value = currentSortBy;
+  applyFilters();
 }
 
 // Logout
@@ -91,21 +163,41 @@ async function loadEnquiries() {
 
 // Apply filters
 function applyFilters() {
-  const statusFilter = document.getElementById('filterStatus').value;
-  const sourceFilter = document.getElementById('filterSource').value;
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
+  // Filter
   filteredEnquiries = allEnquiries.filter((enquiry) => {
-    const matchesStatus = !statusFilter || enquiry.status === statusFilter;
-    const matchesSource = !sourceFilter || enquiry.source === sourceFilter;
+    const matchesStatus = !activeStatusFilter || enquiry.status === activeStatusFilter;
     const matchesSearch =
       !searchTerm ||
       enquiry.customerName?.toLowerCase().includes(searchTerm) ||
       enquiry.customerPhone?.toLowerCase().includes(searchTerm) ||
       enquiry.customerEmail?.toLowerCase().includes(searchTerm) ||
-      enquiry.referenceNumber?.toLowerCase().includes(searchTerm);
+      enquiry.referenceNumber?.toLowerCase().includes(searchTerm) ||
+      enquiry.pickupLocation?.toLowerCase().includes(searchTerm) ||
+      enquiry.dropoffLocation?.toLowerCase().includes(searchTerm);
 
-    return matchesStatus && matchesSource && matchesSearch;
+    return matchesStatus && matchesSearch;
+  });
+
+  // Sort
+  filteredEnquiries.sort((a, b) => {
+    switch (currentSortBy) {
+      case 'date-desc':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'date-asc':
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'customer-asc':
+        return (a.customerName || '').localeCompare(b.customerName || '');
+      case 'customer-desc':
+        return (b.customerName || '').localeCompare(a.customerName || '');
+      case 'price-desc':
+        return (b.quotedPrice || 0) - (a.quotedPrice || 0);
+      case 'price-asc':
+        return (a.quotedPrice || 0) - (b.quotedPrice || 0);
+      default:
+        return new Date(b.createdAt) - new Date(a.createdAt);
+    }
   });
 
   currentPage = 0;

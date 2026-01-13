@@ -13,6 +13,10 @@ async function notifyPricingTeamManual(enquiry) {
       let aiEstimate = null;
       let estimateMessage = '';
 
+      // Check how many pending enquiries exist
+      const allEnquiries = await Enquiry.findAll();
+      const pendingCount = allEnquiries.filter((e) => e.status === 'pending_quote').length;
+
       // Try to get AI price estimate
       try {
         const pickupDatetime = `${enquiry.pickupDate}T${enquiry.pickupTime}:00Z`;
@@ -61,8 +65,12 @@ async function notifyPricingTeamManual(enquiry) {
         estimateMessage = `\n⚠️ AI estimate unavailable\n\n━━━━━━━━━━━━━━━━━━━━\n`;
       }
 
+      // Extract last 3 digits of reference number (e.g., JT-2026-000123 -> 123)
+      const jobNumber = enquiry.referenceNumber.slice(-3);
+
       const message =
-        `🆕 New Booking Enquiry\n\n` +
+        `🆕 New Booking Enquiry ${pendingCount > 1 ? `(${pendingCount} pending)` : ''}\n\n` +
+        `Job: ${jobNumber}\n` +
         `Ref: ${enquiry.referenceNumber}\n` +
         `Customer: ${enquiry.customerName}\n` +
         `Phone: ${enquiry.customerPhone}\n` +
@@ -75,18 +83,15 @@ async function notifyPricingTeamManual(enquiry) {
         estimateMessage +
         `📝 QUICK REPLIES:\n` +
         `━━━━━━━━━━━━━━━━━━━━\n` +
-        `${aiEstimate ? `✅ Reply "OK" to approve £${aiEstimate.pricing.total_amount}\n` : ''}` +
-        `💰 Reply with just a number: "${aiEstimate ? aiEstimate.pricing.total_amount : '85'}"\n` +
-        `📦 Add extras: "${aiEstimate ? aiEstimate.pricing.total_amount : '85'} +MG +CS"\n` +
-        `   +MG = Meet & Greet\n` +
-        `   +CS = Child Seat\n` +
-        `   +BS = Booster Seat\n` +
-        `   +WC = Wheelchair\n` +
-        `   +LG = Extra Luggage\n` +
-        `   +WF = WiFi\n` +
-        `   +WA = Wait & Return\n\n` +
-        `Or use full format:\n` +
-        `QUOTE ${enquiry.referenceNumber} £[PRICE] [NOTES]`;
+        `${aiEstimate ? `✅ ${jobNumber} OK  (approve £${aiEstimate.pricing.total_amount})\n` : ''}` +
+        `💰 ${jobNumber} ${aiEstimate ? aiEstimate.pricing.total_amount : '85'}  (set price)\n` +
+        `📦 ${jobNumber} ${aiEstimate ? aiEstimate.pricing.total_amount : '85'} +MG  (with extras)\n\n` +
+        `Add-ons:\n` +
+        `+MG=Meet&Greet +CS=ChildSeat +BS=Booster\n` +
+        `+WC=Wheelchair +LG=ExtraLuggage +WF=WiFi\n` +
+        `+WA=Wait&Return\n\n` +
+        `Full format:\n` +
+        `QUOTE ${enquiry.referenceNumber} £[PRICE]`;
 
       await sendWhatsAppMessage(pricingTeamPhone, message);
       logger.info(`📱 Manual quote request sent to pricing team with AI estimate`);

@@ -38,27 +38,58 @@ export const processWhatsAppMessage = async (message) => {
         return;
       }
 
-      // Method 2: Quick approve AI estimate (OK, ✓, APPROVE, etc.)
+      // Method 2: Short format with 3-digit job number (e.g., "001 85", "002 OK", "003 95 +MG")
+      const shortFormatMatch = text.match(
+        /^(\d{3})\s+(OK|✓|✅|APPROVE|ACCEPT|£?(\d+(?:\.\d{2})?)(?:\s+(.+))?)$/i
+      );
+      if (shortFormatMatch) {
+        const jobNumber = shortFormatMatch[1];
+        const action = shortFormatMatch[2];
+
+        // Check if it's "OK" or a price
+        if (action.match(/^(OK|✓|✅|APPROVE|ACCEPT)$/i)) {
+          await handleShortApprove(formattedPhone, jobNumber);
+        } else {
+          const priceMatch = action.match(/^£?(\d+(?:\.\d{2})?)(?:\s+(.+))?$/);
+          if (priceMatch) {
+            const price = parseFloat(priceMatch[1]);
+            const notes = priceMatch[2] || '';
+            await handleShortQuote(formattedPhone, jobNumber, price, notes);
+          }
+        }
+        return;
+      }
+
+      // Check how many pending enquiries exist for fallback methods
+      const allEnquiries = await Enquiry.findAll();
+      const pendingCount = allEnquiries.filter((e) => e.status === 'pending_quote').length;
+
+      // Method 3: Quick approve AI estimate (OK only - when single pending)
       if (text.match(/^(OK|✓|✅|APPROVE|ACCEPT|YES)$/i)) {
+        if (pendingCount > 1) {
+          await sendWhatsAppMessage(
+            formattedPhone,
+            `⚠️ Multiple pending enquiries (${pendingCount}).\n\nPlease use: [JOB#] OK\nExample: 001 OK`
+          );
+          return;
+        }
         await handleQuickApprove(formattedPhone);
         return;
       }
 
-      // Method 3: Simple price reply (just the number)
+      // Method 4: Simple price reply (just the number - when single pending)
       const simplePriceMatch = text.match(/^£?(\d+(?:\.\d{2})?)(?:\s+(.+))?$/);
       if (simplePriceMatch) {
+        if (pendingCount > 1) {
+          await sendWhatsAppMessage(
+            formattedPhone,
+            `⚠️ Multiple pending enquiries (${pendingCount}).\n\nPlease use: [JOB#] £[PRICE]\nExample: 001 ${simplePriceMatch[1]}`
+          );
+          return;
+        }
         const price = parseFloat(simplePriceMatch[1]);
         const notes = simplePriceMatch[2] || '';
         await handleSimplePriceQuote(formattedPhone, price, notes);
-        return;
-      }
-
-      // Method 4: Price with add-ons (e.g., "85 +MG +CS" for Meet&Greet + Child Seat)
-      const priceWithAddonsMatch = text.match(/^£?(\d+(?:\.\d{2})?)\s+(.+)$/);
-      if (priceWithAddonsMatch) {
-        const price = parseFloat(priceWithAddonsMatch[1]);
-        const addonsText = priceWithAddonsMatch[2];
-        await handlePriceWithAddons(formattedPhone, price, addonsText);
         return;
       }
     }
@@ -359,6 +390,172 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
       process.env.PRICING_TEAM_PHONE,
       `❌ Error processing quote: ${error.message}`
     );
+  }
+};
+
+/**
+ * Handle short format approve (e.g., "001 OK")
+ */
+const handleShortApprove = async (pricingTeamPhone, jobNumber) => {
+  try {
+    logger.info(`Short approve received: Job ${jobNumber}`);
+
+    // Find enquiry by job number (last 3 digits of reference)
+    const allEnquiries = await Enquiry.findAll();
+    const enquiry = allEnquiries.find((e) => e.referenceNumber.endsWith(jobNumber));
+
+    if (!enquiry) {
+      await sendWhatsAppMessage(
+        pricingTeamPhone,
+        `❌ Job ${jobNumber} not found.\n\nCheck the reference number and try again.`
+      );
+      return;
+    }
+
+    // Check if enquiry has an AI estimate stored
+    if (!enquiry.aiEstimate || !enquiry.aiEstimate.total_amount) {
+      await sendWhatsAppMessage(
+        pricingTeamPhone,
+        `❌ No AI estimate found for ${enquiry.referenceNumber}.\n\nPlease reply with:\n${jobNumber} £[PRICE]`
+      );
+      return;
+    }
+
+    const price = enquiry.aiEstimate.total_amount;
+
+    // Update enquiry with quote
+    const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    enquiry.quotedPrice = price;
+    enquiry.status = 'quoted';
+    enquiry.quotedAt = new Date().toISOString();
+    enquiry.quotedBy = 'PRICING_TEAM';
+    enquiry.quoteValidUntil = quoteValidUntil;
+    await enquiry.save();
+
+    logger.info(`✅ AI estimate approved: £${price} for ${enquiry.referenceNumber}`);
+
+    // Send quote to customer
+    const customerMessage =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${price}\n\n` +
+      `This quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+
+    // Confirm to pricing team
+    await sendWhatsAppMessage(
+      pricingTeamPhone,
+      `✅ Quote sent!\n\n` +
+        `Job: ${jobNumber}\n` +
+        `Ref: ${enquiry.referenceNumber}\n` +
+        `Price: £${price}\n` +
+        `Customer notified.`
+    );
+  } catch (error) {
+    logger.error('Error handling short approve:', error);
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error approving quote: ${error.message}`);
+  }
+};
+
+/**
+ * Handle short format quote (e.g., "001 85", "002 95 +MG")
+ */
+const handleShortQuote = async (pricingTeamPhone, jobNumber, price, notes) => {
+  try {
+    logger.info(`Short quote received: Job ${jobNumber}, Price £${price}, Notes: ${notes}`);
+
+    // Find enquiry by job number (last 3 digits of reference)
+    const allEnquiries = await Enquiry.findAll();
+    const enquiry = allEnquiries.find((e) => e.referenceNumber.endsWith(jobNumber));
+
+    if (!enquiry) {
+      await sendWhatsAppMessage(
+        pricingTeamPhone,
+        `❌ Job ${jobNumber} not found.\n\nCheck the reference number and try again.`
+      );
+      return;
+    }
+
+    // Parse add-ons if present
+    let finalNotes = notes;
+    if (notes) {
+      const addons = [];
+      const addonMap = {
+        '+MG': 'Meet & Greet',
+        '+CS': 'Child Seat',
+        '+BS': 'Booster Seat',
+        '+WC': 'Wheelchair Accessible',
+        '+LG': 'Extra Luggage',
+        '+WF': 'WiFi',
+        '+WA': 'Wait & Return',
+      };
+
+      Object.keys(addonMap).forEach((code) => {
+        if (notes.toUpperCase().includes(code)) {
+          addons.push(addonMap[code]);
+        }
+      });
+
+      if (addons.length > 0) {
+        finalNotes = `Includes: ${addons.join(', ')}`;
+      }
+    }
+
+    // Update enquiry with quote
+    const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    enquiry.quotedPrice = price;
+    enquiry.status = 'quoted';
+    enquiry.quotedAt = new Date().toISOString();
+    enquiry.quotedBy = 'PRICING_TEAM';
+    enquiry.quoteValidUntil = quoteValidUntil;
+    await enquiry.save();
+
+    logger.info(`✅ Quote submitted: £${price} for ${enquiry.referenceNumber}`);
+
+    // Send quote to customer
+    const customerMessage =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${price}\n` +
+      `${finalNotes ? `\n📝 ${finalNotes}\n` : ''}` +
+      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+
+    // Confirm to pricing team
+    await sendWhatsAppMessage(
+      pricingTeamPhone,
+      `✅ Quote sent!\n\n` +
+        `Job: ${jobNumber}\n` +
+        `Ref: ${enquiry.referenceNumber}\n` +
+        `Price: £${price}\n` +
+        `${finalNotes ? `Notes: ${finalNotes}\n` : ''}` +
+        `Customer notified.`
+    );
+  } catch (error) {
+    logger.error('Error handling short quote:', error);
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error submitting quote: ${error.message}`);
   }
 };
 
