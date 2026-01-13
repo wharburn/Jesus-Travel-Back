@@ -38,12 +38,27 @@ export const processWhatsAppMessage = async (message) => {
         return;
       }
 
-      // Method 2: Simple price reply (just the number)
+      // Method 2: Quick approve AI estimate (OK, ✓, APPROVE, etc.)
+      if (text.match(/^(OK|✓|✅|APPROVE|ACCEPT|YES)$/i)) {
+        await handleQuickApprove(formattedPhone);
+        return;
+      }
+
+      // Method 3: Simple price reply (just the number)
       const simplePriceMatch = text.match(/^£?(\d+(?:\.\d{2})?)(?:\s+(.+))?$/);
       if (simplePriceMatch) {
         const price = parseFloat(simplePriceMatch[1]);
         const notes = simplePriceMatch[2] || '';
         await handleSimplePriceQuote(formattedPhone, price, notes);
+        return;
+      }
+
+      // Method 4: Price with add-ons (e.g., "85 +MG +CS" for Meet&Greet + Child Seat)
+      const priceWithAddonsMatch = text.match(/^£?(\d+(?:\.\d{2})?)\s+(.+)$/);
+      if (priceWithAddonsMatch) {
+        const price = parseFloat(priceWithAddonsMatch[1]);
+        const addonsText = priceWithAddonsMatch[2];
+        await handlePriceWithAddons(formattedPhone, price, addonsText);
         return;
       }
     }
@@ -344,6 +359,122 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
       process.env.PRICING_TEAM_PHONE,
       `❌ Error processing quote: ${error.message}`
     );
+  }
+};
+
+/**
+ * Handle quick approve of AI estimate (OK, ✓, etc.)
+ */
+const handleQuickApprove = async (pricingTeamPhone) => {
+  try {
+    logger.info('Quick approve received from pricing team');
+
+    // Find the most recent pending_quote enquiry
+    const allEnquiries = await Enquiry.findAll();
+    const pendingEnquiries = allEnquiries
+      .filter((e) => e.status === 'pending_quote')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (pendingEnquiries.length === 0) {
+      await sendWhatsAppMessage(pricingTeamPhone, `❌ No pending enquiries found to approve.`);
+      return;
+    }
+
+    const enquiry = pendingEnquiries[0];
+
+    // Check if enquiry has an AI estimate stored
+    if (!enquiry.aiEstimate || !enquiry.aiEstimate.total_amount) {
+      await sendWhatsAppMessage(
+        pricingTeamPhone,
+        `❌ No AI estimate found for ${enquiry.referenceNumber}.\n\nPlease reply with a price:\nQUOTE ${enquiry.referenceNumber} £[PRICE]`
+      );
+      return;
+    }
+
+    const price = enquiry.aiEstimate.total_amount;
+
+    // Update enquiry with quote
+    const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+    enquiry.quotedPrice = price;
+    enquiry.status = 'quoted';
+    enquiry.quotedAt = new Date().toISOString();
+    enquiry.quotedBy = 'PRICING_TEAM';
+    enquiry.quoteValidUntil = quoteValidUntil;
+    await enquiry.save();
+
+    logger.info(`✅ AI estimate approved: £${price} for ${enquiry.referenceNumber}`);
+
+    // Send quote to customer
+    const customerMessage =
+      `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+      `Dear ${enquiry.customerName},\n\n` +
+      `Thank you for your enquiry. Here's your quote:\n\n` +
+      `📍 From: ${enquiry.pickupLocation}\n` +
+      `📍 To: ${enquiry.dropoffLocation}\n` +
+      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+      `👥 Passengers: ${enquiry.passengers}\n\n` +
+      `💰 Total Price: £${price}\n\n` +
+      `This quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}\n\n` +
+      `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+    await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+
+    // Confirm to pricing team
+    await sendWhatsAppMessage(
+      pricingTeamPhone,
+      `✅ AI estimate approved and sent!\n\n` +
+        `Ref: ${enquiry.referenceNumber}\n` +
+        `Price: £${price}\n` +
+        `Customer has been notified.`
+    );
+  } catch (error) {
+    logger.error('Error handling quick approve:', error);
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error approving quote: ${error.message}`);
+  }
+};
+
+/**
+ * Handle price with add-ons (e.g., "85 +MG +CS")
+ */
+const handlePriceWithAddons = async (pricingTeamPhone, price, addonsText) => {
+  try {
+    logger.info(`Price with add-ons received: £${price}, add-ons: ${addonsText}`);
+
+    // Parse add-ons
+    const addons = [];
+    const addonMap = {
+      '+MG': 'Meet & Greet',
+      '+CS': 'Child Seat',
+      '+BS': 'Booster Seat',
+      '+WC': 'Wheelchair Accessible',
+      '+LG': 'Extra Luggage',
+      '+WF': 'WiFi',
+      '+WA': 'Wait & Return',
+    };
+
+    let notes = '';
+    Object.keys(addonMap).forEach((code) => {
+      if (addonsText.toUpperCase().includes(code)) {
+        addons.push(addonMap[code]);
+      }
+    });
+
+    if (addons.length > 0) {
+      notes = `Includes: ${addons.join(', ')}`;
+    } else {
+      // If no recognized add-ons, treat the whole text as notes
+      notes = addonsText;
+    }
+
+    // Use the simple price quote handler with notes
+    await handleSimplePriceQuote(pricingTeamPhone, price, notes);
+  } catch (error) {
+    logger.error('Error handling price with add-ons:', error);
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error processing quote: ${error.message}`);
   }
 };
 

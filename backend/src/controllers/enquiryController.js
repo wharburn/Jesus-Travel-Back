@@ -25,6 +25,20 @@ async function notifyPricingTeamManual(enquiry) {
         });
 
         aiEstimate = quote;
+
+        // Store AI estimate in enquiry for quick approval
+        enquiry.aiEstimate = {
+          total_amount: quote.pricing.total_amount,
+          base_fare: quote.pricing.base_fare,
+          distance_charge: quote.pricing.distance_charge,
+          zone_charges: quote.pricing.zone_charges,
+          time_multiplier: quote.pricing.time_multiplier_name,
+          distance: quote.distance.text,
+          duration: quote.duration.text,
+          zones: quote.zones.map((z) => z.zone_name),
+        };
+        await enquiry.save();
+
         estimateMessage =
           `\n🤖 AI PRICE ESTIMATE: £${quote.pricing.total_amount}\n` +
           `📏 Distance: ${quote.distance.text} (${quote.duration.text})\n` +
@@ -59,11 +73,20 @@ async function notifyPricingTeamManual(enquiry) {
         `Vehicle: ${enquiry.vehicleType}\n` +
         `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
         estimateMessage +
-        `📝 To submit a quote, reply:\n` +
-        `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
-        `Examples:\n` +
-        `QUOTE ${enquiry.referenceNumber} £${aiEstimate ? aiEstimate.pricing.total_amount : '150'}\n` +
-        `QUOTE ${enquiry.referenceNumber} £${aiEstimate ? Math.round(aiEstimate.pricing.total_amount * 1.1) : '200'} Includes meet & greet`;
+        `📝 QUICK REPLIES:\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `${aiEstimate ? `✅ Reply "OK" to approve £${aiEstimate.pricing.total_amount}\n` : ''}` +
+        `💰 Reply with just a number: "${aiEstimate ? aiEstimate.pricing.total_amount : '85'}"\n` +
+        `📦 Add extras: "${aiEstimate ? aiEstimate.pricing.total_amount : '85'} +MG +CS"\n` +
+        `   +MG = Meet & Greet\n` +
+        `   +CS = Child Seat\n` +
+        `   +BS = Booster Seat\n` +
+        `   +WC = Wheelchair\n` +
+        `   +LG = Extra Luggage\n` +
+        `   +WF = WiFi\n` +
+        `   +WA = Wait & Return\n\n` +
+        `Or use full format:\n` +
+        `QUOTE ${enquiry.referenceNumber} £[PRICE] [NOTES]`;
 
       await sendWhatsAppMessage(pricingTeamPhone, message);
       logger.info(`📱 Manual quote request sent to pricing team with AI estimate`);
