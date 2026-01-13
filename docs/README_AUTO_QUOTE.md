@@ -35,11 +35,11 @@ graph LR
     Customer[Customer] -->|Submits Booking| System[JT System]
     System -->|Auto Mode ON| Auto[🤖 Instant Quote]
     System -->|Auto Mode OFF| Manual[👨‍💼 Team Review]
-    
+
     Auto --> Customer
     Manual --> Team[Pricing Team]
     Team --> Customer
-    
+
     style Auto fill:#fef3c7,stroke:#f59e0b,stroke-width:3px,color:#000
     style Manual fill:#dbeafe,stroke:#3b82f6,stroke-width:3px,color:#000
 ```
@@ -187,23 +187,23 @@ Admin Dashboard → Settings → Auto-Quote Mode
 
 ## Support
 
-- 📖 **Quick Start**: `QUICK_START_AUTO_QUOTE.md`
-- 📚 **Full Guide**: `AUTO_QUOTE_MODE_GUIDE.md`
-- 🔧 **Technical**: `AUTO_QUOTE_IMPLEMENTATION_SUMMARY.md`
+- 📖 **Quick Start**: [QUICK_START_AUTO_QUOTE.md](./QUICK_START_AUTO_QUOTE.md)
+- 📚 **Full Guide**: [AUTO_QUOTE_MODE_GUIDE.md](./AUTO_QUOTE_MODE_GUIDE.md)
+- 🔧 **Technical**: [AUTO_QUOTE_IMPLEMENTATION_SUMMARY.md](./AUTO_QUOTE_IMPLEMENTATION_SUMMARY.md)
 - 📝 **Logs**: `backend/logs/combined.log`
 
 ---
 
 ## Next Steps
 
-1. ✅ Read `QUICK_START_AUTO_QUOTE.md`
+1. ✅ Read [QUICK_START_AUTO_QUOTE.md](./QUICK_START_AUTO_QUOTE.md)
 2. ✅ Enable auto-quote mode
 3. ✅ Test with sample booking
 4. ✅ Monitor first few quotes
-5. ✅ Review `AUTO_QUOTE_MODE_GUIDE.md` for advanced features
+5. ✅ Review [AUTO_QUOTE_MODE_GUIDE.md](./AUTO_QUOTE_MODE_GUIDE.md) for advanced features
 
 ---
 
-**Status**: ✅ Ready for Production  
+**Status**: ✅ Ready for Production
 **Last Updated**: January 2026
 
