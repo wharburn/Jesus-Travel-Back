@@ -44,6 +44,40 @@ export const handleWhatsAppWebhook = async (req, res) => {
       processWhatsAppMessage(message).catch((error) => {
         logger.error('❌ Error processing WhatsApp message:', error);
       });
+    } else if (webhookData.typeWebhook === 'outgoingMessageReceived') {
+      // Also process outgoing messages (for pricing team commands sent via WhatsApp Web/App)
+      const messageData = webhookData.messageData;
+
+      // Extract message text
+      let text = '';
+      if (messageData.textMessageData?.textMessage) {
+        text = messageData.textMessageData.textMessage;
+      } else if (messageData.extendedTextMessageData?.text) {
+        text = messageData.extendedTextMessageData.text;
+      }
+
+      // Get chat ID from webhook data
+      const chatId = webhookData.chatId || webhookData.senderData?.chatId;
+
+      // Extract phone number from chatId (remove @c.us)
+      const phoneNumber = chatId ? chatId.replace('@c.us', '') : '';
+
+      // Create message object
+      const message = {
+        type: messageData.typeMessage || 'textMessage',
+        text: text,
+        sender: chatId,
+        senderName: 'Pricing Team',
+        chatId: chatId,
+        timestamp: webhookData.timestamp || Date.now(),
+      };
+
+      logger.info(`📤 Processing outgoing message: "${message.text}"`);
+
+      // Process the message (will be handled as pricing team command)
+      processWhatsAppMessage(message).catch((error) => {
+        logger.error('❌ Error processing outgoing WhatsApp message:', error);
+      });
     } else {
       logger.info(`ℹ️ Ignoring webhook type: ${webhookData.typeWebhook}`);
     }
