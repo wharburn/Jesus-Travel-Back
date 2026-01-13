@@ -50,6 +50,13 @@ async function loadSettings() {
     });
 
     if (!response.ok) {
+      // If unauthorized, clear token and redirect to login
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'admin.html';
+        return;
+      }
       throw new Error('Failed to load settings');
     }
 
@@ -149,6 +156,13 @@ async function saveSettings() {
     });
 
     if (!response.ok) {
+      // If unauthorized, clear token and redirect to login
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'admin.html';
+        return;
+      }
       throw new Error('Failed to save settings');
     }
 
