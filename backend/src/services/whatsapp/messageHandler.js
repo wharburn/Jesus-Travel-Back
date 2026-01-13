@@ -413,7 +413,7 @@ const handleShortApprove = async (pricingTeamPhone, jobNumber) => {
     }
 
     // Check if enquiry has an AI estimate stored
-    if (!enquiry.aiEstimate || !enquiry.aiEstimate.total_amount) {
+    if (!enquiry.aiEstimate || !enquiry.aiEstimate.totalPrice) {
       await sendWhatsAppMessage(
         pricingTeamPhone,
         `❌ No AI estimate found for ${enquiry.referenceNumber}.\n\nPlease reply with:\n${jobNumber} £[PRICE]`
@@ -421,7 +421,7 @@ const handleShortApprove = async (pricingTeamPhone, jobNumber) => {
       return;
     }
 
-    const price = enquiry.aiEstimate.total_amount;
+    const price = parseFloat(enquiry.aiEstimate.totalPrice);
 
     // Update enquiry with quote
     const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
@@ -580,7 +580,7 @@ const handleQuickApprove = async (pricingTeamPhone) => {
     const enquiry = pendingEnquiries[0];
 
     // Check if enquiry has an AI estimate stored
-    if (!enquiry.aiEstimate || !enquiry.aiEstimate.total_amount) {
+    if (!enquiry.aiEstimate || !enquiry.aiEstimate.totalPrice) {
       await sendWhatsAppMessage(
         pricingTeamPhone,
         `❌ No AI estimate found for ${enquiry.referenceNumber}.\n\nPlease reply with a price:\nQUOTE ${enquiry.referenceNumber} £[PRICE]`
@@ -588,7 +588,7 @@ const handleQuickApprove = async (pricingTeamPhone) => {
       return;
     }
 
-    const price = enquiry.aiEstimate.total_amount;
+    const price = parseFloat(enquiry.aiEstimate.totalPrice);
 
     // Update enquiry with quote
     const quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
