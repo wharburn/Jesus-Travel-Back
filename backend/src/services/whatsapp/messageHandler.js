@@ -5,6 +5,48 @@ import { processWithAI } from '../ai/openrouter.js';
 import { sendWhatsAppMessage } from './client.js';
 
 /**
+ * Format date to DD MMM YYYY format (e.g., "20 Jan 2026")
+ * @param {string} dateString - Date in YYYY-MM-DD format
+ * @returns {string} - Formatted date
+ */
+const formatDate = (dateString) => {
+  if (!dateString) return dateString;
+
+  try {
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+/**
+ * Format datetime to DD MMM YYYY at HH:MM format
+ * @param {string} isoString - ISO datetime string
+ * @returns {string} - Formatted datetime
+ */
+const formatDateTime = (isoString) => {
+  if (!isoString) return isoString;
+
+  try {
+    const date = new Date(isoString);
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch (error) {
+    return isoString;
+  }
+};
+
+/**
  * Process incoming WhatsApp message
  */
 export const processWhatsAppMessage = async (message) => {
@@ -157,7 +199,7 @@ export const processWhatsAppMessage = async (message) => {
             `Phone: ${enquiry.customerPhone}\n` +
             `From: ${enquiry.pickupLocation}\n` +
             `To: ${enquiry.dropoffLocation}\n` +
-            `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+            `Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
             `Passengers: ${enquiry.passengers}\n` +
             `Vehicle: ${enquiry.vehicleType}\n` +
             `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}`
@@ -273,15 +315,12 @@ const handleSimplePriceQuote = async (pricingTeamPhone, price, notes) => {
       `Thank you for your enquiry. Here's your quote:\n\n` +
       `📍 From: ${enquiry.pickupLocation}\n` +
       `📍 To: ${enquiry.dropoffLocation}\n` +
-      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `📅 Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
       `🚗 Vehicle: ${enquiry.vehicleType}\n` +
       `👥 Passengers: ${enquiry.passengers}\n\n` +
       `💰 Total Price: £${price}\n` +
       `${notes ? `\n📝 Notes: ${notes}\n` : ''}` +
-      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })}\n\n` +
+      `\nThis quote is valid until ${formatDateTime(quoteValidUntil)}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
     // Log the quote message prominently
@@ -370,15 +409,12 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
       `Thank you for your enquiry. Here's your quote:\n\n` +
       `📍 From: ${enquiry.pickupLocation}\n` +
       `📍 To: ${enquiry.dropoffLocation}\n` +
-      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `📅 Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
       `🚗 Vehicle: ${enquiry.vehicleType}\n` +
       `👥 Passengers: ${enquiry.passengers}\n\n` +
       `💰 Total Price: £${price}\n` +
       `${notes ? `\n📝 Notes: ${notes}\n` : ''}` +
-      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })}\n\n` +
+      `\nThis quote is valid until ${formatDateTime(quoteValidUntil)}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
     await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
@@ -441,14 +477,11 @@ const handleShortApprove = async (pricingTeamPhone, jobNumber) => {
       `Thank you for your enquiry. Here's your quote:\n\n` +
       `📍 From: ${enquiry.pickupLocation}\n` +
       `📍 To: ${enquiry.dropoffLocation}\n` +
-      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `📅 Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
       `🚗 Vehicle: ${enquiry.vehicleType}\n` +
       `👥 Passengers: ${enquiry.passengers}\n\n` +
       `💰 Total Price: £${price}\n\n` +
-      `This quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })}\n\n` +
+      `This quote is valid until ${formatDateTime(quoteValidUntil)}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
     await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
@@ -530,15 +563,12 @@ const handleShortQuote = async (pricingTeamPhone, jobNumber, price, notes) => {
       `Thank you for your enquiry. Here's your quote:\n\n` +
       `📍 From: ${enquiry.pickupLocation}\n` +
       `📍 To: ${enquiry.dropoffLocation}\n` +
-      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `📅 Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
       `🚗 Vehicle: ${enquiry.vehicleType}\n` +
       `👥 Passengers: ${enquiry.passengers}\n\n` +
       `💰 Total Price: £${price}\n` +
       `${finalNotes ? `\n📝 ${finalNotes}\n` : ''}` +
-      `\nThis quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })}\n\n` +
+      `\nThis quote is valid until ${formatDateTime(quoteValidUntil)}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
     await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
@@ -608,14 +638,11 @@ const handleQuickApprove = async (pricingTeamPhone) => {
       `Thank you for your enquiry. Here's your quote:\n\n` +
       `📍 From: ${enquiry.pickupLocation}\n` +
       `📍 To: ${enquiry.dropoffLocation}\n` +
-      `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+      `📅 Date: ${formatDate(enquiry.pickupDate)} at ${enquiry.pickupTime}\n` +
       `🚗 Vehicle: ${enquiry.vehicleType}\n` +
       `👥 Passengers: ${enquiry.passengers}\n\n` +
       `💰 Total Price: £${price}\n\n` +
-      `This quote is valid until ${new Date(quoteValidUntil).toLocaleString('en-GB', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })}\n\n` +
+      `This quote is valid until ${formatDateTime(quoteValidUntil)}\n\n` +
       `Reply "YES" to confirm your booking or contact us for any questions.`;
 
     await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
