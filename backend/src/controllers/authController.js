@@ -29,8 +29,10 @@ export const login = async (req, res, next) => {
 
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET;
-    logger.info('Login - JWT Secret available:', !!jwtSecret);
-    logger.info('Login - JWT Secret length:', jwtSecret?.length);
+    logger.info(`Login - JWT_SECRET exists: ${!!process.env.JWT_SECRET}`);
+    logger.info(`Login - ADMIN_JWT_SECRET exists: ${!!process.env.ADMIN_JWT_SECRET}`);
+    logger.info(`Login - Using secret length: ${jwtSecret?.length}`);
+    logger.info(`Login - Secret preview: ${jwtSecret?.substring(0, 5)}...`);
 
     const token = jwt.sign(
       {
