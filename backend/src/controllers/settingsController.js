@@ -42,18 +42,19 @@ const getDefaultSettings = () => ({
 export const getSettings = async (req, res) => {
   try {
     // Try to get settings from Redis
-    const settingsJson = await redis.get(SETTINGS_KEY);
+    // Note: Upstash Redis automatically handles JSON serialization
+    let settings = await redis.get(SETTINGS_KEY);
 
-    let settings;
-    if (settingsJson) {
-      settings = JSON.parse(settingsJson);
-      logger.info('Settings loaded from Redis');
-    } else {
+    // Check if settings exist and are valid
+    if (!settings || typeof settings !== 'object' || settings === '[object Object]') {
+      logger.warn('Settings not found or invalid, initializing defaults');
       // Use default settings
       settings = getDefaultSettings();
-      // Save to Redis
-      await redis.set(SETTINGS_KEY, JSON.stringify(settings));
+      // Save to Redis (Upstash automatically serializes objects - no JSON.stringify needed)
+      await redis.set(SETTINGS_KEY, settings);
       logger.info('Default settings initialized');
+    } else {
+      logger.info('Settings loaded from Redis');
     }
 
     res.json({
@@ -79,9 +80,11 @@ export const updateSettings = async (req, res) => {
   try {
     const updates = req.body;
 
-    // Get current settings
-    const settingsJson = await redis.get(SETTINGS_KEY);
-    let settings = settingsJson ? JSON.parse(settingsJson) : getDefaultSettings();
+    // Get current settings (Upstash automatically deserializes)
+    let settings = await redis.get(SETTINGS_KEY);
+    if (!settings || typeof settings !== 'object') {
+      settings = getDefaultSettings();
+    }
 
     // Merge updates with current settings
     settings = {
@@ -113,8 +116,8 @@ export const updateSettings = async (req, res) => {
       },
     };
 
-    // Save to Redis
-    await redis.set(SETTINGS_KEY, JSON.stringify(settings));
+    // Save to Redis (Upstash automatically serializes - no JSON.stringify needed)
+    await redis.set(SETTINGS_KEY, settings);
 
     logger.info('Settings updated successfully', { updates });
 
