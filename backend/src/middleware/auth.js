@@ -26,6 +26,8 @@ export const authenticate = (req, res, next) => {
     logger.info(`Auth - ADMIN_JWT_SECRET exists: ${!!process.env.ADMIN_JWT_SECRET}`);
     logger.info(`Auth - Using secret length: ${jwtSecret?.length}`);
     logger.info(`Auth - Secret preview: ${jwtSecret?.substring(0, 5)}...`);
+    logger.info(`Auth - Token length: ${token?.length}`);
+    logger.info(`Auth - Token preview: ${token?.substring(0, 20)}...`);
 
     // Verify token
     const decoded = jwt.verify(token, jwtSecret);

@@ -5,11 +5,48 @@ import { sendWhatsAppMessage } from '../services/whatsapp/client.js';
 import { errorResponse, successResponse } from '../utils/helpers.js';
 import logger from '../utils/logger.js';
 
-// Helper function to notify pricing team (manual mode)
+// Helper function to notify pricing team (manual mode with AI estimate)
 async function notifyPricingTeamManual(enquiry) {
   try {
     const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
     if (pricingTeamPhone) {
+      let aiEstimate = null;
+      let estimateMessage = '';
+
+      // Try to get AI price estimate
+      try {
+        const pickupDatetime = `${enquiry.pickupDate}T${enquiry.pickupTime}:00Z`;
+        const quote = await calculateQuote({
+          pickupAddress: enquiry.pickupLocation,
+          dropoffAddress: enquiry.dropoffLocation,
+          pickupDatetime: pickupDatetime,
+          vehicleType: enquiry.vehicleType,
+          passengers: enquiry.passengers,
+        });
+
+        aiEstimate = quote;
+        estimateMessage =
+          `\n🤖 AI PRICE ESTIMATE: £${quote.pricing.total_amount}\n` +
+          `📏 Distance: ${quote.distance.text} (${quote.duration.text})\n` +
+          `⏰ ${quote.pricing.time_multiplier_name} pricing\n` +
+          `${quote.zones.length > 0 ? `📍 Zones: ${quote.zones.map((z) => z.zone_name).join(', ')}\n` : ''}` +
+          `\nBreakdown:\n` +
+          `  Base fare: £${quote.pricing.base_fare}\n` +
+          `  Distance: £${quote.pricing.distance_charge}\n` +
+          `  ${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges}\n` : ''}` +
+          `\n━━━━━━━━━━━━━━━━━━━━\n`;
+
+        logger.info(
+          `🤖 AI estimate calculated: £${quote.pricing.total_amount} for ${enquiry.referenceNumber}`
+        );
+      } catch (error) {
+        logger.warn(
+          `Could not calculate AI estimate for ${enquiry.referenceNumber}:`,
+          error.message
+        );
+        estimateMessage = `\n⚠️ AI estimate unavailable\n\n━━━━━━━━━━━━━━━━━━━━\n`;
+      }
+
       const message =
         `🆕 New Booking Enquiry\n\n` +
         `Ref: ${enquiry.referenceNumber}\n` +
@@ -21,15 +58,15 @@ async function notifyPricingTeamManual(enquiry) {
         `Passengers: ${enquiry.passengers}\n` +
         `Vehicle: ${enquiry.vehicleType}\n` +
         `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
-        `\n━━━━━━━━━━━━━━━━━━━━\n` +
+        estimateMessage +
         `📝 To submit a quote, reply:\n` +
         `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
-        `Example:\n` +
-        `QUOTE ${enquiry.referenceNumber} £150\n` +
-        `QUOTE ${enquiry.referenceNumber} £200 Includes meet & greet`;
+        `Examples:\n` +
+        `QUOTE ${enquiry.referenceNumber} £${aiEstimate ? aiEstimate.pricing.total_amount : '150'}\n` +
+        `QUOTE ${enquiry.referenceNumber} £${aiEstimate ? Math.round(aiEstimate.pricing.total_amount * 1.1) : '200'} Includes meet & greet`;
 
       await sendWhatsAppMessage(pricingTeamPhone, message);
-      logger.info(`📱 Manual quote request sent to pricing team`);
+      logger.info(`📱 Manual quote request sent to pricing team with AI estimate`);
     }
   } catch (error) {
     logger.error('Failed to notify pricing team:', error);
