@@ -41,6 +41,7 @@ class Enquiry {
     this.partnerBookingReference = data.partnerBookingReference || null;
     this.partnerNotes = data.partnerNotes || null;
     this.conversationHistory = data.conversationHistory || [];
+    this.aiEstimate = data.aiEstimate || null; // AI-calculated price estimate
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = data.updatedAt || new Date().toISOString();
   }
@@ -304,6 +305,7 @@ class Enquiry {
       quoteValidUntil: this.quoteValidUntil,
       source: this.source,
       conversationHistory: this.conversationHistory || [],
+      aiEstimate: this.aiEstimate || null,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

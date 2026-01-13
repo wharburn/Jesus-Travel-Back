@@ -40,16 +40,18 @@ async function notifyPricingTeamManual(enquiry) {
 
         aiEstimate = quote;
 
-        // Store AI estimate in enquiry for quick approval
+        // Store AI estimate in enquiry for frontend display
+        const breakdown =
+          `Base fare: £${quote.pricing.base_fare.toFixed(2)}\n` +
+          `Distance (${quote.distance.text}): £${quote.pricing.distance_charge.toFixed(2)}\n` +
+          `${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges.toFixed(2)}\n` : ''}` +
+          `Time multiplier (${quote.pricing.time_multiplier_name}): ${quote.pricing.time_multiplier}x`;
+
         enquiry.aiEstimate = {
-          total_amount: quote.pricing.total_amount,
-          base_fare: quote.pricing.base_fare,
-          distance_charge: quote.pricing.distance_charge,
-          zone_charges: quote.pricing.zone_charges,
-          time_multiplier: quote.pricing.time_multiplier_name,
+          totalPrice: quote.pricing.total_amount.toFixed(2),
           distance: quote.distance.text,
           duration: quote.duration.text,
-          zones: quote.zones.map((z) => z.zone_name),
+          breakdown: breakdown,
         };
         await enquiry.save();
 
