@@ -497,6 +497,10 @@ function viewEnquiry(id) {
   const enquiry = allEnquiries.find((e) => e.id === id);
   if (!enquiry) return;
 
+  // Debug: Log the enquiry data to see if aiEstimate is present
+  console.log('📊 Enquiry data:', enquiry);
+  console.log('🤖 AI Estimate:', enquiry.aiEstimate);
+
   const modal = document.createElement('div');
   modal.className =
     'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
