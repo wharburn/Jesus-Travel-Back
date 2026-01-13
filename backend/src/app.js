@@ -23,6 +23,15 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Add headers for Chrome's Private Network Access
+app.use((req, res, next) => {
+  // Handle preflight requests for private network access
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
