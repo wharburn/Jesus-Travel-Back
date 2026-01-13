@@ -4,7 +4,7 @@ import logger from './logger.js';
 const SETTINGS_KEY = 'app:settings';
 
 // Default settings from environment variables
-const getDefaultSettings = () => ({
+export const getDefaultSettings = () => ({
   business: {
     name: process.env.BUSINESS_NAME || 'JT Chauffeur Services',
     phone: process.env.BUSINESS_PHONE || '+447700900000',
@@ -27,6 +27,29 @@ const getDefaultSettings = () => ({
     validityDays: 2,
     autoSendToCustomer: true,
     requireApproval: false,
+    autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true',
+  },
+  pricingRules: {
+    standardSedan: {
+      baseFare: 50.0,
+      perKmRate: 2.0,
+    },
+    executiveSedan: {
+      baseFare: 60.0,
+      perKmRate: 2.5,
+    },
+    luxurySedan: {
+      baseFare: 80.0,
+      perKmRate: 3.0,
+    },
+    executiveMPV: {
+      baseFare: 100.0,
+      perKmRate: 3.8,
+    },
+    luxuryMPV: {
+      baseFare: 120.0,
+      perKmRate: 4.5,
+    },
   },
   notifications: {
     emailEnabled: true,
@@ -41,17 +64,30 @@ const getDefaultSettings = () => ({
  */
 export const getSettings = async () => {
   try {
-    const settingsJson = await redis.get(SETTINGS_KEY);
+    let settings = await redis.get(SETTINGS_KEY);
 
-    if (settingsJson) {
-      return JSON.parse(settingsJson);
+    // Handle legacy string storage or missing value
+    if (!settings || typeof settings !== 'object' || settings === '[object Object]') {
+      const defaults = getDefaultSettings();
+      await redis.set(SETTINGS_KEY, defaults);
+      return defaults;
     }
 
-    // Return defaults
+    // Merge with defaults to ensure all fields are present (for backward compatibility)
     const defaults = getDefaultSettings();
-    // Save defaults to Redis for next time
-    await redis.set(SETTINGS_KEY, JSON.stringify(defaults));
-    return defaults;
+    settings = {
+      ...defaults,
+      ...settings,
+      business: { ...defaults.business, ...settings.business },
+      pricingTeam: { ...defaults.pricingTeam, ...settings.pricingTeam },
+      whatsapp: { ...defaults.whatsapp, ...settings.whatsapp },
+      ai: { ...defaults.ai, ...settings.ai },
+      quotes: { ...defaults.quotes, ...settings.quotes },
+      pricingRules: { ...defaults.pricingRules, ...(settings.pricingRules || {}) },
+      notifications: { ...defaults.notifications, ...settings.notifications },
+    };
+
+    return settings;
   } catch (error) {
     logger.error('Error getting settings, using defaults:', error);
     return getDefaultSettings();
@@ -84,11 +120,10 @@ export const updateSettings = async (updates) => {
   try {
     const current = await getSettings();
     const updated = { ...current, ...updates };
-    await redis.set(SETTINGS_KEY, JSON.stringify(updated));
+    await redis.set(SETTINGS_KEY, updated);
     return updated;
   } catch (error) {
     logger.error('Error updating settings:', error);
     throw error;
   }
 };
-

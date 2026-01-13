@@ -1,16 +1,70 @@
 import 'dotenv/config';
 // import { query } from '../../config/postgres.js'; // Disabled - using in-memory pricing rules
+import { getSetting } from '../../utils/settings.js';
 import { getJourneyDetails } from './googleMaps.js';
 import { getTimeMultiplier } from './timeMultipliers.js';
 import { detectJourneyZones } from './zoneDetection.js';
 
-// Pricing rules (in-memory, no database required)
-const PRICING_RULES = {
+// Default pricing rules (used when settings are missing or invalid)
+const DEFAULT_PRICING_RULES = {
   'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0, max_passengers: 4 },
   'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 4 },
   'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 4 },
   'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8, max_passengers: 6 },
   'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5, max_passengers: 7 },
+};
+
+let cachedPricingRules = null;
+
+const mapSettingToRule = (settingsRules, key, vehicleName) => {
+  const fallback = DEFAULT_PRICING_RULES[vehicleName];
+  const rule = (settingsRules && settingsRules[key]) || {};
+
+  const baseFare = parseFloat(
+    rule.baseFare !== undefined && rule.baseFare !== null ? rule.baseFare : fallback.base_fare
+  );
+  const perKmRate = parseFloat(
+    rule.perKmRate !== undefined && rule.perKmRate !== null ? rule.perKmRate : fallback.per_km_rate
+  );
+
+  return {
+    base_fare: Number.isFinite(baseFare) ? baseFare : fallback.base_fare,
+    per_km_rate: Number.isFinite(perKmRate) ? perKmRate : fallback.per_km_rate,
+    max_passengers: fallback.max_passengers,
+  };
+};
+
+const loadPricingRulesFromSettings = async () => {
+  try {
+    const settingsRules = await getSetting('pricingRules');
+
+    if (!settingsRules || typeof settingsRules !== 'object') {
+      cachedPricingRules = { ...DEFAULT_PRICING_RULES };
+      return cachedPricingRules;
+    }
+
+    const rules = {
+      'Standard Sedan': mapSettingToRule(settingsRules, 'standardSedan', 'Standard Sedan'),
+      'Executive Sedan': mapSettingToRule(settingsRules, 'executiveSedan', 'Executive Sedan'),
+      'Luxury Sedan': mapSettingToRule(settingsRules, 'luxurySedan', 'Luxury Sedan'),
+      'Executive MPV': mapSettingToRule(settingsRules, 'executiveMPV', 'Executive MPV'),
+      'Luxury MPV': mapSettingToRule(settingsRules, 'luxuryMPV', 'Luxury MPV'),
+    };
+
+    cachedPricingRules = rules;
+    return rules;
+  } catch (error) {
+    console.error('Error loading pricing rules from settings:', error);
+    cachedPricingRules = { ...DEFAULT_PRICING_RULES };
+    return cachedPricingRules;
+  }
+};
+
+const getActivePricingRules = async () => {
+  if (cachedPricingRules) {
+    return cachedPricingRules;
+  }
+  return loadPricingRulesFromSettings();
 };
 
 /**
@@ -19,11 +73,12 @@ const PRICING_RULES = {
  * @returns {Promise<Object>}
  */
 const getPricingRule = async (vehicleType) => {
-  // Use in-memory pricing rules (no database required)
-  if (PRICING_RULES[vehicleType]) {
+  const rules = await getActivePricingRules();
+
+  if (rules[vehicleType]) {
     return {
       vehicle_type: vehicleType,
-      ...PRICING_RULES[vehicleType],
+      ...rules[vehicleType],
       active: true,
     };
   }

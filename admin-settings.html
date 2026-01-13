@@ -65,7 +65,9 @@
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
+              <label for="businessName" class="block text-sm font-medium text-gray-700 mb-2"
+                >Business Name</label
+              >
               <input
                 type="text"
                 id="businessName"
@@ -73,7 +75,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Business Phone</label>
+              <label for="businessPhone" class="block text-sm font-medium text-gray-700 mb-2"
+                >Business Phone</label
+              >
               <input
                 type="tel"
                 id="businessPhone"
@@ -81,7 +85,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Business Email</label>
+              <label for="businessEmail" class="block text-sm font-medium text-gray-700 mb-2"
+                >Business Email</label
+              >
               <input
                 type="email"
                 id="businessEmail"
@@ -89,7 +95,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
+              <label for="businessWhatsapp" class="block text-sm font-medium text-gray-700 mb-2"
+                >WhatsApp Number</label
+              >
               <input
                 type="tel"
                 id="businessWhatsapp"
@@ -113,7 +121,7 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="pricingTeamPhone" class="block text-sm font-medium text-gray-700 mb-2">
                 Pricing Team Phone
                 <span class="text-red-500">*</span>
               </label>
@@ -126,7 +134,9 @@
               <p class="mt-1 text-xs text-gray-500">Include country code (e.g., +44)</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Pricing Team Email</label>
+              <label for="pricingTeamEmail" class="block text-sm font-medium text-gray-700 mb-2"
+                >Pricing Team Email</label
+              >
               <input
                 type="email"
                 id="pricingTeamEmail"
@@ -149,9 +159,16 @@
               <div class="flex-1">
                 <div class="flex items-center space-x-3 mb-2">
                   <i class="fas fa-robot text-2xl text-yellow-600"></i>
-                  <h3 class="text-lg font-semibold text-gray-900">Auto-Quote Mode</h3>
+                  <h3 id="autoQuoteModeHeading" class="text-lg font-semibold text-gray-900">
+                    Auto-Quote Mode
+                  </h3>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="autoQuoteMode" class="sr-only peer" />
+                    <input
+                      type="checkbox"
+                      id="autoQuoteMode"
+                      class="sr-only peer"
+                      aria-labelledby="autoQuoteModeHeading"
+                    />
                     <div
                       class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-yellow-600"
                     ></div>
@@ -181,7 +198,7 @@
 
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
+              <label for="quoteValidityDays" class="block text-sm font-medium text-gray-700 mb-2"
                 >Quote Validity (Days)</label
               >
               <input
@@ -201,6 +218,204 @@
               <label for="autoSendToCustomer" class="ml-2 block text-sm text-gray-700">
                 Automatically send quotes to customers via WhatsApp
               </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Rules -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-pound-sign text-green-600 mr-2"></i>
+            Pricing Rules
+          </h2>
+          <p class="text-sm text-gray-600 mb-4">
+            Configure base fare and per-kilometre rate for each vehicle type. These settings are
+            used by the automatic quote engine and the estimated price shown in the admin dashboard.
+          </p>
+          <div class="space-y-4">
+            <!-- Standard Sedan -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-md font-semibold text-gray-900 mb-3">Standard Sedan</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="pricingStandardSedanBase"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Base Fare (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingStandardSedanBase"
+                    min="0"
+                    step="0.5"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="pricingStandardSedanPerKm"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Per KM Rate (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingStandardSedanPerKm"
+                    min="0"
+                    step="0.1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Sedan -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-md font-semibold text-gray-900 mb-3">Executive Sedan</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="pricingExecutiveSedanBase"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Base Fare (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingExecutiveSedanBase"
+                    min="0"
+                    step="0.5"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="pricingExecutiveSedanPerKm"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Per KM Rate (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingExecutiveSedanPerKm"
+                    min="0"
+                    step="0.1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Luxury Sedan -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-md font-semibold text-gray-900 mb-3">Luxury Sedan</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="pricingLuxurySedanBase"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Base Fare (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingLuxurySedanBase"
+                    min="0"
+                    step="0.5"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="pricingLuxurySedanPerKm"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Per KM Rate (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingLuxurySedanPerKm"
+                    min="0"
+                    step="0.1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive MPV -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-md font-semibold text-gray-900 mb-3">Executive MPV</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="pricingExecutiveMpvBase"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Base Fare (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingExecutiveMpvBase"
+                    min="0"
+                    step="0.5"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="pricingExecutiveMpvPerKm"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Per KM Rate (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingExecutiveMpvPerKm"
+                    min="0"
+                    step="0.1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Luxury MPV -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="text-md font-semibold text-gray-900 mb-3">Luxury MPV</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="pricingLuxuryMpvBase"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Base Fare (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingLuxuryMpvBase"
+                    min="0"
+                    step="0.5"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    for="pricingLuxuryMpvPerKm"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Per KM Rate (£)
+                  </label>
+                  <input
+                    type="number"
+                    id="pricingLuxuryMpvPerKm"
+                    min="0"
+                    step="0.1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

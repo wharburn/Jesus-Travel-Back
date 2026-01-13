@@ -16,6 +16,16 @@ let activeStatusFilter = null; // 'pending_quote', 'quoted', 'confirmed', or nul
 let currentSortBy = 'date-desc';
 let googleMapsLoaded = false;
 let googleMapsApiKey = '';
+const DEFAULT_PRICING_RULES = {
+  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0 },
+  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5 },
+  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0 },
+  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8 },
+  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5 },
+  mpv: { base_fare: 100.0, per_km_rate: 3.8 }, // Fallback for lowercase
+  sedan: { base_fare: 50.0, per_km_rate: 2.0 }, // Fallback for lowercase
+};
+let pricingRules = { ...DEFAULT_PRICING_RULES };
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,10 +33,105 @@ document.addEventListener('DOMContentLoaded', () => {
   loadEnquiries();
   setupEventListeners();
   loadGoogleMapsAPI();
+  loadPricingRules();
 
   // Set "All" filter as active by default
   setStatusFilter(null);
 });
+
+const loadPricingRules = async () => {
+  try {
+    const response = await fetch(`${API_URL}/settings`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Error in loadPricingRules: failed to load settings');
+      return;
+    }
+
+    const result = await response.json();
+    const settings = result.data || {};
+    const rules = settings.pricingRules || {};
+
+    pricingRules = {
+      'Standard Sedan': {
+        base_fare:
+          rules.standardSedan && rules.standardSedan.baseFare != null
+            ? Number(rules.standardSedan.baseFare)
+            : DEFAULT_PRICING_RULES['Standard Sedan'].base_fare,
+        per_km_rate:
+          rules.standardSedan && rules.standardSedan.perKmRate != null
+            ? Number(rules.standardSedan.perKmRate)
+            : DEFAULT_PRICING_RULES['Standard Sedan'].per_km_rate,
+      },
+      'Executive Sedan': {
+        base_fare:
+          rules.executiveSedan && rules.executiveSedan.baseFare != null
+            ? Number(rules.executiveSedan.baseFare)
+            : DEFAULT_PRICING_RULES['Executive Sedan'].base_fare,
+        per_km_rate:
+          rules.executiveSedan && rules.executiveSedan.perKmRate != null
+            ? Number(rules.executiveSedan.perKmRate)
+            : DEFAULT_PRICING_RULES['Executive Sedan'].per_km_rate,
+      },
+      'Luxury Sedan': {
+        base_fare:
+          rules.luxurySedan && rules.luxurySedan.baseFare != null
+            ? Number(rules.luxurySedan.baseFare)
+            : DEFAULT_PRICING_RULES['Luxury Sedan'].base_fare,
+        per_km_rate:
+          rules.luxurySedan && rules.luxurySedan.perKmRate != null
+            ? Number(rules.luxurySedan.perKmRate)
+            : DEFAULT_PRICING_RULES['Luxury Sedan'].per_km_rate,
+      },
+      'Executive MPV': {
+        base_fare:
+          rules.executiveMPV && rules.executiveMPV.baseFare != null
+            ? Number(rules.executiveMPV.baseFare)
+            : DEFAULT_PRICING_RULES['Executive MPV'].base_fare,
+        per_km_rate:
+          rules.executiveMPV && rules.executiveMPV.perKmRate != null
+            ? Number(rules.executiveMPV.perKmRate)
+            : DEFAULT_PRICING_RULES['Executive MPV'].per_km_rate,
+      },
+      'Luxury MPV': {
+        base_fare:
+          rules.luxuryMPV && rules.luxuryMPV.baseFare != null
+            ? Number(rules.luxuryMPV.baseFare)
+            : DEFAULT_PRICING_RULES['Luxury MPV'].base_fare,
+        per_km_rate:
+          rules.luxuryMPV && rules.luxuryMPV.perKmRate != null
+            ? Number(rules.luxuryMPV.perKmRate)
+            : DEFAULT_PRICING_RULES['Luxury MPV'].per_km_rate,
+      },
+      mpv: {
+        base_fare:
+          rules.executiveMPV && rules.executiveMPV.baseFare != null
+            ? Number(rules.executiveMPV.baseFare)
+            : DEFAULT_PRICING_RULES.mpv.base_fare,
+        per_km_rate:
+          rules.executiveMPV && rules.executiveMPV.perKmRate != null
+            ? Number(rules.executiveMPV.perKmRate)
+            : DEFAULT_PRICING_RULES.mpv.per_km_rate,
+      },
+      sedan: {
+        base_fare:
+          rules.standardSedan && rules.standardSedan.baseFare != null
+            ? Number(rules.standardSedan.baseFare)
+            : DEFAULT_PRICING_RULES.sedan.base_fare,
+        per_km_rate:
+          rules.standardSedan && rules.standardSedan.perKmRate != null
+            ? Number(rules.standardSedan.perKmRate)
+            : DEFAULT_PRICING_RULES.sedan.per_km_rate,
+      },
+    };
+  } catch (error) {
+    console.error('Error in loadPricingRules:', error);
+  }
+};
 
 // Load Google Maps API
 async function loadGoogleMapsAPI() {
@@ -571,20 +676,10 @@ function viewEnquiry(id) {
   }, 100);
 }
 
-// Pricing rules (matching backend)
-const PRICING_RULES = {
-  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0 },
-  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5 },
-  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0 },
-  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8 },
-  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5 },
-  mpv: { base_fare: 100.0, per_km_rate: 3.8 }, // Fallback for lowercase
-  sedan: { base_fare: 50.0, per_km_rate: 2.0 }, // Fallback for lowercase
-};
-
 // Calculate estimated price based on distance and vehicle type
 function calculateEstimatedPrice(distanceKm, vehicleType) {
-  const pricing = PRICING_RULES[vehicleType] || PRICING_RULES['Standard Sedan'];
+  const rules = pricingRules || DEFAULT_PRICING_RULES;
+  const pricing = rules[vehicleType] || rules['Standard Sedan'];
   const baseFare = pricing.base_fare;
   const distanceCharge = distanceKm * pricing.per_km_rate;
   const subtotal = baseFare + distanceCharge;

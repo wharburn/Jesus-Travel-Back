@@ -29,6 +29,28 @@ const getDefaultSettings = () => ({
     requireApproval: false,
     autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true',
   },
+  pricingRules: {
+    standardSedan: {
+      baseFare: 50.0,
+      perKmRate: 2.0,
+    },
+    executiveSedan: {
+      baseFare: 60.0,
+      perKmRate: 2.5,
+    },
+    luxurySedan: {
+      baseFare: 80.0,
+      perKmRate: 3.0,
+    },
+    executiveMPV: {
+      baseFare: 100.0,
+      perKmRate: 3.8,
+    },
+    luxuryMPV: {
+      baseFare: 120.0,
+      perKmRate: 4.5,
+    },
+  },
   notifications: {
     emailEnabled: true,
     whatsappEnabled: true,
@@ -66,6 +88,7 @@ export const getSettings = async (req, res) => {
         whatsapp: { ...defaults.whatsapp, ...settings.whatsapp },
         ai: { ...defaults.ai, ...settings.ai },
         quotes: { ...defaults.quotes, ...settings.quotes },
+        pricingRules: { ...defaults.pricingRules, ...(settings.pricingRules || {}) },
         notifications: { ...defaults.notifications, ...settings.notifications },
       };
     }
@@ -122,6 +145,10 @@ export const updateSettings = async (req, res) => {
       quotes: {
         ...settings.quotes,
         ...(updates.quotes || {}),
+      },
+      pricingRules: {
+        ...settings.pricingRules,
+        ...(updates.pricingRules || {}),
       },
       notifications: {
         ...settings.notifications,

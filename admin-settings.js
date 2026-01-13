@@ -88,6 +88,25 @@ async function loadSettings() {
       autoQuoteStatus.textContent = 'OFF';
     }
 
+    // Pricing rules
+    const pricingRules = settings.pricingRules || {};
+    const standardSedan = pricingRules.standardSedan || {};
+    const executiveSedan = pricingRules.executiveSedan || {};
+    const luxurySedan = pricingRules.luxurySedan || {};
+    const executiveMPV = pricingRules.executiveMPV || {};
+    const luxuryMPV = pricingRules.luxuryMPV || {};
+
+    document.getElementById('pricingStandardSedanBase').value = standardSedan.baseFare ?? 50.0;
+    document.getElementById('pricingStandardSedanPerKm').value = standardSedan.perKmRate ?? 2.0;
+    document.getElementById('pricingExecutiveSedanBase').value = executiveSedan.baseFare ?? 60.0;
+    document.getElementById('pricingExecutiveSedanPerKm').value = executiveSedan.perKmRate ?? 2.5;
+    document.getElementById('pricingLuxurySedanBase').value = luxurySedan.baseFare ?? 80.0;
+    document.getElementById('pricingLuxurySedanPerKm').value = luxurySedan.perKmRate ?? 3.0;
+    document.getElementById('pricingExecutiveMpvBase').value = executiveMPV.baseFare ?? 100.0;
+    document.getElementById('pricingExecutiveMpvPerKm').value = executiveMPV.perKmRate ?? 3.8;
+    document.getElementById('pricingLuxuryMpvBase').value = luxuryMPV.baseFare ?? 120.0;
+    document.getElementById('pricingLuxuryMpvPerKm').value = luxuryMPV.perKmRate ?? 4.5;
+
     document.getElementById('emailEnabled').checked = settings.notifications.emailEnabled !== false;
     document.getElementById('whatsappEnabled').checked =
       settings.notifications.whatsappEnabled !== false;
@@ -132,6 +151,28 @@ async function saveSettings() {
         validityDays: parseInt(document.getElementById('quoteValidityDays').value) || 2,
         autoSendToCustomer: document.getElementById('autoSendToCustomer').checked,
         autoQuoteMode: document.getElementById('autoQuoteMode').checked,
+      },
+      pricingRules: {
+        standardSedan: {
+          baseFare: parseFloat(document.getElementById('pricingStandardSedanBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingStandardSedanPerKm').value) || 0,
+        },
+        executiveSedan: {
+          baseFare: parseFloat(document.getElementById('pricingExecutiveSedanBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingExecutiveSedanPerKm').value) || 0,
+        },
+        luxurySedan: {
+          baseFare: parseFloat(document.getElementById('pricingLuxurySedanBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingLuxurySedanPerKm').value) || 0,
+        },
+        executiveMPV: {
+          baseFare: parseFloat(document.getElementById('pricingExecutiveMpvBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingExecutiveMpvPerKm').value) || 0,
+        },
+        luxuryMPV: {
+          baseFare: parseFloat(document.getElementById('pricingLuxuryMpvBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingLuxuryMpvPerKm').value) || 0,
+        },
       },
       notifications: {
         emailEnabled: document.getElementById('emailEnabled').checked,
