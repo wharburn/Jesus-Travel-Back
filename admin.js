@@ -14,16 +14,53 @@ let filteredEnquiries = [];
 let currentQuoteEnquiry = null;
 let activeStatusFilter = null; // 'pending_quote', 'quoted', 'confirmed', or null for all
 let currentSortBy = 'date-desc';
+let googleMapsLoaded = false;
+let googleMapsApiKey = '';
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
   loadAdminInfo();
   loadEnquiries();
   setupEventListeners();
+  loadGoogleMapsAPI();
 
   // Set "All" filter as active by default
   setStatusFilter(null);
 });
+
+// Load Google Maps API
+async function loadGoogleMapsAPI() {
+  try {
+    const response = await fetch(`${API_URL}/settings/maps-api-key`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      googleMapsApiKey = data.data.apiKey;
+
+      if (googleMapsApiKey) {
+        // Load Google Maps script
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places,geometry`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          googleMapsLoaded = true;
+          console.log('Google Maps API loaded');
+        };
+        script.onerror = () => {
+          console.error('Failed to load Google Maps API');
+        };
+        document.head.appendChild(script);
+      }
+    }
+  } catch (error) {
+    console.error('Error loading Google Maps API key:', error);
+  }
+}
 
 // Load admin user info
 function loadAdminInfo() {
@@ -341,7 +378,7 @@ function viewEnquiry(id) {
   modal.className =
     'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
   modal.innerHTML = `
-    <div class="bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
+    <div class="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
       <div class="sticky top-0 bg-gray-800 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
         <h2 class="text-2xl font-serif text-yellow-500">Enquiry Details</h2>
         <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
@@ -414,6 +451,20 @@ function viewEnquiry(id) {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Route Map -->
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">Route Map</h3>
+          <div id="routeMap" class="w-full h-96 bg-gray-800 rounded-lg border border-gray-700 relative">
+            <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-3"></div>
+                <div>Loading map...</div>
+              </div>
+            </div>
+          </div>
+          <div id="routeInfo" class="mt-3 grid grid-cols-2 gap-4 text-sm"></div>
         </div>
 
         ${
@@ -498,6 +549,115 @@ function viewEnquiry(id) {
   `;
 
   document.body.appendChild(modal);
+
+  // Initialize map after modal is in DOM
+  setTimeout(() => {
+    initializeRouteMap(enquiry.pickupLocation, enquiry.dropoffLocation);
+  }, 100);
+}
+
+// Initialize Google Maps with route
+function initializeRouteMap(pickupAddress, dropoffAddress) {
+  const mapElement = document.getElementById('routeMap');
+  const routeInfoElement = document.getElementById('routeInfo');
+
+  if (!mapElement) {
+    console.error('Map element not available');
+    return;
+  }
+
+  // Check if Google Maps is loaded
+  if (!window.google || !window.google.maps) {
+    mapElement.innerHTML = `
+      <div class="flex items-center justify-center h-full text-gray-400">
+        <div class="text-center">
+          <div class="text-2xl mb-2">🗺️</div>
+          <div>Map not available</div>
+          <div class="text-sm text-gray-500 mt-1">Google Maps API not configured</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Initialize geocoder and directions service
+  const geocoder = new google.maps.Geocoder();
+  const directionsService = new google.maps.DirectionsService();
+  const directionsRenderer = new google.maps.DirectionsRenderer({
+    suppressMarkers: false,
+    polylineOptions: {
+      strokeColor: '#EAB308', // Yellow color
+      strokeWeight: 4,
+    },
+  });
+
+  // Initialize map centered on UK
+  const map = new google.maps.Map(mapElement, {
+    zoom: 8,
+    center: { lat: 51.5074, lng: -0.1278 }, // London
+    styles: [
+      {
+        featureType: 'all',
+        elementType: 'geometry',
+        stylers: [{ color: '#242f3e' }],
+      },
+      {
+        featureType: 'all',
+        elementType: 'labels.text.stroke',
+        stylers: [{ color: '#242f3e' }],
+      },
+      {
+        featureType: 'all',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#746855' }],
+      },
+      {
+        featureType: 'water',
+        elementType: 'geometry',
+        stylers: [{ color: '#17263c' }],
+      },
+    ],
+  });
+
+  directionsRenderer.setMap(map);
+
+  // Calculate and display route
+  directionsService.route(
+    {
+      origin: pickupAddress,
+      destination: dropoffAddress,
+      travelMode: google.maps.TravelMode.DRIVING,
+    },
+    (result, status) => {
+      if (status === 'OK') {
+        directionsRenderer.setDirections(result);
+
+        // Display route information
+        const route = result.routes[0].legs[0];
+        routeInfoElement.innerHTML = `
+          <div class="bg-gray-800 rounded-lg p-3">
+            <div class="text-gray-400 text-xs">Distance</div>
+            <div class="font-semibold text-yellow-400">${route.distance.text}</div>
+          </div>
+          <div class="bg-gray-800 rounded-lg p-3">
+            <div class="text-gray-400 text-xs">Estimated Duration</div>
+            <div class="font-semibold text-yellow-400">${route.duration.text}</div>
+          </div>
+        `;
+      } else {
+        console.error('Directions request failed:', status);
+        mapElement.innerHTML = `
+          <div class="flex items-center justify-center h-full text-red-400">
+            <div class="text-center">
+              <div class="text-2xl mb-2">⚠️</div>
+              <div>Unable to load route</div>
+              <div class="text-sm text-gray-500 mt-1">${status}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  );
 }
 
 // Helper functions

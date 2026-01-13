@@ -1,6 +1,6 @@
 import express from 'express';
-import { authenticate } from '../middleware/auth.js';
 import { getSettings, updateSettings } from '../controllers/settingsController.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,5 +10,14 @@ router.get('/', authenticate, getSettings);
 // Update settings (admin only)
 router.put('/', authenticate, updateSettings);
 
-export default router;
+// Get Google Maps API key (admin only)
+router.get('/maps-api-key', authenticate, (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+    },
+  });
+});
 
+export default router;
