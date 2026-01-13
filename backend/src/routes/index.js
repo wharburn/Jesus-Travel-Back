@@ -5,6 +5,7 @@ import bookingRoutes from './bookings.js';
 import driverRoutes from './drivers.js';
 import enquiryRoutes from './enquiries.js';
 import healthRoutes from './health.js';
+import quoteRoutes from './quotes.js';
 import searchRoutes from './search.js';
 import settingsRoutes from './settings.js';
 import vehicleRoutes from './vehicles.js';
@@ -20,6 +21,7 @@ router.use('/auth', authRoutes);
 // API routes
 router.use('/enquiries', enquiryRoutes);
 router.use('/bookings', bookingRoutes);
+router.use('/quotes', quoteRoutes);
 router.use('/drivers', driverRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/analytics', analyticsRoutes);

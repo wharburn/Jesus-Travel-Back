@@ -1,5 +1,12 @@
 // Booking Form Handler
 const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
+const LOCAL_API_URL = 'http://localhost:3000/api/v1';
+
+// Use local API if on localhost, otherwise use production
+const ACTIVE_API_URL =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? LOCAL_API_URL
+    : API_URL;
 
 document.addEventListener('DOMContentLoaded', function () {
   const bookingForm = document.getElementById('booking-form');
@@ -177,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
     submitButton.disabled = true;
     submitButton.textContent = 'Sending...';
 
-    fetch(`${API_URL}/enquiries`, {
+    fetch(`${ACTIVE_API_URL}/enquiries`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -200,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then((result) => {
         console.log('Booking submitted successfully:', result);
         // Show success message
-        alert('Booking request submitted successfully! We will contact you shortly.');
+        alert('Booking request submitted successfully! We will contact you shortly with a quote.');
         // Reset form
         bookingForm.reset();
       })

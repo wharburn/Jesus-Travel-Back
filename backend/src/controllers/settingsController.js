@@ -27,6 +27,7 @@ const getDefaultSettings = () => ({
     validityDays: 2,
     autoSendToCustomer: true,
     requireApproval: false,
+    autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true',
   },
   notifications: {
     emailEnabled: true,
@@ -133,4 +134,3 @@ export const updateSettings = async (req, res) => {
     });
   }
 };
-

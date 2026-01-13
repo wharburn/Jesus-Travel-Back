@@ -22,6 +22,22 @@ function loadAdminInfo() {
 // Setup event listeners
 function setupEventListeners() {
   document.getElementById('saveButton').addEventListener('click', saveSettings);
+
+  // Auto-quote mode toggle
+  const autoQuoteToggle = document.getElementById('autoQuoteMode');
+  const autoQuoteStatus = document.getElementById('autoQuoteModeStatus');
+
+  autoQuoteToggle.addEventListener('change', () => {
+    if (autoQuoteToggle.checked) {
+      autoQuoteStatus.textContent = 'ON';
+      autoQuoteStatus.classList.remove('text-gray-600');
+      autoQuoteStatus.classList.add('text-yellow-600', 'font-bold');
+    } else {
+      autoQuoteStatus.textContent = 'OFF';
+      autoQuoteStatus.classList.remove('text-yellow-600', 'font-bold');
+      autoQuoteStatus.classList.add('text-gray-600');
+    }
+  });
 }
 
 // Load settings from API
@@ -50,10 +66,24 @@ async function loadSettings() {
     document.getElementById('pricingTeamEmail').value = settings.pricingTeam.email || '';
 
     document.getElementById('quoteValidityDays').value = settings.quotes.validityDays || 2;
-    document.getElementById('autoSendToCustomer').checked = settings.quotes.autoSendToCustomer !== false;
+    document.getElementById('autoSendToCustomer').checked =
+      settings.quotes.autoSendToCustomer !== false;
+
+    // Auto-quote mode
+    const autoQuoteMode = settings.quotes.autoQuoteMode === true;
+    document.getElementById('autoQuoteMode').checked = autoQuoteMode;
+    const autoQuoteStatus = document.getElementById('autoQuoteModeStatus');
+    if (autoQuoteMode) {
+      autoQuoteStatus.textContent = 'ON';
+      autoQuoteStatus.classList.remove('text-gray-600');
+      autoQuoteStatus.classList.add('text-yellow-600', 'font-bold');
+    } else {
+      autoQuoteStatus.textContent = 'OFF';
+    }
 
     document.getElementById('emailEnabled').checked = settings.notifications.emailEnabled !== false;
-    document.getElementById('whatsappEnabled').checked = settings.notifications.whatsappEnabled !== false;
+    document.getElementById('whatsappEnabled').checked =
+      settings.notifications.whatsappEnabled !== false;
 
     // Show form, hide loading
     document.getElementById('loadingState').classList.add('hidden');
@@ -94,6 +124,7 @@ async function saveSettings() {
       quotes: {
         validityDays: parseInt(document.getElementById('quoteValidityDays').value) || 2,
         autoSendToCustomer: document.getElementById('autoSendToCustomer').checked,
+        autoQuoteMode: document.getElementById('autoQuoteMode').checked,
       },
       notifications: {
         emailEnabled: document.getElementById('emailEnabled').checked,
@@ -162,4 +193,3 @@ function showError(message) {
     errorMessage.classList.add('hidden');
   }, 5000);
 }
-

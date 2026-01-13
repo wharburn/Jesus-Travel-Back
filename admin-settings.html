@@ -142,6 +142,43 @@
             <i class="fas fa-file-invoice-dollar text-purple-600 mr-2"></i>
             Quote Settings
           </h2>
+
+          <!-- Auto-Quote Mode Toggle -->
+          <div class="mb-6 p-4 border-2 border-yellow-300 bg-yellow-50 rounded-lg">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                  <i class="fas fa-robot text-2xl text-yellow-600"></i>
+                  <h3 class="text-lg font-semibold text-gray-900">Auto-Quote Mode</h3>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoQuoteMode" class="sr-only peer" />
+                    <div
+                      class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-yellow-600"
+                    ></div>
+                  </label>
+                  <span id="autoQuoteModeStatus" class="text-sm font-medium text-gray-600"
+                    >OFF</span
+                  >
+                </div>
+                <p class="text-sm text-gray-700 mb-2">
+                  <strong>Enabled:</strong> System automatically calculates and sends quotes to
+                  customers instantly.
+                </p>
+                <p class="text-sm text-gray-700 mb-2">
+                  <strong>Disabled:</strong> All quotes require manual pricing team approval via
+                  WhatsApp.
+                </p>
+                <div class="mt-3 flex items-start space-x-2 text-xs text-gray-600">
+                  <i class="fas fa-info-circle mt-0.5"></i>
+                  <p>
+                    When enabled, quotes are calculated using distance, zones, time multipliers, and
+                    vehicle pricing. Pricing team still receives notifications for monitoring.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2"

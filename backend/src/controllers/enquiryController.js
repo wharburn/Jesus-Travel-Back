@@ -1,7 +1,41 @@
+import redis from '../config/redis.js';
 import Enquiry from '../models/Enquiry.js';
+import { calculateQuote } from '../services/pricing/pricingEngine.js';
 import { sendWhatsAppMessage } from '../services/whatsapp/client.js';
 import { errorResponse, successResponse } from '../utils/helpers.js';
 import logger from '../utils/logger.js';
+
+// Helper function to notify pricing team (manual mode)
+async function notifyPricingTeamManual(enquiry) {
+  try {
+    const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
+    if (pricingTeamPhone) {
+      const message =
+        `🆕 New Booking Enquiry\n\n` +
+        `Ref: ${enquiry.referenceNumber}\n` +
+        `Customer: ${enquiry.customerName}\n` +
+        `Phone: ${enquiry.customerPhone}\n` +
+        `From: ${enquiry.pickupLocation}\n` +
+        `To: ${enquiry.dropoffLocation}\n` +
+        `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+        `Passengers: ${enquiry.passengers}\n` +
+        `Vehicle: ${enquiry.vehicleType}\n` +
+        `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
+        `\n━━━━━━━━━━━━━━━━━━━━\n` +
+        `📝 To submit a quote, reply:\n` +
+        `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
+        `Example:\n` +
+        `QUOTE ${enquiry.referenceNumber} £150\n` +
+        `QUOTE ${enquiry.referenceNumber} £200 Includes meet & greet`;
+
+      await sendWhatsAppMessage(pricingTeamPhone, message);
+      logger.info(`📱 Manual quote request sent to pricing team`);
+    }
+  } catch (error) {
+    logger.error('Failed to notify pricing team:', error);
+    // Don't fail the request if notification fails
+  }
+}
 
 export const createEnquiry = async (req, res, next) => {
   try {
@@ -27,33 +61,97 @@ export const createEnquiry = async (req, res, next) => {
 
     logger.info(`New enquiry created: ${enquiry.referenceNumber}`);
 
-    // Notify pricing team
-    try {
-      const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
-      if (pricingTeamPhone) {
-        const message =
-          `🆕 New Booking Enquiry\n\n` +
-          `Ref: ${enquiry.referenceNumber}\n` +
-          `Customer: ${enquiry.customerName}\n` +
-          `Phone: ${enquiry.customerPhone}\n` +
-          `From: ${enquiry.pickupLocation}\n` +
-          `To: ${enquiry.dropoffLocation}\n` +
-          `Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
-          `Passengers: ${enquiry.passengers}\n` +
-          `Vehicle: ${enquiry.vehicleType}\n` +
-          `${enquiry.specialRequests ? `Notes: ${enquiry.specialRequests}\n` : ''}` +
-          `\n━━━━━━━━━━━━━━━━━━━━\n` +
-          `📝 To submit a quote, reply:\n` +
-          `QUOTE ${enquiry.referenceNumber} £[YOUR_PRICE]\n\n` +
-          `Example:\n` +
-          `QUOTE ${enquiry.referenceNumber} £150\n` +
-          `QUOTE ${enquiry.referenceNumber} £200 Includes meet & greet`;
+    // Check if auto-quote mode is enabled (from settings or env)
+    let autoQuoteMode = process.env.AUTO_QUOTE_MODE === 'true';
 
-        await sendWhatsAppMessage(pricingTeamPhone, message);
+    try {
+      const settingsJson = await redis.get('app:settings');
+      if (settingsJson) {
+        const settings = JSON.parse(settingsJson);
+        autoQuoteMode = settings.quotes?.autoQuoteMode === true;
       }
     } catch (error) {
-      logger.error('Failed to notify pricing team:', error);
-      // Don't fail the request if notification fails
+      logger.warn('Could not load settings from Redis, using env variable');
+    }
+
+    if (autoQuoteMode) {
+      // AUTO MODE: Calculate and send quote automatically
+      try {
+        logger.info(`🤖 Auto-quote mode enabled for ${enquiry.referenceNumber}`);
+
+        // Calculate quote
+        const pickupDatetime = `${enquiry.pickupDate}T${enquiry.pickupTime}:00Z`;
+        const quote = await calculateQuote({
+          pickupAddress: enquiry.pickupLocation,
+          dropoffAddress: enquiry.dropoffLocation,
+          pickupDatetime: pickupDatetime,
+          vehicleType: enquiry.vehicleType,
+          passengers: enquiry.passengers,
+        });
+
+        // Update enquiry with auto-generated quote
+        enquiry.quotedPrice = quote.pricing.total_amount;
+        enquiry.quoteBreakdown = JSON.stringify({
+          base_fare: quote.pricing.base_fare,
+          distance_charge: quote.pricing.distance_charge,
+          zone_charges: quote.pricing.zone_charges,
+          zones: quote.zones,
+          time_multiplier: quote.pricing.time_multiplier_name,
+          distance: quote.distance,
+          duration: quote.duration,
+        });
+        enquiry.status = 'quoted';
+        enquiry.quotedAt = new Date();
+        enquiry.quotedBy = 'AUTO_SYSTEM';
+        enquiry.quoteValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+        await enquiry.save();
+
+        // Send quote to customer
+        const customerMessage =
+          `✅ Quote Ready - ${enquiry.referenceNumber}\n\n` +
+          `Dear ${enquiry.customerName},\n\n` +
+          `Thank you for your enquiry. Here's your quote:\n\n` +
+          `📍 From: ${enquiry.pickupLocation}\n` +
+          `📍 To: ${enquiry.dropoffLocation}\n` +
+          `📅 Date: ${enquiry.pickupDate} at ${enquiry.pickupTime}\n` +
+          `🚗 Vehicle: ${enquiry.vehicleType}\n` +
+          `👥 Passengers: ${enquiry.passengers}\n\n` +
+          `💰 Total Price: £${enquiry.quotedPrice}\n` +
+          `${quote.zones.length > 0 ? `\n📍 Zones: ${quote.zones.map((z) => z.zone_name).join(', ')}\n` : ''}` +
+          `⏰ ${quote.pricing.time_multiplier_name} pricing\n` +
+          `🛣️ Distance: ${quote.distance.text} (${quote.duration.text})\n\n` +
+          `This quote is valid until ${new Date(enquiry.quoteValidUntil).toLocaleString('en-GB', {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+          })}\n\n` +
+          `Reply "YES" to confirm your booking or contact us for any questions.`;
+
+        await sendWhatsAppMessage(enquiry.customerPhone, customerMessage);
+        logger.info(`✅ Auto-quote sent to customer: ${enquiry.customerPhone}`);
+
+        // Notify pricing team (for monitoring)
+        const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
+        if (pricingTeamPhone) {
+          const teamMessage =
+            `🤖 AUTO-QUOTE SENT\n\n` +
+            `Ref: ${enquiry.referenceNumber}\n` +
+            `Customer: ${enquiry.customerName}\n` +
+            `Quote: £${enquiry.quotedPrice}\n` +
+            `From: ${enquiry.pickupLocation}\n` +
+            `To: ${enquiry.dropoffLocation}\n\n` +
+            `✅ Quote automatically sent to customer\n` +
+            `To modify, use admin dashboard`;
+
+          await sendWhatsAppMessage(pricingTeamPhone, teamMessage);
+        }
+      } catch (error) {
+        logger.error('Auto-quote failed, falling back to manual mode:', error);
+        // Fall back to manual mode if auto-quote fails
+        await notifyPricingTeamManual(enquiry);
+      }
+    } else {
+      // MANUAL MODE: Notify pricing team for review
+      await notifyPricingTeamManual(enquiry);
     }
 
     res.status(201).json(successResponse(enquiry.toJSON(), 'Enquiry created successfully'));

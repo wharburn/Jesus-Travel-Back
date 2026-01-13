@@ -12,6 +12,7 @@
     "test:db": "node scripts/test-db.js",
     "test:search": "node scripts/test-search-integration.js",
     "create-admin": "node scripts/create-admin.js",
+    "init-database": "node scripts/init-database.js",
     "lint": "eslint src/**/*.js",
     "format": "prettier --write \"src/**/*.js\""
   },

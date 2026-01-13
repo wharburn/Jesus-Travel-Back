@@ -1,0 +1,202 @@
+import 'dotenv/config';
+import { query } from '../../config/postgres.js';
+import { getJourneyDetails } from './googleMaps.js';
+import { getTimeMultiplier } from './timeMultipliers.js';
+import { detectJourneyZones } from './zoneDetection.js';
+
+// Fallback pricing rules (used when database is unavailable)
+const FALLBACK_PRICING_RULES = {
+  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0, max_passengers: 4 },
+  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 4 },
+  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 4 },
+  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8, max_passengers: 6 },
+  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5, max_passengers: 7 },
+};
+
+/**
+ * Get pricing rule for a vehicle type
+ * @param {string} vehicleType - The vehicle type
+ * @returns {Promise<Object>}
+ */
+const getPricingRule = async (vehicleType) => {
+  try {
+    const result = await query(
+      `SELECT * FROM pricing_rules WHERE vehicle_type = $1 AND active = true`,
+      [vehicleType]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error(`No pricing rule found for vehicle type: ${vehicleType}`);
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error fetching pricing rule:', error);
+
+    // Use fallback pricing rules if database is unavailable
+    if (FALLBACK_PRICING_RULES[vehicleType]) {
+      console.log(`⚠️  Using fallback pricing rule for ${vehicleType}`);
+      return {
+        vehicle_type: vehicleType,
+        ...FALLBACK_PRICING_RULES[vehicleType],
+        active: true,
+      };
+    }
+
+    throw error;
+  }
+};
+
+/**
+ * Round price to nearest increment
+ * @param {number} amount - The amount to round
+ * @param {number} increment - The rounding increment (default 0.50)
+ * @returns {number}
+ */
+const roundPrice = (amount, increment = 0.5) => {
+  return Math.round(amount / increment) * increment;
+};
+
+/**
+ * Calculate quote for a journey
+ * @param {Object} params - Quote parameters
+ * @returns {Promise<Object>}
+ */
+const calculateQuote = async (params) => {
+  const startTime = Date.now();
+
+  try {
+    const {
+      pickupAddress,
+      dropoffAddress,
+      pickupDatetime,
+      vehicleType,
+      passengers = 1,
+      luggage = 0,
+    } = params;
+
+    console.log(`💰 Calculating quote: ${pickupAddress} → ${dropoffAddress}`);
+
+    // Step 1: Get journey details from Google Maps
+    const journey = await getJourneyDetails(
+      pickupAddress,
+      dropoffAddress,
+      new Date(pickupDatetime)
+    );
+
+    // Step 2: Get pricing rule for vehicle type
+    const pricingRule = await getPricingRule(vehicleType);
+
+    // Step 3: Calculate base fare and distance charge
+    const baseFare = parseFloat(pricingRule.base_fare);
+    const distanceCharge = journey.distance.km * parseFloat(pricingRule.per_km_rate);
+
+    // Step 4: Detect zones and calculate zone charges
+    const zones = await detectJourneyZones(journey.pickup, journey.dropoff);
+
+    // Step 5: Get time multiplier
+    const timeInfo = await getTimeMultiplier(new Date(pickupDatetime));
+
+    // Step 6: Calculate subtotal (before time multiplier)
+    const subtotal = baseFare + distanceCharge + zones.total_charges;
+
+    // Step 7: Apply time multiplier
+    const totalBeforeRounding = subtotal * timeInfo.multiplier;
+
+    // Step 8: Round to nearest increment
+    const roundingIncrement = parseFloat(process.env.QUOTE_ROUNDING || 0.5);
+    const totalAmount = roundPrice(totalBeforeRounding, roundingIncrement);
+
+    // Step 9: Validate quote amount
+    const minAmount = parseFloat(process.env.MIN_QUOTE_AMOUNT || 30);
+    const maxAmount = parseFloat(process.env.MAX_QUOTE_AMOUNT || 5000);
+
+    if (totalAmount < minAmount) {
+      throw new Error(`Quote amount £${totalAmount} is below minimum £${minAmount}`);
+    }
+
+    if (totalAmount > maxAmount) {
+      console.warn(`⚠️  Quote amount £${totalAmount} exceeds maximum £${maxAmount}`);
+    }
+
+    const calculationTime = Date.now() - startTime;
+
+    // Return detailed quote breakdown
+    return {
+      // Journey details
+      pickup: journey.pickup,
+      dropoff: journey.dropoff,
+      distance: journey.distance,
+      duration: journey.duration,
+      pickup_datetime: pickupDatetime,
+
+      // Vehicle details
+      vehicle_type: vehicleType,
+      passengers,
+      luggage,
+
+      // Pricing breakdown
+      pricing: {
+        base_fare: baseFare,
+        distance_charge: distanceCharge,
+        zone_charges: zones.total_charges,
+        zone_breakdown: zones.breakdown,
+        subtotal: subtotal,
+        time_multiplier: timeInfo.multiplier,
+        time_multiplier_name: timeInfo.name,
+        total_before_rounding: totalBeforeRounding,
+        total_amount: totalAmount,
+      },
+
+      // Zones detected
+      zones: zones.all_zones,
+
+      // Metadata
+      calculation_time_ms: calculationTime,
+      calculated_at: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Quote calculation error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Format quote for customer display
+ * @param {Object} quote - The quote object
+ * @returns {string}
+ */
+const formatQuoteForCustomer = (quote) => {
+  const { pickup, dropoff, distance, duration, pricing, vehicle_type } = quote;
+
+  let message = `✅ Quote Ready\n\n`;
+  message += `📍 From: ${pickup.formatted_address}\n`;
+  message += `📍 To: ${dropoff.formatted_address}\n`;
+  message += `📏 Distance: ${distance.km} km (~${duration.minutes} mins)\n`;
+  message += `🚗 Vehicle: ${vehicle_type}\n\n`;
+  message += `💰 Quote Breakdown:\n`;
+  message += `   Base Fare:         £${pricing.base_fare.toFixed(2)}\n`;
+  message += `   Distance (${distance.km}km): £${pricing.distance_charge.toFixed(2)}\n`;
+
+  if (pricing.zone_breakdown.length > 0) {
+    pricing.zone_breakdown.forEach((zone) => {
+      message += `   ${zone.name}: £${zone.charge.toFixed(2)}\n`;
+    });
+  }
+
+  message += `   ─────────────────────────\n`;
+  message += `   Subtotal:          £${pricing.subtotal.toFixed(2)}\n`;
+
+  if (pricing.time_multiplier !== 1.0) {
+    message += `   ${pricing.time_multiplier_name} (${pricing.time_multiplier}x): Applied\n`;
+  }
+
+  message += `   ─────────────────────────\n`;
+  message += `   TOTAL:            £${pricing.total_amount.toFixed(2)}\n\n`;
+  message += `Valid for 48 hours\n\n`;
+  message += `Reply YES to confirm booking`;
+
+  return message;
+};
+
+export { calculateQuote, formatQuoteForCustomer, getPricingRule, roundPrice };
