@@ -10,31 +10,33 @@ const SETTINGS_KEY = 'jt:settings';
 
 const defaultSettings = {
   business: {
-    name: 'JT Chauffeur Services',
-    phone: '+44 7700 900123',
-    email: 'info@jesus-travel.com',
-    whatsapp: '+44 7700 900123',
+    name: process.env.BUSINESS_NAME || 'JT Chauffeur Services',
+    phone: process.env.BUSINESS_PHONE || '+447700900000',
+    email: process.env.BUSINESS_EMAIL || 'bookings@jtchauffeur.com',
+    whatsapp: process.env.BUSINESS_WHATSAPP || '+447700900000',
   },
   pricingTeam: {
-    phone: '+44 7700 900456',
-    email: 'pricing@jesus-travel.com',
+    phone: process.env.PRICING_TEAM_PHONE || '+447822027794',
+    email: process.env.PRICING_TEAM_EMAIL || 'pricing@jtchauffeur.com',
+  },
+  whatsapp: {
+    instanceId: process.env.GREEN_API_INSTANCE_ID || '',
+    enabled: !!process.env.GREEN_API_INSTANCE_ID && !!process.env.GREEN_API_TOKEN,
+  },
+  ai: {
+    model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet',
+    enabled: !!process.env.OPENROUTER_API_KEY,
   },
   quotes: {
     validityDays: 2,
     autoSendToCustomer: true,
-    autoQuoteMode: false, // Default to manual mode for safety
+    requireApproval: false,
+    autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true' || false,
   },
   notifications: {
-    whatsapp: {
-      enabled: true,
-      notifyCustomer: true,
-      notifyPricingTeam: true,
-    },
-    email: {
-      enabled: false,
-      notifyCustomer: false,
-      notifyPricingTeam: false,
-    },
+    emailEnabled: true,
+    whatsappEnabled: true,
+    smsEnabled: false,
   },
 };
 

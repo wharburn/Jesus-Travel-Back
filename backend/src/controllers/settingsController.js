@@ -55,6 +55,19 @@ export const getSettings = async (req, res) => {
       logger.info('Default settings initialized');
     } else {
       logger.info('Settings loaded from Redis');
+
+      // Merge with defaults to ensure all fields are present (for backward compatibility)
+      const defaults = getDefaultSettings();
+      settings = {
+        ...defaults,
+        ...settings,
+        business: { ...defaults.business, ...settings.business },
+        pricingTeam: { ...defaults.pricingTeam, ...settings.pricingTeam },
+        whatsapp: { ...defaults.whatsapp, ...settings.whatsapp },
+        ai: { ...defaults.ai, ...settings.ai },
+        quotes: { ...defaults.quotes, ...settings.quotes },
+        notifications: { ...defaults.notifications, ...settings.notifications },
+      };
     }
 
     res.json({
