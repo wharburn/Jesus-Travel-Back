@@ -12,6 +12,12 @@ const DISTANCE_MATRIX_API_URL = 'https://maps.googleapis.com/maps/api/distancema
  */
 const geocodeAddress = async (address) => {
   try {
+    if (!GOOGLE_MAPS_API_KEY) {
+      throw new Error(
+        'Google Maps API key is not configured. Please set GOOGLE_MAPS_API_KEY environment variable.'
+      );
+    }
+
     const response = await axios.get(GEOCODING_API_URL, {
       params: {
         address: address,
@@ -20,8 +26,22 @@ const geocodeAddress = async (address) => {
       },
     });
 
+    if (response.data.status === 'REQUEST_DENIED') {
+      throw new Error(
+        `Google Maps API request denied. Check your API key and billing settings. Status: ${response.data.status}, Error: ${response.data.error_message || 'Unknown'}`
+      );
+    }
+
+    if (response.data.status === 'OVER_QUERY_LIMIT') {
+      throw new Error(
+        'Google Maps API quota exceeded. Please check your billing settings or wait for quota reset.'
+      );
+    }
+
     if (response.data.status !== 'OK') {
-      throw new Error(`Geocoding failed: ${response.data.status}`);
+      throw new Error(
+        `Geocoding failed with status: ${response.data.status}. Error: ${response.data.error_message || 'Unknown'}`
+      );
     }
 
     const result = response.data.results[0];
@@ -32,7 +52,10 @@ const geocodeAddress = async (address) => {
     };
   } catch (error) {
     console.error('Geocoding error:', error.message);
-    throw new Error(`Failed to geocode address: ${address}`);
+    if (error.response) {
+      console.error('API Response:', error.response.data);
+    }
+    throw new Error(`Failed to geocode address "${address}": ${error.message}`);
   }
 };
 
@@ -45,6 +68,12 @@ const geocodeAddress = async (address) => {
  */
 const calculateDistance = async (origin, destination, departureTime = null) => {
   try {
+    if (!GOOGLE_MAPS_API_KEY) {
+      throw new Error(
+        'Google Maps API key is not configured. Please set GOOGLE_MAPS_API_KEY environment variable.'
+      );
+    }
+
     const params = {
       origins: origin,
       destinations: destination,
@@ -60,14 +89,30 @@ const calculateDistance = async (origin, destination, departureTime = null) => {
 
     const response = await axios.get(DISTANCE_MATRIX_API_URL, { params });
 
+    if (response.data.status === 'REQUEST_DENIED') {
+      throw new Error(
+        `Google Maps API request denied. Check your API key and billing settings. Status: ${response.data.status}, Error: ${response.data.error_message || 'Unknown'}`
+      );
+    }
+
+    if (response.data.status === 'OVER_QUERY_LIMIT') {
+      throw new Error(
+        'Google Maps API quota exceeded. Please check your billing settings or wait for quota reset.'
+      );
+    }
+
     if (response.data.status !== 'OK') {
-      throw new Error(`Distance Matrix API failed: ${response.data.status}`);
+      throw new Error(
+        `Distance Matrix API failed with status: ${response.data.status}. Error: ${response.data.error_message || 'Unknown'}`
+      );
     }
 
     const element = response.data.rows[0].elements[0];
 
     if (element.status !== 'OK') {
-      throw new Error(`Route calculation failed: ${element.status}`);
+      throw new Error(
+        `Route calculation failed with status: ${element.status}. This usually means no route was found between the locations.`
+      );
     }
 
     return {
@@ -80,7 +125,10 @@ const calculateDistance = async (origin, destination, departureTime = null) => {
     };
   } catch (error) {
     console.error('Distance calculation error:', error.message);
-    throw new Error('Failed to calculate distance');
+    if (error.response) {
+      console.error('API Response:', error.response.data);
+    }
+    throw new Error(`Failed to calculate distance: ${error.message}`);
   }
 };
 

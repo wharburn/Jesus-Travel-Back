@@ -19,7 +19,17 @@ async function notifyPricingTeamManual(enquiry) {
 
       // Try to get AI price estimate
       try {
+        // Check if Google Maps API key is configured
+        if (!process.env.GOOGLE_MAPS_API_KEY) {
+          throw new Error('Google Maps API key not configured');
+        }
+
         const pickupDatetime = `${enquiry.pickupDate}T${enquiry.pickupTime}:00Z`;
+
+        logger.info(
+          `🤖 Attempting AI estimate for ${enquiry.referenceNumber}: ${enquiry.pickupLocation} → ${enquiry.dropoffLocation}`
+        );
+
         const quote = await calculateQuote({
           pickupAddress: enquiry.pickupLocation,
           dropoffAddress: enquiry.dropoffLocation,
@@ -58,11 +68,17 @@ async function notifyPricingTeamManual(enquiry) {
           `🤖 AI estimate calculated: £${quote.pricing.total_amount} for ${enquiry.referenceNumber}`
         );
       } catch (error) {
-        logger.warn(
-          `Could not calculate AI estimate for ${enquiry.referenceNumber}:`,
-          error.message
-        );
-        estimateMessage = `\n⚠️ AI estimate unavailable\n\n━━━━━━━━━━━━━━━━━━━━\n`;
+        logger.error(`❌ Could not calculate AI estimate for ${enquiry.referenceNumber}:`, {
+          error: error.message,
+          stack: error.stack,
+          pickup: enquiry.pickupLocation,
+          dropoff: enquiry.dropoffLocation,
+          googleMapsConfigured: !!process.env.GOOGLE_MAPS_API_KEY,
+        });
+        estimateMessage =
+          `\n⚠️ AI estimate unavailable\n` +
+          `Reason: ${error.message}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n`;
       }
 
       // Extract last 3 digits of reference number (e.g., JT-2026-000123 -> 123)
