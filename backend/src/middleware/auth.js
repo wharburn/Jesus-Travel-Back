@@ -5,45 +5,53 @@ export const authenticate = (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
         error: {
           code: 'AUTHENTICATION_ERROR',
-          message: 'No token provided'
-        }
+          message: 'No token provided',
+        },
       });
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
+    // Get JWT secret
+    const jwtSecret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET;
+
+    // Debug logging
+    logger.info('JWT Secret available:', !!jwtSecret);
+    logger.info('JWT Secret length:', jwtSecret?.length);
+
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET);
-    
+    const decoded = jwt.verify(token, jwtSecret);
+
     // Attach user to request
     req.user = decoded;
-    
+
     next();
   } catch (error) {
-    logger.error('Authentication error:', error);
-    
+    logger.error('Authentication error:', error.message);
+    logger.error('Error name:', error.name);
+
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         error: {
           code: 'AUTHENTICATION_ERROR',
-          message: 'Token expired'
-        }
+          message: 'Token expired',
+        },
       });
     }
-    
+
     return res.status(401).json({
       success: false,
       error: {
         code: 'AUTHENTICATION_ERROR',
-        message: 'Invalid token'
-      }
+        message: 'Invalid token',
+      },
     });
   }
 };
@@ -55,8 +63,8 @@ export const authorize = (...roles) => {
         success: false,
         error: {
           code: 'AUTHENTICATION_ERROR',
-          message: 'Not authenticated'
-        }
+          message: 'Not authenticated',
+        },
       });
     }
 
@@ -65,12 +73,11 @@ export const authorize = (...roles) => {
         success: false,
         error: {
           code: 'AUTHORIZATION_ERROR',
-          message: 'Insufficient permissions'
-        }
+          message: 'Insufficient permissions',
+        },
       });
     }
 
     next();
   };
 };
-
