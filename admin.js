@@ -371,7 +371,7 @@ function renderEnquiries() {
   if (pageEnquiries.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
           No enquiries found
         </td>
       </tr>
@@ -408,6 +408,9 @@ function renderEnquiries() {
       <td class="px-6 py-4">
         <div class="text-sm">${formatDate(enquiry.pickupDate)}</div>
         <div class="text-sm text-gray-400">${enquiry.pickupTime}</div>
+      </td>
+      <td class="px-6 py-4">
+        ${getAIEstimateBadge(enquiry.aiEstimate)}
       </td>
       <td class="px-6 py-4">
         ${getStatusBadge(enquiry.status, enquiry.quotedPrice)}
@@ -959,6 +962,19 @@ function getSourceBadge(source) {
       '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-900 text-yellow-300">📞 Phone</span>',
   };
   return badges[source] || source;
+}
+
+function getAIEstimateBadge(aiEstimate) {
+  if (!aiEstimate || !aiEstimate.totalPrice) {
+    return '<div class="text-xs text-gray-500">Not available</div>';
+  }
+
+  return `
+    <div class="flex flex-col items-start gap-1">
+      <div class="text-lg font-bold text-blue-400">£${aiEstimate.totalPrice}</div>
+      <div class="text-xs text-gray-400">${aiEstimate.distance} • ${aiEstimate.duration}</div>
+    </div>
+  `;
 }
 
 function formatDate(dateString) {
