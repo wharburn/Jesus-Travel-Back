@@ -68,6 +68,34 @@ const getActivePricingRules = async () => {
 };
 
 /**
+ * Map frontend vehicle types to backend pricing rule names
+ * @param {string} vehicleType - The vehicle type from frontend
+ * @returns {string} - The mapped vehicle type for pricing rules
+ */
+const mapVehicleType = (vehicleType) => {
+  const mapping = {
+    // Lowercase variants (from booking form)
+    saloon: 'Standard Sedan',
+    mpv: 'Executive MPV',
+    suv: 'Luxury Sedan',
+    minibus: 'Luxury MPV',
+    // Capitalized variants (legacy)
+    Saloon: 'Standard Sedan',
+    MPV: 'Executive MPV',
+    SUV: 'Luxury Sedan',
+    Minibus: 'Luxury MPV',
+    // Already correct names (pass through)
+    'Standard Sedan': 'Standard Sedan',
+    'Executive Sedan': 'Executive Sedan',
+    'Luxury Sedan': 'Luxury Sedan',
+    'Executive MPV': 'Executive MPV',
+    'Luxury MPV': 'Luxury MPV',
+  };
+
+  return mapping[vehicleType] || vehicleType;
+};
+
+/**
  * Get pricing rule for a vehicle type
  * @param {string} vehicleType - The vehicle type
  * @returns {Promise<Object>}
@@ -75,15 +103,20 @@ const getActivePricingRules = async () => {
 const getPricingRule = async (vehicleType) => {
   const rules = await getActivePricingRules();
 
-  if (rules[vehicleType]) {
+  // Map the vehicle type to the correct pricing rule name
+  const mappedType = mapVehicleType(vehicleType);
+
+  if (rules[mappedType]) {
     return {
-      vehicle_type: vehicleType,
-      ...rules[vehicleType],
+      vehicle_type: mappedType,
+      ...rules[mappedType],
       active: true,
     };
   }
 
-  throw new Error(`No pricing rule found for vehicle type: ${vehicleType}`);
+  throw new Error(
+    `No pricing rule found for vehicle type: ${vehicleType} (mapped to: ${mappedType})`
+  );
 };
 
 /**
