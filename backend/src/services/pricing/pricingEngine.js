@@ -1,11 +1,11 @@
 import 'dotenv/config';
-import { query } from '../../config/postgres.js';
+// import { query } from '../../config/postgres.js'; // Disabled - using in-memory pricing rules
 import { getJourneyDetails } from './googleMaps.js';
 import { getTimeMultiplier } from './timeMultipliers.js';
 import { detectJourneyZones } from './zoneDetection.js';
 
-// Fallback pricing rules (used when database is unavailable)
-const FALLBACK_PRICING_RULES = {
+// Pricing rules (in-memory, no database required)
+const PRICING_RULES = {
   'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0, max_passengers: 4 },
   'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 4 },
   'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 4 },
@@ -19,32 +19,16 @@ const FALLBACK_PRICING_RULES = {
  * @returns {Promise<Object>}
  */
 const getPricingRule = async (vehicleType) => {
-  try {
-    const result = await query(
-      `SELECT * FROM pricing_rules WHERE vehicle_type = $1 AND active = true`,
-      [vehicleType]
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error(`No pricing rule found for vehicle type: ${vehicleType}`);
-    }
-
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error fetching pricing rule:', error);
-
-    // Use fallback pricing rules if database is unavailable
-    if (FALLBACK_PRICING_RULES[vehicleType]) {
-      console.log(`⚠️  Using fallback pricing rule for ${vehicleType}`);
-      return {
-        vehicle_type: vehicleType,
-        ...FALLBACK_PRICING_RULES[vehicleType],
-        active: true,
-      };
-    }
-
-    throw error;
+  // Use in-memory pricing rules (no database required)
+  if (PRICING_RULES[vehicleType]) {
+    return {
+      vehicle_type: vehicleType,
+      ...PRICING_RULES[vehicleType],
+      active: true,
+    };
   }
+
+  throw new Error(`No pricing rule found for vehicle type: ${vehicleType}`);
 };
 
 /**

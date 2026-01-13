@@ -1,4 +1,92 @@
-import { query } from '../../config/postgres.js';
+// import { query } from '../../config/postgres.js'; // Disabled - using in-memory zones
+
+// In-memory zone definitions (no database required)
+const ZONE_CHARGES = [
+  {
+    id: 'heathrow',
+    zone_name: 'Heathrow Airport',
+    zone_type: 'airport',
+    charge_amount: 5.0,
+    applies_to: 'pickup',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [-0.4543, 51.47], // Heathrow coordinates
+    },
+  },
+  {
+    id: 'gatwick',
+    zone_name: 'Gatwick Airport',
+    zone_type: 'airport',
+    charge_amount: 5.0,
+    applies_to: 'pickup',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [-0.1903, 51.1537], // Gatwick coordinates
+    },
+  },
+  {
+    id: 'stansted',
+    zone_name: 'Stansted Airport',
+    zone_type: 'airport',
+    charge_amount: 5.0,
+    applies_to: 'pickup',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [0.235, 51.886], // Stansted coordinates
+    },
+  },
+  {
+    id: 'luton',
+    zone_name: 'Luton Airport',
+    zone_type: 'airport',
+    charge_amount: 5.0,
+    applies_to: 'pickup',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [-0.3683, 51.8747], // Luton coordinates
+    },
+  },
+  {
+    id: 'city',
+    zone_name: 'London City Airport',
+    zone_type: 'airport',
+    charge_amount: 5.0,
+    applies_to: 'pickup',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [0.0481, 51.5048], // City Airport coordinates
+    },
+  },
+  {
+    id: 'ulez',
+    zone_name: 'ULEZ Zone',
+    zone_type: 'ulez',
+    charge_amount: 12.5,
+    applies_to: 'both',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [-0.1276, 51.5074], // Central London
+    },
+  },
+  {
+    id: 'congestion',
+    zone_name: 'Congestion Charge Zone',
+    zone_type: 'congestion',
+    charge_amount: 15.0,
+    applies_to: 'both',
+    active: true,
+    coordinates: {
+      type: 'Point',
+      coordinates: [-0.1276, 51.5074], // Central London
+    },
+  },
+];
 
 /**
  * Check if a point is inside a polygon using ray-casting algorithm
@@ -57,17 +145,14 @@ const haversineDistance = (lat1, lng1, lat2, lng2) => {
  */
 const detectZones = async (lat, lng, locationType) => {
   try {
-    // Get all active zones from database
-    const result = await query(
-      `SELECT * FROM zone_charges
-       WHERE active = true
-       AND (applies_to = $1 OR applies_to = 'both')`,
-      [locationType]
+    // Filter zones from in-memory data
+    const applicableZones = ZONE_CHARGES.filter(
+      (zone) => zone.active && (zone.applies_to === locationType || zone.applies_to === 'both')
     );
 
     const detectedZones = [];
 
-    for (const zone of result.rows) {
+    for (const zone of applicableZones) {
       const coords = zone.coordinates;
 
       if (!coords) continue;
@@ -86,12 +171,12 @@ const detectZones = async (lat, lng, locationType) => {
           });
         }
       } else if (coords.type === 'Point') {
-        // Check if point is within radius of airport (5km default)
+        // Check if point is within radius (5km for airports, 10km for zones)
         const [zoneLng, zoneLat] = coords.coordinates;
         const distance = haversineDistance(lat, lng, zoneLat, zoneLng);
+        const radius = zone.zone_type === 'airport' ? 5 : 10;
 
-        if (distance <= 5) {
-          // Within 5km of airport
+        if (distance <= radius) {
           detectedZones.push({
             zone_id: zone.id,
             zone_name: zone.zone_name,
@@ -107,7 +192,7 @@ const detectZones = async (lat, lng, locationType) => {
     return detectedZones;
   } catch (error) {
     console.error('Zone detection error:', error);
-    // Return empty array on database error (fallback mode)
+    // Return empty array on error (fallback mode)
     console.log('⚠️  Using fallback mode - no zone charges will be applied');
     return [];
   }
