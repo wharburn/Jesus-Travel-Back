@@ -28,13 +28,17 @@ export const login = async (req, res, next) => {
     }
 
     // Generate JWT token
+    const jwtSecret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET;
+    logger.info('Login - JWT Secret available:', !!jwtSecret);
+    logger.info('Login - JWT Secret length:', jwtSecret?.length);
+
     const token = jwt.sign(
       {
         id: 'admin-1',
         email: adminEmail,
         role: 'admin',
       },
-      process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET,
+      jwtSecret,
       {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d',
       }
