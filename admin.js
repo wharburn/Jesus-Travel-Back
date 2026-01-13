@@ -136,6 +136,7 @@ const loadPricingRules = async () => {
 // Load Google Maps API
 async function loadGoogleMapsAPI() {
   try {
+    console.log('🗺️ Loading Google Maps API key from backend...');
     const response = await fetch(`${API_URL}/settings/maps-api-key`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -146,6 +147,11 @@ async function loadGoogleMapsAPI() {
       const data = await response.json();
       googleMapsApiKey = data.data.apiKey;
 
+      console.log(
+        'Google Maps API key received:',
+        googleMapsApiKey ? `${googleMapsApiKey.substring(0, 10)}...` : 'NOT SET'
+      );
+
       if (googleMapsApiKey) {
         // Load Google Maps script
         const script = document.createElement('script');
@@ -154,16 +160,25 @@ async function loadGoogleMapsAPI() {
         script.defer = true;
         script.onload = () => {
           googleMapsLoaded = true;
-          console.log('Google Maps API loaded');
+          console.log('✅ Google Maps API loaded successfully');
         };
-        script.onerror = () => {
-          console.error('Failed to load Google Maps API');
+        script.onerror = (error) => {
+          console.error('❌ Failed to load Google Maps API script:', error);
+          console.error('This usually means:');
+          console.error('1. Invalid API key');
+          console.error('2. API key restrictions blocking the domain');
+          console.error('3. Billing not enabled in Google Cloud Console');
         };
         document.head.appendChild(script);
+      } else {
+        console.warn('⚠️ Google Maps API key is not configured on the backend');
+        console.warn('Maps will not be available in the dashboard');
       }
+    } else {
+      console.error('❌ Failed to fetch Google Maps API key from backend:', response.status);
     }
   } catch (error) {
-    console.error('Error loading Google Maps API key:', error);
+    console.error('❌ Error loading Google Maps API key:', error);
   }
 }
 
@@ -704,12 +719,28 @@ function initializeRouteMap(pickupAddress, dropoffAddress, vehicleType = 'Standa
 
   // Check if Google Maps is loaded
   if (!window.google || !window.google.maps) {
+    console.warn('⚠️ Google Maps not loaded, cannot display route map');
+    console.warn('googleMapsLoaded:', googleMapsLoaded);
+    console.warn('googleMapsApiKey:', googleMapsApiKey ? 'SET' : 'NOT SET');
+
     mapElement.innerHTML = `
       <div class="flex items-center justify-center h-full text-gray-400">
-        <div class="text-center">
-          <div class="text-2xl mb-2">🗺️</div>
-          <div>Map not available</div>
-          <div class="text-sm text-gray-500 mt-1">Google Maps API not configured</div>
+        <div class="text-center p-6">
+          <div class="text-4xl mb-3">🗺️</div>
+          <div class="text-lg font-semibold mb-2">Map Not Available</div>
+          <div class="text-sm text-gray-500 space-y-1">
+            <div>Google Maps API is not configured</div>
+            <div class="text-xs mt-3 text-gray-600">
+              ${
+                googleMapsApiKey
+                  ? 'API key is set but script failed to load'
+                  : 'API key not configured on backend'
+              }
+            </div>
+            <div class="text-xs text-gray-600">
+              Check browser console for details
+            </div>
+          </div>
         </div>
       </div>
     `;
