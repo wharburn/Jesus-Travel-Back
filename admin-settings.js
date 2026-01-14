@@ -90,22 +90,22 @@ async function loadSettings() {
 
     // Pricing rules
     const pricingRules = settings.pricingRules || {};
-    const standardSedan = pricingRules.standardSedan || {};
     const executiveSedan = pricingRules.executiveSedan || {};
     const luxurySedan = pricingRules.luxurySedan || {};
-    const executiveMPV = pricingRules.executiveMPV || {};
-    const luxuryMPV = pricingRules.luxuryMPV || {};
+    const mpvExecutive = pricingRules.mpvExecutive || {};
+    const luxurySUV = pricingRules.luxurySUV || {};
+    const minibus = pricingRules.minibus || {};
 
-    document.getElementById('pricingStandardSedanBase').value = standardSedan.baseFare ?? 50.0;
-    document.getElementById('pricingStandardSedanPerKm').value = standardSedan.perKmRate ?? 2.0;
     document.getElementById('pricingExecutiveSedanBase').value = executiveSedan.baseFare ?? 60.0;
     document.getElementById('pricingExecutiveSedanPerKm').value = executiveSedan.perKmRate ?? 2.5;
     document.getElementById('pricingLuxurySedanBase').value = luxurySedan.baseFare ?? 80.0;
     document.getElementById('pricingLuxurySedanPerKm').value = luxurySedan.perKmRate ?? 3.0;
-    document.getElementById('pricingExecutiveMpvBase').value = executiveMPV.baseFare ?? 100.0;
-    document.getElementById('pricingExecutiveMpvPerKm').value = executiveMPV.perKmRate ?? 3.8;
-    document.getElementById('pricingLuxuryMpvBase').value = luxuryMPV.baseFare ?? 120.0;
-    document.getElementById('pricingLuxuryMpvPerKm').value = luxuryMPV.perKmRate ?? 4.5;
+    document.getElementById('pricingMpvExecutiveBase').value = mpvExecutive.baseFare ?? 100.0;
+    document.getElementById('pricingMpvExecutivePerKm').value = mpvExecutive.perKmRate ?? 3.5;
+    document.getElementById('pricingLuxurySuvBase').value = luxurySUV.baseFare ?? 90.0;
+    document.getElementById('pricingLuxurySuvPerKm').value = luxurySUV.perKmRate ?? 3.2;
+    document.getElementById('pricingMinibusBase').value = minibus.baseFare ?? 120.0;
+    document.getElementById('pricingMinibusPerKm').value = minibus.perKmRate ?? 4.0;
 
     document.getElementById('emailEnabled').checked = settings.notifications.emailEnabled !== false;
     document.getElementById('whatsappEnabled').checked =
@@ -153,10 +153,6 @@ async function saveSettings() {
         autoQuoteMode: document.getElementById('autoQuoteMode').checked,
       },
       pricingRules: {
-        standardSedan: {
-          baseFare: parseFloat(document.getElementById('pricingStandardSedanBase').value) || 0,
-          perKmRate: parseFloat(document.getElementById('pricingStandardSedanPerKm').value) || 0,
-        },
         executiveSedan: {
           baseFare: parseFloat(document.getElementById('pricingExecutiveSedanBase').value) || 0,
           perKmRate: parseFloat(document.getElementById('pricingExecutiveSedanPerKm').value) || 0,
@@ -165,13 +161,17 @@ async function saveSettings() {
           baseFare: parseFloat(document.getElementById('pricingLuxurySedanBase').value) || 0,
           perKmRate: parseFloat(document.getElementById('pricingLuxurySedanPerKm').value) || 0,
         },
-        executiveMPV: {
-          baseFare: parseFloat(document.getElementById('pricingExecutiveMpvBase').value) || 0,
-          perKmRate: parseFloat(document.getElementById('pricingExecutiveMpvPerKm').value) || 0,
+        mpvExecutive: {
+          baseFare: parseFloat(document.getElementById('pricingMpvExecutiveBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingMpvExecutivePerKm').value) || 0,
         },
-        luxuryMPV: {
-          baseFare: parseFloat(document.getElementById('pricingLuxuryMpvBase').value) || 0,
-          perKmRate: parseFloat(document.getElementById('pricingLuxuryMpvPerKm').value) || 0,
+        luxurySUV: {
+          baseFare: parseFloat(document.getElementById('pricingLuxurySuvBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingLuxurySuvPerKm').value) || 0,
+        },
+        minibus: {
+          baseFare: parseFloat(document.getElementById('pricingMinibusBase').value) || 0,
+          perKmRate: parseFloat(document.getElementById('pricingMinibusPerKm').value) || 0,
         },
       },
       notifications: {

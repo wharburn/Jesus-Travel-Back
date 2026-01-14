@@ -7,11 +7,11 @@ import { detectJourneyZones } from './zoneDetection.js';
 
 // Default pricing rules (used when settings are missing or invalid)
 const DEFAULT_PRICING_RULES = {
-  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0, max_passengers: 4 },
-  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 4 },
-  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 4 },
-  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8, max_passengers: 6 },
-  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5, max_passengers: 7 },
+  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 3 },
+  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 2 },
+  'MPV Executive': { base_fare: 100.0, per_km_rate: 3.5, max_passengers: 6 },
+  'Luxury SUV': { base_fare: 90.0, per_km_rate: 3.2, max_passengers: 3 },
+  Minibus: { base_fare: 120.0, per_km_rate: 4.0, max_passengers: 8 },
 };
 
 let cachedPricingRules = null;
@@ -44,11 +44,11 @@ const loadPricingRulesFromSettings = async () => {
     }
 
     const rules = {
-      'Standard Sedan': mapSettingToRule(settingsRules, 'standardSedan', 'Standard Sedan'),
       'Executive Sedan': mapSettingToRule(settingsRules, 'executiveSedan', 'Executive Sedan'),
       'Luxury Sedan': mapSettingToRule(settingsRules, 'luxurySedan', 'Luxury Sedan'),
-      'Executive MPV': mapSettingToRule(settingsRules, 'executiveMPV', 'Executive MPV'),
-      'Luxury MPV': mapSettingToRule(settingsRules, 'luxuryMPV', 'Luxury MPV'),
+      'MPV Executive': mapSettingToRule(settingsRules, 'mpvExecutive', 'MPV Executive'),
+      'Luxury SUV': mapSettingToRule(settingsRules, 'luxurySUV', 'Luxury SUV'),
+      Minibus: mapSettingToRule(settingsRules, 'minibus', 'Minibus'),
     };
 
     cachedPricingRules = rules;
@@ -82,22 +82,34 @@ const clearPricingCache = () => {
  */
 const mapVehicleType = (vehicleType) => {
   const mapping = {
-    // Lowercase variants (from booking form)
-    saloon: 'Standard Sedan',
-    mpv: 'Executive MPV',
-    suv: 'Luxury Sedan',
-    minibus: 'Luxury MPV',
-    // Capitalized variants (legacy)
-    Saloon: 'Standard Sedan',
-    MPV: 'Executive MPV',
-    SUV: 'Luxury Sedan',
-    Minibus: 'Luxury MPV',
+    // New vehicle types (from booking form)
+    'executive-sedan': 'Executive Sedan',
+    'luxury-sedan': 'Luxury Sedan',
+    'mpv-executive': 'MPV Executive',
+    'luxury-suv': 'Luxury SUV',
+    minibus: 'Minibus',
+    // Legacy variants (for backward compatibility)
+    saloon: 'Executive Sedan',
+    mpv: 'MPV Executive',
+    suv: 'Luxury SUV',
+    Saloon: 'Executive Sedan',
+    MPV: 'MPV Executive',
+    SUV: 'Luxury SUV',
+    Minibus: 'Minibus',
+    'Standard Sedan': 'Executive Sedan',
+    'Executive MPV': 'MPV Executive',
+    'Luxury MPV': 'MPV Executive',
+    'executive-eclass': 'Executive Sedan',
+    'luxury-sclass': 'Luxury Sedan',
+    'mpv-vclass': 'MPV Executive',
+    'Executive E-Class': 'Executive Sedan',
+    'Luxury S-Class': 'Luxury Sedan',
+    'MPV V-Class': 'MPV Executive',
     // Already correct names (pass through)
-    'Standard Sedan': 'Standard Sedan',
     'Executive Sedan': 'Executive Sedan',
     'Luxury Sedan': 'Luxury Sedan',
-    'Executive MPV': 'Executive MPV',
-    'Luxury MPV': 'Luxury MPV',
+    'MPV Executive': 'MPV Executive',
+    'Luxury SUV': 'Luxury SUV',
   };
 
   return mapping[vehicleType] || vehicleType;

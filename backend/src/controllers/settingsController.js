@@ -31,10 +31,6 @@ const getDefaultSettings = () => ({
     autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true',
   },
   pricingRules: {
-    standardSedan: {
-      baseFare: 50.0,
-      perKmRate: 2.0,
-    },
     executiveSedan: {
       baseFare: 60.0,
       perKmRate: 2.5,
@@ -43,13 +39,17 @@ const getDefaultSettings = () => ({
       baseFare: 80.0,
       perKmRate: 3.0,
     },
-    executiveMPV: {
+    mpvExecutive: {
       baseFare: 100.0,
-      perKmRate: 3.8,
+      perKmRate: 3.5,
     },
-    luxuryMPV: {
+    luxurySUV: {
+      baseFare: 90.0,
+      perKmRate: 3.2,
+    },
+    minibus: {
       baseFare: 120.0,
-      perKmRate: 4.5,
+      perKmRate: 4.0,
     },
   },
   notifications: {

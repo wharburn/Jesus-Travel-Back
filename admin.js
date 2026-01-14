@@ -17,13 +17,16 @@ let currentSortBy = 'date-desc';
 let googleMapsLoaded = false;
 let googleMapsApiKey = '';
 const DEFAULT_PRICING_RULES = {
-  'Standard Sedan': { base_fare: 50.0, per_km_rate: 2.0 },
   'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5 },
   'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0 },
-  'Executive MPV': { base_fare: 100.0, per_km_rate: 3.8 },
-  'Luxury MPV': { base_fare: 120.0, per_km_rate: 4.5 },
-  mpv: { base_fare: 100.0, per_km_rate: 3.8 }, // Fallback for lowercase
-  sedan: { base_fare: 50.0, per_km_rate: 2.0 }, // Fallback for lowercase
+  'MPV Executive': { base_fare: 100.0, per_km_rate: 3.5 },
+  'Luxury SUV': { base_fare: 90.0, per_km_rate: 3.2 },
+  Minibus: { base_fare: 120.0, per_km_rate: 4.0 },
+  'executive-sedan': { base_fare: 60.0, per_km_rate: 2.5 }, // Fallback for form value
+  'luxury-sedan': { base_fare: 80.0, per_km_rate: 3.0 }, // Fallback for form value
+  'mpv-executive': { base_fare: 100.0, per_km_rate: 3.5 }, // Fallback for form value
+  'luxury-suv': { base_fare: 90.0, per_km_rate: 3.2 }, // Fallback for form value
+  minibus: { base_fare: 120.0, per_km_rate: 4.0 }, // Fallback for form value
 };
 let pricingRules = { ...DEFAULT_PRICING_RULES };
 
@@ -57,16 +60,6 @@ const loadPricingRules = async () => {
     const rules = settings.pricingRules || {};
 
     pricingRules = {
-      'Standard Sedan': {
-        base_fare:
-          rules.standardSedan && rules.standardSedan.baseFare != null
-            ? Number(rules.standardSedan.baseFare)
-            : DEFAULT_PRICING_RULES['Standard Sedan'].base_fare,
-        per_km_rate:
-          rules.standardSedan && rules.standardSedan.perKmRate != null
-            ? Number(rules.standardSedan.perKmRate)
-            : DEFAULT_PRICING_RULES['Standard Sedan'].per_km_rate,
-      },
       'Executive Sedan': {
         base_fare:
           rules.executiveSedan && rules.executiveSedan.baseFare != null
@@ -87,45 +80,85 @@ const loadPricingRules = async () => {
             ? Number(rules.luxurySedan.perKmRate)
             : DEFAULT_PRICING_RULES['Luxury Sedan'].per_km_rate,
       },
-      'Executive MPV': {
+      'MPV Executive': {
         base_fare:
-          rules.executiveMPV && rules.executiveMPV.baseFare != null
-            ? Number(rules.executiveMPV.baseFare)
-            : DEFAULT_PRICING_RULES['Executive MPV'].base_fare,
+          rules.mpvExecutive && rules.mpvExecutive.baseFare != null
+            ? Number(rules.mpvExecutive.baseFare)
+            : DEFAULT_PRICING_RULES['MPV Executive'].base_fare,
         per_km_rate:
-          rules.executiveMPV && rules.executiveMPV.perKmRate != null
-            ? Number(rules.executiveMPV.perKmRate)
-            : DEFAULT_PRICING_RULES['Executive MPV'].per_km_rate,
+          rules.mpvExecutive && rules.mpvExecutive.perKmRate != null
+            ? Number(rules.mpvExecutive.perKmRate)
+            : DEFAULT_PRICING_RULES['MPV Executive'].per_km_rate,
       },
-      'Luxury MPV': {
+      'Luxury SUV': {
         base_fare:
-          rules.luxuryMPV && rules.luxuryMPV.baseFare != null
-            ? Number(rules.luxuryMPV.baseFare)
-            : DEFAULT_PRICING_RULES['Luxury MPV'].base_fare,
+          rules.luxurySUV && rules.luxurySUV.baseFare != null
+            ? Number(rules.luxurySUV.baseFare)
+            : DEFAULT_PRICING_RULES['Luxury SUV'].base_fare,
         per_km_rate:
-          rules.luxuryMPV && rules.luxuryMPV.perKmRate != null
-            ? Number(rules.luxuryMPV.perKmRate)
-            : DEFAULT_PRICING_RULES['Luxury MPV'].per_km_rate,
+          rules.luxurySUV && rules.luxurySUV.perKmRate != null
+            ? Number(rules.luxurySUV.perKmRate)
+            : DEFAULT_PRICING_RULES['Luxury SUV'].per_km_rate,
       },
-      mpv: {
+      Minibus: {
         base_fare:
-          rules.executiveMPV && rules.executiveMPV.baseFare != null
-            ? Number(rules.executiveMPV.baseFare)
-            : DEFAULT_PRICING_RULES.mpv.base_fare,
+          rules.minibus && rules.minibus.baseFare != null
+            ? Number(rules.minibus.baseFare)
+            : DEFAULT_PRICING_RULES.Minibus.base_fare,
         per_km_rate:
-          rules.executiveMPV && rules.executiveMPV.perKmRate != null
-            ? Number(rules.executiveMPV.perKmRate)
-            : DEFAULT_PRICING_RULES.mpv.per_km_rate,
+          rules.minibus && rules.minibus.perKmRate != null
+            ? Number(rules.minibus.perKmRate)
+            : DEFAULT_PRICING_RULES.Minibus.per_km_rate,
       },
-      sedan: {
+      'executive-sedan': {
         base_fare:
-          rules.standardSedan && rules.standardSedan.baseFare != null
-            ? Number(rules.standardSedan.baseFare)
-            : DEFAULT_PRICING_RULES.sedan.base_fare,
+          rules.executiveSedan && rules.executiveSedan.baseFare != null
+            ? Number(rules.executiveSedan.baseFare)
+            : DEFAULT_PRICING_RULES['executive-sedan'].base_fare,
         per_km_rate:
-          rules.standardSedan && rules.standardSedan.perKmRate != null
-            ? Number(rules.standardSedan.perKmRate)
-            : DEFAULT_PRICING_RULES.sedan.per_km_rate,
+          rules.executiveSedan && rules.executiveSedan.perKmRate != null
+            ? Number(rules.executiveSedan.perKmRate)
+            : DEFAULT_PRICING_RULES['executive-sedan'].per_km_rate,
+      },
+      'luxury-sedan': {
+        base_fare:
+          rules.luxurySedan && rules.luxurySedan.baseFare != null
+            ? Number(rules.luxurySedan.baseFare)
+            : DEFAULT_PRICING_RULES['luxury-sedan'].base_fare,
+        per_km_rate:
+          rules.luxurySedan && rules.luxurySedan.perKmRate != null
+            ? Number(rules.luxurySedan.perKmRate)
+            : DEFAULT_PRICING_RULES['luxury-sedan'].per_km_rate,
+      },
+      'mpv-executive': {
+        base_fare:
+          rules.mpvExecutive && rules.mpvExecutive.baseFare != null
+            ? Number(rules.mpvExecutive.baseFare)
+            : DEFAULT_PRICING_RULES['mpv-executive'].base_fare,
+        per_km_rate:
+          rules.mpvExecutive && rules.mpvExecutive.perKmRate != null
+            ? Number(rules.mpvExecutive.perKmRate)
+            : DEFAULT_PRICING_RULES['mpv-executive'].per_km_rate,
+      },
+      'luxury-suv': {
+        base_fare:
+          rules.luxurySUV && rules.luxurySUV.baseFare != null
+            ? Number(rules.luxurySUV.baseFare)
+            : DEFAULT_PRICING_RULES['luxury-suv'].base_fare,
+        per_km_rate:
+          rules.luxurySUV && rules.luxurySUV.perKmRate != null
+            ? Number(rules.luxurySUV.perKmRate)
+            : DEFAULT_PRICING_RULES['luxury-suv'].per_km_rate,
+      },
+      minibus: {
+        base_fare:
+          rules.minibus && rules.minibus.baseFare != null
+            ? Number(rules.minibus.baseFare)
+            : DEFAULT_PRICING_RULES.minibus.base_fare,
+        per_km_rate:
+          rules.minibus && rules.minibus.perKmRate != null
+            ? Number(rules.minibus.perKmRate)
+            : DEFAULT_PRICING_RULES.minibus.per_km_rate,
       },
     };
   } catch (error) {
