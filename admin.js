@@ -412,10 +412,10 @@ function renderEnquiries() {
       <td class="px-6 py-4">
         ${getAIEstimateBadge(enquiry.aiEstimate)}
       </td>
-      <td class="px-6 py-4">
+      <td class="px-6 py-4 w-36">
         ${getStatusBadge(enquiry.status, enquiry.quotedPrice)}
       </td>
-      <td class="px-6 py-4">
+      <td class="px-6 py-4 w-32">
         ${getSourceBadge(enquiry.source)}
       </td>
       <td class="px-6 py-4">
