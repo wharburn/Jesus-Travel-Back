@@ -5,6 +5,29 @@ import { getJourneyDetails } from './googleMaps.js';
 import { getTimeMultiplier } from './timeMultipliers.js';
 import { detectJourneyZones } from './zoneDetection.js';
 
+// Conversion constants
+const KM_TO_MILES = 0.621371;
+const MILES_TO_KM = 1.60934;
+
+/**
+ * Convert distance based on format setting
+ * @param {number} distanceKm - Distance in kilometers
+ * @param {string} format - 'km' or 'miles'
+ * @returns {Object} - { value: number, unit: string }
+ */
+const convertDistance = (distanceKm, format = 'km') => {
+  if (format === 'miles') {
+    return {
+      value: parseFloat((distanceKm * KM_TO_MILES).toFixed(2)),
+      unit: 'mi',
+    };
+  }
+  return {
+    value: parseFloat(distanceKm.toFixed(2)),
+    unit: 'km',
+  };
+};
+
 // Default pricing rules (used when settings are missing or invalid)
 const DEFAULT_PRICING_RULES = {
   'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 3 },
@@ -213,12 +236,21 @@ const calculateQuote = async (params) => {
 
     const calculationTime = Date.now() - startTime;
 
+    // Get distance format setting
+    const distanceFormat = (await getSetting('quotes'))?.distanceFormat || 'km';
+    const displayDistance = convertDistance(journey.distance.km, distanceFormat);
+
     // Return detailed quote breakdown
     return {
       // Journey details
       pickup: journey.pickup,
       dropoff: journey.dropoff,
-      distance: journey.distance,
+      distance: {
+        ...journey.distance,
+        display: displayDistance.value,
+        unit: displayDistance.unit,
+        format: distanceFormat,
+      },
       duration: journey.duration,
       pickup_datetime: pickupDatetime,
 
@@ -261,14 +293,18 @@ const calculateQuote = async (params) => {
 const formatQuoteForCustomer = (quote) => {
   const { pickup, dropoff, distance, duration, pricing, vehicle_type } = quote;
 
+  // Use display distance if available, otherwise fall back to km
+  const displayDist = distance.display || distance.km;
+  const distUnit = distance.unit || 'km';
+
   let message = `✅ Quote Ready\n\n`;
   message += `📍 From: ${pickup.formatted_address}\n`;
   message += `📍 To: ${dropoff.formatted_address}\n`;
-  message += `📏 Distance: ${distance.km} km (~${duration.minutes} mins)\n`;
+  message += `📏 Distance: ${displayDist} ${distUnit} (~${duration.minutes} mins)\n`;
   message += `🚗 Vehicle: ${vehicle_type}\n\n`;
   message += `💰 Quote Breakdown:\n`;
   message += `   Base Fare:         £${pricing.base_fare.toFixed(2)}\n`;
-  message += `   Distance (${distance.km}km): £${pricing.distance_charge.toFixed(2)}\n`;
+  message += `   Distance (${displayDist}${distUnit}): £${pricing.distance_charge.toFixed(2)}\n`;
 
   if (pricing.zone_breakdown.length > 0) {
     pricing.zone_breakdown.forEach((zone) => {
@@ -291,4 +327,11 @@ const formatQuoteForCustomer = (quote) => {
   return message;
 };
 
-export { calculateQuote, clearPricingCache, formatQuoteForCustomer, getPricingRule, roundPrice };
+export {
+  calculateQuote,
+  clearPricingCache,
+  convertDistance,
+  formatQuoteForCustomer,
+  getPricingRule,
+  roundPrice,
+};

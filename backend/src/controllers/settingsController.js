@@ -29,6 +29,7 @@ const getDefaultSettings = () => ({
     autoSendToCustomer: true,
     requireApproval: false,
     autoQuoteMode: process.env.AUTO_QUOTE_MODE === 'true',
+    distanceFormat: process.env.DISTANCE_FORMAT || 'km',
   },
   pricingRules: {
     executiveSedan: {

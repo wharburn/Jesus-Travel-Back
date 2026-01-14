@@ -76,6 +76,14 @@ async function loadSettings() {
     document.getElementById('autoSendToCustomer').checked =
       settings.quotes.autoSendToCustomer !== false;
 
+    // Distance format
+    const distanceFormat = settings.quotes.distanceFormat || 'km';
+    if (distanceFormat === 'miles') {
+      document.getElementById('distanceFormatMiles').checked = true;
+    } else {
+      document.getElementById('distanceFormatKm').checked = true;
+    }
+
     // Auto-quote mode
     const autoQuoteMode = settings.quotes.autoQuoteMode === true;
     document.getElementById('autoQuoteMode').checked = autoQuoteMode;
@@ -151,6 +159,8 @@ async function saveSettings() {
         validityDays: parseInt(document.getElementById('quoteValidityDays').value) || 2,
         autoSendToCustomer: document.getElementById('autoSendToCustomer').checked,
         autoQuoteMode: document.getElementById('autoQuoteMode').checked,
+        distanceFormat:
+          document.querySelector('input[name="distanceFormat"]:checked')?.value || 'km',
       },
       pricingRules: {
         executiveSedan: {
