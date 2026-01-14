@@ -35,22 +35,27 @@ const getDefaultSettings = () => ({
     executiveSedan: {
       baseFare: 60.0,
       perKmRate: 2.5,
+      hourlyRate: 50.0,
     },
     luxurySedan: {
       baseFare: 80.0,
       perKmRate: 3.0,
+      hourlyRate: 60.0,
     },
     mpvExecutive: {
       baseFare: 100.0,
       perKmRate: 3.5,
+      hourlyRate: 60.0,
     },
     luxurySUV: {
       baseFare: 90.0,
       perKmRate: 3.2,
+      hourlyRate: 70.0,
     },
     minibus: {
       baseFare: 120.0,
       perKmRate: 4.0,
+      hourlyRate: 60.0,
     },
   },
   notifications: {
