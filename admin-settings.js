@@ -78,10 +78,15 @@ async function loadSettings() {
 
     // Distance format
     const distanceFormat = settings.quotes.distanceFormat || 'km';
-    if (distanceFormat === 'miles') {
-      document.getElementById('distanceFormatMiles').checked = true;
-    } else {
-      document.getElementById('distanceFormatKm').checked = true;
+    const distanceFormatMiles = document.getElementById('distanceFormatMiles');
+    const distanceFormatKm = document.getElementById('distanceFormatKm');
+
+    if (distanceFormatMiles && distanceFormatKm) {
+      if (distanceFormat === 'miles') {
+        distanceFormatMiles.checked = true;
+      } else {
+        distanceFormatKm.checked = true;
+      }
     }
 
     // Auto-quote mode
