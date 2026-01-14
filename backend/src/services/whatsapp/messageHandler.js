@@ -188,7 +188,9 @@ export const processWhatsAppMessage = async (message) => {
       );
 
       // Notify pricing team
-      const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
+      const pricingTeamPhoneFromSettings = await getSetting('pricingTeam.phone');
+      const pricingTeamPhone = pricingTeamPhoneFromSettings || process.env.PRICING_TEAM_PHONE;
+
       if (pricingTeamPhone) {
         // Message 1: Enquiry details
         await sendWhatsAppMessage(
@@ -354,12 +356,16 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
   try {
     logger.info(`Pricing team quote received for ${referenceNumber}: £${price}`);
 
+    // Get pricing team phone from settings
+    const pricingTeamPhoneFromSettings = await getSetting('pricingTeam.phone');
+    const pricingTeamPhone = pricingTeamPhoneFromSettings || process.env.PRICING_TEAM_PHONE;
+
     // Find the enquiry by reference number
     const enquiry = await Enquiry.findByReference(referenceNumber);
 
     if (!enquiry) {
       await sendWhatsAppMessage(
-        process.env.PRICING_TEAM_PHONE,
+        pricingTeamPhone,
         `❌ Error: Enquiry ${referenceNumber} not found. Please check the reference number.`
       );
       return;
@@ -367,7 +373,7 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
 
     if (enquiry.status !== 'pending_quote') {
       await sendWhatsAppMessage(
-        process.env.PRICING_TEAM_PHONE,
+        pricingTeamPhone,
         `⚠️ Warning: Enquiry ${referenceNumber} already has status "${enquiry.status}". Quote not updated.`
       );
       return;
@@ -394,7 +400,7 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
 
     // Confirm to pricing team
     await sendWhatsAppMessage(
-      process.env.PRICING_TEAM_PHONE,
+      pricingTeamPhone,
       `✅ Quote submitted successfully!\n\n` +
         `Ref: ${referenceNumber}\n` +
         `Price: £${price}\n` +
@@ -422,10 +428,10 @@ const handlePricingTeamQuote = async (referenceNumber, price, fullMessage) => {
     logger.info(`Quote sent to customer ${enquiry.customerPhone}`);
   } catch (error) {
     logger.error('Error handling pricing team quote:', error);
-    await sendWhatsAppMessage(
-      process.env.PRICING_TEAM_PHONE,
-      `❌ Error processing quote: ${error.message}`
-    );
+    const pricingTeamPhoneFromSettings = await getSetting('pricingTeam.phone');
+    const pricingTeamPhone = pricingTeamPhoneFromSettings || process.env.PRICING_TEAM_PHONE;
+
+    await sendWhatsAppMessage(pricingTeamPhone, `❌ Error processing quote: ${error.message}`);
   }
 };
 

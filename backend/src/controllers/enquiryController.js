@@ -50,7 +50,10 @@ const formatDateTime = (isoString) => {
 // Helper function to notify pricing team (manual mode with AI estimate)
 async function notifyPricingTeamManual(enquiry) {
   try {
-    const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
+    // Get pricing team phone from settings (with fallback to env var)
+    const settings = await redis.get('settings');
+    const pricingTeamPhone = settings?.pricingTeam?.phone || process.env.PRICING_TEAM_PHONE;
+
     if (pricingTeamPhone) {
       let aiEstimate = null;
       let estimateMessage = '';
@@ -252,7 +255,9 @@ export const createEnquiry = async (req, res, next) => {
         logger.info(`✅ Auto-quote sent to customer: ${enquiry.customerPhone}`);
 
         // Notify pricing team (for monitoring)
-        const pricingTeamPhone = process.env.PRICING_TEAM_PHONE;
+        const settings = await redis.get('settings');
+        const pricingTeamPhone = settings?.pricingTeam?.phone || process.env.PRICING_TEAM_PHONE;
+
         if (pricingTeamPhone) {
           const teamMessage =
             `🤖 AUTO-QUOTE SENT\n\n` +
