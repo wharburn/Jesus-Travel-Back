@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Maps Diagnostic</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+    .success { background: #10b981; }
+    .error { background: #ef4444; }
+    .warning { background: #f59e0b; }
+    #map { width: 100%; height: 400px; margin-top: 20px; background: #333; }
+  </style>
+</head>
+<body>
+  <h1>🗺️ Google Maps Diagnostic Tool</h1>
+  <div id="status"></div>
+  <div id="map"></div>
+
+  <script>
+    const API_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000/api'
+      : 'https://jesus-travel-back.onrender.com/api';
+
+    const token = localStorage.getItem('adminToken');
+    const statusDiv = document.getElementById('status');
+
+    function log(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.textContent = message;
+      statusDiv.appendChild(div);
+      console.log(message);
+    }
+
+    async function checkMaps() {
+      try {
+        log('🔍 Checking Google Maps API key from backend...', 'info');
+        
+        const response = await fetch(`${API_URL}/settings/maps-api-key`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          log(`❌ Failed to fetch API key: ${response.status}`, 'error');
+          return;
+        }
+
+        const data = await response.json();
+        const apiKey = data.data.apiKey;
+
+        if (!apiKey) {
+          log('❌ Google Maps API key is NOT configured in backend', 'error');
+          return;
+        }
+
+        log(`✅ API key received: ${apiKey.substring(0, 15)}...`, 'success');
+
+        // Load Google Maps script
+        log('📥 Loading Google Maps script...', 'info');
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry`;
+        
+        script.onload = () => {
+          log('✅ Google Maps script loaded successfully!', 'success');
+          
+          // Test map initialization
+          try {
+            const map = new google.maps.Map(document.getElementById('map'), {
+              zoom: 10,
+              center: { lat: 51.5074, lng: -0.1278 },
+            });
+            log('✅ Map initialized successfully!', 'success');
+            
+            // Test directions
+            const directionsService = new google.maps.DirectionsService();
+            directionsService.route({
+              origin: 'London',
+              destination: 'Manchester',
+              travelMode: google.maps.TravelMode.DRIVING,
+            }, (result, status) => {
+              if (status === 'OK') {
+                log('✅ Directions API working!', 'success');
+                new google.maps.DirectionsRenderer({
+                  map: map,
+                  directions: result,
+                });
+              } else {
+                log(`❌ Directions API failed: ${status}`, 'error');
+              }
+            });
+          } catch (error) {
+            log(`❌ Map initialization failed: ${error.message}`, 'error');
+          }
+        };
+
+        script.onerror = (error) => {
+          log('❌ Failed to load Google Maps script', 'error');
+          log('Possible reasons:', 'warning');
+          log('1. Invalid API key', 'warning');
+          log('2. API key restrictions blocking this domain', 'warning');
+          log('3. Billing not enabled in Google Cloud Console', 'warning');
+          log('4. API quota exceeded', 'warning');
+        };
+
+        document.head.appendChild(script);
+
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+      }
+    }
+
+    if (!token) {
+      log('❌ No admin token found. Please login first.', 'error');
+    } else {
+      checkMaps();
+    }
+  </script>
+</body>
+</html>
+
