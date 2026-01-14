@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  calculateDisposalQuoteOnly,
   calculateQuoteOnly,
   generateQuote,
   getQuote,
@@ -14,6 +15,13 @@ const router = express.Router();
  * @access  Public
  */
 router.post('/calculate', calculateQuoteOnly);
+
+/**
+ * @route   POST /api/v1/quotes/calculate-disposal
+ * @desc    Calculate disposal (hourly) quote without saving
+ * @access  Public
+ */
+router.post('/calculate-disposal', calculateDisposalQuoteOnly);
 
 /**
  * @route   POST /api/v1/quotes/generate

@@ -30,11 +30,11 @@ const convertDistance = (distanceKm, format = 'km') => {
 
 // Default pricing rules (used when settings are missing or invalid)
 const DEFAULT_PRICING_RULES = {
-  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, max_passengers: 3 },
-  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, max_passengers: 2 },
-  'MPV Executive': { base_fare: 100.0, per_km_rate: 3.5, max_passengers: 6 },
-  'Luxury SUV': { base_fare: 90.0, per_km_rate: 3.2, max_passengers: 3 },
-  Minibus: { base_fare: 120.0, per_km_rate: 4.0, max_passengers: 8 },
+  'Executive Sedan': { base_fare: 60.0, per_km_rate: 2.5, hourly_rate: 50.0, max_passengers: 3 },
+  'Luxury Sedan': { base_fare: 80.0, per_km_rate: 3.0, hourly_rate: 60.0, max_passengers: 2 },
+  'MPV Executive': { base_fare: 100.0, per_km_rate: 3.5, hourly_rate: 60.0, max_passengers: 6 },
+  'Luxury SUV': { base_fare: 90.0, per_km_rate: 3.2, hourly_rate: 70.0, max_passengers: 3 },
+  Minibus: { base_fare: 120.0, per_km_rate: 4.0, hourly_rate: 60.0, max_passengers: 8 },
 };
 
 let cachedPricingRules = null;
@@ -49,10 +49,16 @@ const mapSettingToRule = (settingsRules, key, vehicleName) => {
   const perKmRate = parseFloat(
     rule.perKmRate !== undefined && rule.perKmRate !== null ? rule.perKmRate : fallback.per_km_rate
   );
+  const hourlyRate = parseFloat(
+    rule.hourlyRate !== undefined && rule.hourlyRate !== null
+      ? rule.hourlyRate
+      : fallback.hourly_rate
+  );
 
   return {
     base_fare: Number.isFinite(baseFare) ? baseFare : fallback.base_fare,
     per_km_rate: Number.isFinite(perKmRate) ? perKmRate : fallback.per_km_rate,
+    hourly_rate: Number.isFinite(hourlyRate) ? hourlyRate : fallback.hourly_rate,
     max_passengers: fallback.max_passengers,
   };
 };
@@ -170,6 +176,117 @@ const getPricingRule = async (vehicleType) => {
  */
 const roundPrice = (amount, increment = 0.5) => {
   return Math.round(amount / increment) * increment;
+};
+
+/**
+ * Calculate quote for "At Disposal" (hourly) booking
+ * @param {Object} params - Disposal quote parameters
+ * @returns {Promise<Object>}
+ */
+const calculateDisposalQuote = async (params) => {
+  const startTime = Date.now();
+
+  try {
+    const {
+      pickupAddress,
+      pickupDatetime,
+      vehicleType,
+      hours,
+      passengers = 1,
+      luggage = 0,
+      includeCongestion = false,
+    } = params;
+
+    console.log(`⏰ Calculating disposal quote: ${hours} hours with ${vehicleType}`);
+
+    // Minimum 8 hours for disposal bookings
+    const MIN_HOURS = 8;
+    const actualHours = Math.max(hours || MIN_HOURS, MIN_HOURS);
+
+    // Get pricing rule for vehicle type
+    const pricingRule = await getPricingRule(vehicleType);
+    const hourlyRate = parseFloat(pricingRule.hourly_rate || 0);
+
+    if (hourlyRate === 0) {
+      throw new Error(`No hourly rate configured for vehicle type: ${vehicleType}`);
+    }
+
+    // Calculate hourly charge
+    const hourlyCharge = actualHours * hourlyRate;
+
+    // Get congestion charge if applicable
+    let congestionCharge = 0;
+    if (includeCongestion) {
+      // Standard London congestion charge
+      congestionCharge = 15.0;
+    }
+
+    // Get time multiplier (for peak times, weekends, etc.)
+    const timeInfo = await getTimeMultiplier(new Date(pickupDatetime));
+
+    // Calculate subtotal (before time multiplier)
+    const subtotal = hourlyCharge + congestionCharge;
+
+    // Apply time multiplier
+    const totalBeforeRounding = subtotal * timeInfo.multiplier;
+
+    // Round to nearest increment
+    const roundingIncrement = parseFloat(process.env.QUOTE_ROUNDING || 0.5);
+    const totalAmount = roundPrice(totalBeforeRounding, roundingIncrement);
+
+    // Validate quote amount
+    const minAmount = parseFloat(process.env.MIN_QUOTE_AMOUNT || 30);
+    const maxAmount = parseFloat(process.env.MAX_QUOTE_AMOUNT || 5000);
+
+    if (totalAmount < minAmount) {
+      throw new Error(`Quote amount £${totalAmount} is below minimum £${minAmount}`);
+    }
+
+    if (totalAmount > maxAmount) {
+      console.warn(`⚠️  Quote amount £${totalAmount} exceeds maximum £${maxAmount}`);
+    }
+
+    const calculationTime = Date.now() - startTime;
+
+    // Return detailed quote breakdown
+    return {
+      // Booking type
+      booking_type: 'disposal',
+
+      // Journey details
+      pickup: {
+        address: pickupAddress,
+        formatted_address: pickupAddress,
+      },
+      pickup_datetime: pickupDatetime,
+      hours: actualHours,
+      minimum_hours: MIN_HOURS,
+
+      // Vehicle details
+      vehicle_type: vehicleType,
+      passengers,
+      luggage,
+
+      // Pricing breakdown
+      pricing: {
+        hourly_rate: hourlyRate,
+        hourly_charge: hourlyCharge,
+        congestion_charge: congestionCharge,
+        subtotal: subtotal,
+        time_multiplier: timeInfo.multiplier,
+        time_multiplier_name: timeInfo.name,
+        total_before_rounding: totalBeforeRounding,
+        total_amount: totalAmount,
+      },
+
+      // Metadata
+      calculation_time_ms: calculationTime,
+      calculated_at: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Disposal quote calculation error:', error);
+    throw error;
+  }
 };
 
 /**
@@ -327,10 +444,46 @@ const formatQuoteForCustomer = (quote) => {
   return message;
 };
 
+/**
+ * Format disposal quote for customer display
+ * @param {Object} quote - The disposal quote object
+ * @returns {string}
+ */
+const formatDisposalQuoteForCustomer = (quote) => {
+  const { pickup, hours, minimum_hours, pricing, vehicle_type } = quote;
+
+  let message = `✅ At Disposal Quote Ready\n\n`;
+  message += `📍 Pickup: ${pickup.formatted_address}\n`;
+  message += `⏰ Duration: ${hours} hours (minimum ${minimum_hours} hours)\n`;
+  message += `🚗 Vehicle: ${vehicle_type}\n\n`;
+  message += `💰 Quote Breakdown:\n`;
+  message += `   Hourly Rate (£${pricing.hourly_rate}/hr): £${pricing.hourly_charge.toFixed(2)}\n`;
+
+  if (pricing.congestion_charge > 0) {
+    message += `   Congestion Charge:  £${pricing.congestion_charge.toFixed(2)}\n`;
+  }
+
+  message += `   ─────────────────────────\n`;
+  message += `   Subtotal:          £${pricing.subtotal.toFixed(2)}\n`;
+
+  if (pricing.time_multiplier !== 1.0) {
+    message += `   ${pricing.time_multiplier_name} (${pricing.time_multiplier}x): Applied\n`;
+  }
+
+  message += `   ─────────────────────────\n`;
+  message += `   TOTAL:            £${pricing.total_amount.toFixed(2)}\n\n`;
+  message += `Valid for 48 hours\n\n`;
+  message += `Reply YES to confirm booking`;
+
+  return message;
+};
+
 export {
+  calculateDisposalQuote,
   calculateQuote,
   clearPricingCache,
   convertDistance,
+  formatDisposalQuoteForCustomer,
   formatQuoteForCustomer,
   getPricingRule,
   roundPrice,

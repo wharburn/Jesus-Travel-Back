@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import Quote from '../models/Quote.js';
-import { calculateQuote, formatQuoteForCustomer } from '../services/pricing/pricingEngine.js';
+import {
+  calculateDisposalQuote,
+  calculateQuote,
+  formatQuoteForCustomer,
+} from '../services/pricing/pricingEngine.js';
 import { sendWhatsAppMessage } from '../services/whatsapp/client.js';
 
 /**
@@ -17,6 +21,27 @@ const calculateQuoteOnly = async (req, res) => {
     });
   } catch (error) {
     console.error('Calculate quote error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Calculate disposal quote (without saving)
+ * POST /api/v1/quotes/calculate-disposal
+ */
+const calculateDisposalQuoteOnly = async (req, res) => {
+  try {
+    const quote = await calculateDisposalQuote(req.body);
+
+    res.json({
+      success: true,
+      quote: quote,
+    });
+  } catch (error) {
+    console.error('Calculate disposal quote error:', error);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -240,6 +265,7 @@ const getRecentQuotes = async (req, res) => {
 };
 
 export {
+  calculateDisposalQuoteOnly,
   calculateQuoteOnly,
   generateQuote,
   getQuote,
