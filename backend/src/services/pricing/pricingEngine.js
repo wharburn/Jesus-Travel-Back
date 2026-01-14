@@ -68,6 +68,14 @@ const getActivePricingRules = async () => {
 };
 
 /**
+ * Clear the cached pricing rules (call this when settings are updated)
+ */
+const clearPricingCache = () => {
+  console.log('🔄 Clearing pricing rules cache');
+  cachedPricingRules = null;
+};
+
+/**
  * Map frontend vehicle types to backend pricing rule names
  * @param {string} vehicleType - The vehicle type from frontend
  * @returns {string} - The mapped vehicle type for pricing rules
@@ -271,4 +279,4 @@ const formatQuoteForCustomer = (quote) => {
   return message;
 };
 
-export { calculateQuote, formatQuoteForCustomer, getPricingRule, roundPrice };
+export { calculateQuote, clearPricingCache, formatQuoteForCustomer, getPricingRule, roundPrice };

@@ -1,4 +1,5 @@
 import redis from '../config/redis.js';
+import { clearPricingCache } from '../services/pricing/pricingEngine.js';
 import logger from '../utils/logger.js';
 
 const SETTINGS_KEY = 'app:settings';
@@ -158,6 +159,12 @@ export const updateSettings = async (req, res) => {
 
     // Save to Redis (Upstash automatically serializes - no JSON.stringify needed)
     await redis.set(SETTINGS_KEY, settings);
+
+    // Clear pricing cache if pricing rules were updated
+    if (updates.pricingRules) {
+      clearPricingCache();
+      logger.info('Pricing rules cache cleared');
+    }
 
     logger.info('Settings updated successfully', { updates });
 
