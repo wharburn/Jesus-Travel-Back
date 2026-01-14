@@ -64,10 +64,41 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  // Handle At Disposal checkbox
+  const atDisposalCheckbox = document.getElementById('atDisposal');
+  const dropoffField = document.getElementById('dropoffField');
+  const endTimeField = document.getElementById('endTimeField');
+  const timeLabel = document.querySelector('label[for="time"]');
+
+  if (atDisposalCheckbox) {
+    atDisposalCheckbox.addEventListener('change', function () {
+      const isAtDisposal = this.checked;
+
+      if (isAtDisposal) {
+        // Hide dropoff, show end time
+        dropoffField.classList.add('hidden');
+        endTimeField.classList.remove('hidden');
+        document.getElementById('dropoff').removeAttribute('required');
+        document.getElementById('endTime').setAttribute('required', 'required');
+        timeLabel.setAttribute('data-i18n', 'booking.startTime');
+        timeLabel.textContent = 'Start Time *';
+      } else {
+        // Show dropoff, hide end time
+        dropoffField.classList.remove('hidden');
+        endTimeField.classList.add('hidden');
+        document.getElementById('dropoff').setAttribute('required', 'required');
+        document.getElementById('endTime').removeAttribute('required');
+        timeLabel.setAttribute('data-i18n', 'booking.time');
+        timeLabel.textContent = 'Time *';
+      }
+    });
+  }
+
   bookingForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
     // Get form values
+    const isAtDisposal = document.getElementById('atDisposal').checked;
     const formData = {
       name: document.getElementById('clientName').value.trim(),
       email: document.getElementById('email').value.trim(),
@@ -76,10 +107,12 @@ document.addEventListener('DOMContentLoaded', function () {
       date: document.getElementById('date').value,
       time: document.getElementById('time').value,
       pickup: document.getElementById('pickup').value.trim(),
-      dropoff: document.getElementById('dropoff').value.trim(),
+      dropoff: isAtDisposal ? '' : document.getElementById('dropoff').value.trim(),
+      endTime: isAtDisposal ? document.getElementById('endTime').value : '',
       flight: document.getElementById('flight').value.trim(),
       vehicle: document.getElementById('vehicleType').value,
       notes: document.getElementById('notes').value.trim(),
+      atDisposal: isAtDisposal,
     };
 
     // Validate required fields
@@ -90,9 +123,32 @@ document.addEventListener('DOMContentLoaded', function () {
       !formData.date ||
       !formData.time ||
       !formData.pickup ||
-      !formData.dropoff ||
       !formData.vehicle
     ) {
+      alert(getTranslation('booking.validation.required'));
+      return;
+    }
+
+    // Additional validation for at disposal
+    if (isAtDisposal && !formData.endTime) {
+      alert('Please provide an end time for at disposal booking.');
+      return;
+    }
+
+    // Validate minimum 8 hours for at disposal
+    if (isAtDisposal) {
+      const startTime = new Date(`2000-01-01T${formData.time}`);
+      const endTime = new Date(`2000-01-01T${formData.endTime}`);
+      const hoursDiff = (endTime - startTime) / (1000 * 60 * 60);
+
+      if (hoursDiff < 8) {
+        alert('At Disposal bookings require a minimum of 8 hours.');
+        return;
+      }
+    }
+
+    // Validate dropoff for non-disposal bookings
+    if (!isAtDisposal && !formData.dropoff) {
       alert(getTranslation('booking.validation.required'));
       return;
     }
@@ -129,17 +185,39 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p class="font-semibold">${formatDate(formData.date)}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600" data-i18n="booking.summary.time"></p>
+                        <p class="text-sm text-gray-600">${
+                          formData.atDisposal ? 'Start Time' : 'Time'
+                        }</p>
                         <p class="font-semibold">${formData.time}</p>
                     </div>
+                    ${
+                      formData.atDisposal
+                        ? `<div>
+                        <p class="text-sm text-gray-600">End Time</p>
+                        <p class="font-semibold">${formData.endTime}</p>
+                    </div>`
+                        : ''
+                    }
                     <div>
                         <p class="text-sm text-gray-600" data-i18n="booking.summary.pickup"></p>
                         <p class="font-semibold">${escapeHtml(formData.pickup)}</p>
                     </div>
-                    <div>
+                    ${
+                      !formData.atDisposal
+                        ? `<div>
                         <p class="text-sm text-gray-600" data-i18n="booking.summary.dropoff"></p>
                         <p class="font-semibold">${escapeHtml(formData.dropoff)}</p>
-                    </div>
+                    </div>`
+                        : ''
+                    }
+                    ${
+                      formData.atDisposal
+                        ? `<div>
+                        <p class="text-sm text-gray-600">Service Type</p>
+                        <p class="font-semibold text-jt-gold">At Disposal (Minimum 8 hours)</p>
+                    </div>`
+                        : ''
+                    }
         `;
 
     if (formData.flight) {

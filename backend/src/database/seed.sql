@@ -6,11 +6,11 @@
 -- ============================================================================
 
 INSERT INTO pricing_rules (vehicle_type, base_fare, per_km_rate, max_passengers, description) VALUES
-('Standard Sedan', 50.00, 2.00, 4, 'Comfortable sedan for up to 4 passengers'),
-('Executive Sedan', 60.00, 2.50, 4, 'Premium sedan with executive service'),
-('Luxury Sedan', 80.00, 3.00, 4, 'Luxury sedan with premium amenities'),
-('Executive MPV', 100.00, 3.80, 6, 'Executive MPV for up to 6 passengers'),
-('Luxury MPV', 120.00, 4.50, 7, 'Luxury MPV with premium service')
+('Executive Sedan', 60.00, 2.50, 3, 'Mercedes E-Class or similar (3 passengers, 2 bags)'),
+('Luxury Sedan', 80.00, 3.00, 2, 'Mercedes S-Class or similar (2 passengers, 2 bags)'),
+('MPV Executive', 100.00, 3.50, 6, 'Mercedes V-Class or similar (6 passengers, 6 bags)'),
+('Luxury SUV', 90.00, 3.20, 3, 'Range Rover or similar (3 passengers, 3 bags)'),
+('Minibus', 120.00, 4.00, 8, '8-seater minibus (8 passengers, 6 bags)')
 ON CONFLICT (vehicle_type) DO UPDATE SET
     base_fare = EXCLUDED.base_fare,
     per_km_rate = EXCLUDED.per_km_rate,
@@ -59,7 +59,7 @@ INSERT INTO time_multipliers (name, multiplier, day_of_week, start_time, end_tim
 
 -- London Congestion Charge Zone
 INSERT INTO zone_charges (zone_name, zone_type, charge_amount, applies_to, coordinates) VALUES
-('London Congestion Charge Zone', 'congestion', 15.00, 'both', 
+('London Congestion Charge Zone', 'congestion', 15.00, 'both',
 '{"type":"Polygon","coordinates":[[[-0.1276,51.5074],[-0.0878,51.5074],[-0.0878,51.5200],[-0.1276,51.5200],[-0.1276,51.5074]]]}');
 
 -- London ULEZ (Ultra Low Emission Zone)
@@ -69,7 +69,7 @@ INSERT INTO zone_charges (zone_name, zone_type, charge_amount, applies_to, coord
 
 -- Airport Fees
 INSERT INTO zone_charges (zone_name, zone_type, charge_amount, applies_to, coordinates) VALUES
-('Heathrow Airport', 'airport', 5.00, 'pickup', 
+('Heathrow Airport', 'airport', 5.00, 'pickup',
 '{"type":"Point","coordinates":[-0.4543,51.4700]}');
 
 INSERT INTO zone_charges (zone_name, zone_type, charge_amount, applies_to, coordinates) VALUES
@@ -94,7 +94,7 @@ INSERT INTO zone_charges (zone_name, zone_type, charge_amount, applies_to, coord
 
 -- View for quote statistics
 CREATE OR REPLACE VIEW quote_statistics AS
-SELECT 
+SELECT
     DATE(created_at) as quote_date,
     COUNT(*) as total_quotes,
     COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted_quotes,
@@ -109,7 +109,7 @@ ORDER BY quote_date DESC;
 
 -- View for supervised mode approval statistics
 CREATE OR REPLACE VIEW supervised_mode_stats AS
-SELECT 
+SELECT
     DATE(created_at) as date,
     COUNT(*) as total_quotes,
     COUNT(CASE WHEN status = 'approved' AND suggested_amount = approved_amount THEN 1 END) as approved_as_is,
@@ -123,7 +123,7 @@ ORDER BY date DESC;
 
 -- View for vehicle type performance
 CREATE OR REPLACE VIEW vehicle_performance AS
-SELECT 
+SELECT
     vehicle_type,
     COUNT(*) as total_quotes,
     COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted,

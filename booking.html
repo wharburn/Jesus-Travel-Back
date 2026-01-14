@@ -369,6 +369,25 @@
             <h2 class="text-2xl font-serif text-jt-gold mb-6" data-i18n="booking.journeyDetails">
               Journey Details
             </h2>
+
+            <!-- At Disposal Checkbox -->
+            <div class="mb-6">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="atDisposal"
+                  name="atDisposal"
+                  class="w-5 h-5 text-jt-gold bg-gray-800 border-gray-700 rounded focus:ring-jt-gold focus:ring-2"
+                />
+                <span class="ml-3 text-gray-300">
+                  <span class="font-semibold" data-i18n="booking.atDisposal">At Disposal</span>
+                  <span class="text-sm text-gray-400 ml-2" data-i18n="booking.atDisposalNote"
+                    >(Minimum 8 hours)</span
+                  >
+                </span>
+              </label>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
@@ -385,18 +404,32 @@
                   class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
                 />
               </div>
-              <div>
+              <div id="timeField">
                 <label
                   for="time"
                   class="block text-sm font-medium text-gray-300 mb-2"
                   data-i18n="booking.time"
-                  >Time *</label
+                  >Start Time *</label
                 >
                 <input
                   type="time"
                   id="time"
                   name="time"
                   required
+                  class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
+                />
+              </div>
+              <div id="endTimeField" class="hidden">
+                <label
+                  for="endTime"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  data-i18n="booking.endTime"
+                  >End Time *</label
+                >
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
                   class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-jt-gold focus:border-transparent text-white"
                 />
               </div>
@@ -424,7 +457,7 @@
                   </div>
                 </div>
               </div>
-              <div>
+              <div id="dropoffField">
                 <label
                   for="dropoff"
                   class="block text-sm font-medium text-gray-300 mb-2"

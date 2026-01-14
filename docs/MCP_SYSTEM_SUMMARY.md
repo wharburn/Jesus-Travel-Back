@@ -9,29 +9,36 @@ Your **MCP (Multi-Channel Pricing) Automated Quoting System** is now complete an
 ## 📁 New Files Created
 
 ### Database Layer
+
 - `backend/src/database/schema.sql` - Complete PostgreSQL schema
 - `backend/src/database/seed.sql` - Initial pricing rules and configuration
 - `backend/src/config/postgres.js` - Database connection and utilities
 
 ### Services Layer
+
 - `backend/src/services/pricing/googleMaps.js` - Google Maps API integration
 - `backend/src/services/pricing/zoneDetection.js` - Zone detection (Congestion, ULEZ, Airports)
 - `backend/src/services/pricing/timeMultipliers.js` - Time-based pricing multipliers
 - `backend/src/services/pricing/pricingEngine.js` - Core pricing calculation engine
 
 ### Models Layer
+
 - `backend/src/models/Quote.js` - Quote model with full CRUD operations
 
 ### Controllers Layer
+
 - `backend/src/controllers/quoteController.js` - API request handlers
 
 ### Routes Layer
+
 - `backend/src/routes/quotes.js` - Quote API endpoints
 
 ### Scripts
+
 - `backend/scripts/init-database.js` - Database initialization script
 
 ### Documentation
+
 - `MCP_SETUP_GUIDE.md` - Complete setup and usage guide
 - `MCP_SYSTEM_SUMMARY.md` - This file
 
@@ -59,28 +66,31 @@ Your **MCP (Multi-Channel Pricing) Automated Quoting System** is now complete an
 
 ### 1. Intelligent Pricing Engine
 
-✅ **Base Fare** - Vehicle-specific starting price  
-✅ **Distance Calculation** - Google Maps API integration  
+✅ **Base Fare** - Vehicle-specific starting price
+✅ **Distance Calculation** - Google Maps API integration
 ✅ **Zone Detection** - Automatic detection of:
-   - London Congestion Charge Zone (£15)
-   - ULEZ (£12.50)
-   - Airport pickup fees (£5)
+
+- London Congestion Charge Zone (£15)
+- ULEZ (£12.50)
+- Airport pickup fees (£5)
 
 ✅ **Time Multipliers** - Dynamic pricing based on:
-   - Peak hours (1.3x)
-   - Standard hours (1.0x)
-   - Off-peak hours (0.9x)
+
+- Peak hours (1.3x)
+- Standard hours (1.0x)
+- Off-peak hours (0.9x)
 
 ✅ **Smart Rounding** - Rounds to nearest £0.50
 
 ### 2. Supervised Mode Workflow
 
-✅ **Automatic Quote Generation** - Calculates price instantly  
-✅ **WhatsApp Notification** - Sends to pricing team for review  
+✅ **Automatic Quote Generation** - Calculates price instantly
+✅ **WhatsApp Notification** - Sends to pricing team for review
 ✅ **Approval Commands**:
-   - `APPROVE` - Send suggested price
-   - `MODIFY £XXX` - Change price
-   - `REJECT` - Don't send
+
+- `APPROVE` - Send suggested price
+- `MODIFY £XXX` - Change price
+- `REJECT` - Don't send
 
 ✅ **Customer Delivery** - Sends approved quote via WhatsApp
 
@@ -99,13 +109,13 @@ GET    /api/v1/quotes              - Get recent quotes
 
 ### Vehicle Tiers (Pre-configured):
 
-| Vehicle | Base | Per KM | Max Passengers |
-|---------|------|--------|----------------|
-| Standard Sedan | £50 | £2.00 | 4 |
-| Executive Sedan | £60 | £2.50 | 4 |
-| Luxury Sedan | £80 | £3.00 | 4 |
-| Executive MPV | £100 | £3.80 | 6 |
-| Luxury MPV | £120 | £4.50 | 7 |
+| Vehicle         | Base | Per KM | Capacity      |
+| --------------- | ---- | ------ | ------------- |
+| Executive Sedan | £60  | £2.50  | 3 pax, 2 bags |
+| Luxury Sedan    | £80  | £3.00  | 2 pax, 2 bags |
+| MPV Executive   | £100 | £3.50  | 6 pax, 6 bags |
+| Luxury SUV      | £90  | £3.20  | 3 pax, 3 bags |
+| Minibus         | £120 | £4.00  | 8 pax, 6 bags |
 
 ### Time Multipliers (Pre-configured):
 
@@ -158,10 +168,10 @@ GET    /api/v1/quotes              - Get recent quotes
 
 ## 📊 Example Quote Calculation
 
-**Journey**: Heathrow Airport → Central London  
-**Date/Time**: Monday, 8:30 AM (Peak)  
-**Vehicle**: Executive Sedan  
-**Distance**: 25 km  
+**Journey**: Heathrow Airport → Central London
+**Date/Time**: Monday, 8:30 AM (Peak)
+**Vehicle**: Executive Sedan
+**Distance**: 25 km
 
 ```
 Base Fare:              £60.00
@@ -202,6 +212,7 @@ The system is ready to integrate with your existing enquiry flow. Simply call th
 ## 📞 Support
 
 For questions or issues:
+
 1. Check `MCP_SETUP_GUIDE.md` for detailed setup instructions
 2. Review `MCP_QUOTING_README.md` for system architecture
 3. Check database schema in `backend/src/database/schema.sql`
@@ -210,11 +221,10 @@ For questions or issues:
 
 **Status**: ✅ **READY FOR DEPLOYMENT**
 
-**Build Time**: ~2 hours  
-**Files Created**: 15  
-**Lines of Code**: ~2,500  
-**API Endpoints**: 4  
-**Database Tables**: 5  
+**Build Time**: ~2 hours
+**Files Created**: 15
+**Lines of Code**: ~2,500
+**API Endpoints**: 4
+**Database Tables**: 5
 
 🎉 **Your automated quoting system is complete!**
-
