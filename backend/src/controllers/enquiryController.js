@@ -1,6 +1,6 @@
 import redis from '../config/redis.js';
 import Enquiry from '../models/Enquiry.js';
-import { calculateQuote } from '../services/pricing/pricingEngine.js';
+import { calculateDisposalQuote, calculateQuote } from '../services/pricing/pricingEngine.js';
 import { sendWhatsAppMessage } from '../services/whatsapp/client.js';
 import { errorResponse, successResponse } from '../utils/helpers.js';
 import logger from '../utils/logger.js';
@@ -74,45 +74,93 @@ async function notifyPricingTeamManual(enquiry) {
 
         const pickupDatetime = `${enquiry.pickupDate}T${enquiry.pickupTime}:00Z`;
 
-        logger.info(
-          `🤖 Attempting AI estimate for ${enquiry.referenceNumber}: ${enquiry.pickupLocation} → ${enquiry.dropoffLocation}`
-        );
+        let quote;
 
-        const quote = await calculateQuote({
-          pickupAddress: enquiry.pickupLocation,
-          dropoffAddress: enquiry.dropoffLocation,
-          pickupDatetime: pickupDatetime,
-          vehicleType: enquiry.vehicleType,
-          passengers: enquiry.passengers,
-        });
+        // Check if this is a disposal (at disposal) booking
+        if (enquiry.bookingType === 'disposal') {
+          logger.info(
+            `🤖 Attempting AI estimate for DISPOSAL booking ${enquiry.referenceNumber}: ${enquiry.hours} hours at ${enquiry.pickupLocation}`
+          );
+
+          quote = await calculateDisposalQuote({
+            pickupAddress: enquiry.pickupLocation,
+            pickupDatetime: pickupDatetime,
+            vehicleType: enquiry.vehicleType,
+            hours: enquiry.hours || 8, // Default to minimum 8 hours
+            passengers: enquiry.passengers,
+            includeCongestion: enquiry.includeCongestion || false,
+          });
+
+          // Store AI estimate for disposal booking
+          const breakdown =
+            `Hourly rate: £${quote.pricing.hourly_rate.toFixed(2)}\n` +
+            `Hours: ${quote.hours} (min ${quote.minimum_hours})\n` +
+            `Hourly charge: £${quote.pricing.hourly_charge.toFixed(2)}\n` +
+            `${quote.pricing.congestion_charge > 0 ? `Congestion charge: £${quote.pricing.congestion_charge.toFixed(2)}\n` : ''}` +
+            `Time multiplier (${quote.pricing.time_multiplier_name}): ${quote.pricing.time_multiplier}x`;
+
+          enquiry.aiEstimate = {
+            totalPrice: quote.pricing.total_amount.toFixed(2),
+            bookingType: 'disposal',
+            hours: quote.hours,
+            hourlyRate: quote.pricing.hourly_rate.toFixed(2),
+            breakdown: breakdown,
+          };
+          await enquiry.save();
+
+          estimateMessage =
+            `\n🤖 AI PRICE ESTIMATE (At Disposal): £${quote.pricing.total_amount}\n` +
+            `⏱️  Hours: ${quote.hours} (minimum ${quote.minimum_hours})\n` +
+            `💰 Hourly rate: £${quote.pricing.hourly_rate}/hour\n` +
+            `⏰ ${quote.pricing.time_multiplier_name} pricing\n` +
+            `${quote.pricing.congestion_charge > 0 ? `🚗 Congestion charge: £${quote.pricing.congestion_charge}\n` : ''}` +
+            `\nBreakdown:\n` +
+            `  Hourly charge: £${quote.pricing.hourly_charge}\n` +
+            `  ${quote.pricing.congestion_charge > 0 ? `Congestion: £${quote.pricing.congestion_charge}\n` : ''}` +
+            `\n━━━━━━━━━━━━━━━━━━━━\n`;
+        } else {
+          // Point-to-point booking
+          logger.info(
+            `🤖 Attempting AI estimate for ${enquiry.referenceNumber}: ${enquiry.pickupLocation} → ${enquiry.dropoffLocation}`
+          );
+
+          quote = await calculateQuote({
+            pickupAddress: enquiry.pickupLocation,
+            dropoffAddress: enquiry.dropoffLocation,
+            pickupDatetime: pickupDatetime,
+            vehicleType: enquiry.vehicleType,
+            passengers: enquiry.passengers,
+          });
+
+          // Store AI estimate for point-to-point booking
+          const breakdown =
+            `Base fare: £${quote.pricing.base_fare.toFixed(2)}\n` +
+            `Distance (${quote.distance.text}): £${quote.pricing.distance_charge.toFixed(2)}\n` +
+            `${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges.toFixed(2)}\n` : ''}` +
+            `Time multiplier (${quote.pricing.time_multiplier_name}): ${quote.pricing.time_multiplier}x`;
+
+          enquiry.aiEstimate = {
+            totalPrice: quote.pricing.total_amount.toFixed(2),
+            bookingType: 'point-to-point',
+            distance: quote.distance.text,
+            duration: quote.duration.text,
+            breakdown: breakdown,
+          };
+          await enquiry.save();
+
+          estimateMessage =
+            `\n🤖 AI PRICE ESTIMATE: £${quote.pricing.total_amount}\n` +
+            `📏 Distance: ${quote.distance.text} (${quote.duration.text})\n` +
+            `⏰ ${quote.pricing.time_multiplier_name} pricing\n` +
+            `${quote.zones.length > 0 ? `📍 Zones: ${quote.zones.map((z) => z.zone_name).join(', ')}\n` : ''}` +
+            `\nBreakdown:\n` +
+            `  Base fare: £${quote.pricing.base_fare}\n` +
+            `  Distance: £${quote.pricing.distance_charge}\n` +
+            `  ${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges}\n` : ''}` +
+            `\n━━━━━━━━━━━━━━━━━━━━\n`;
+        }
 
         aiEstimate = quote;
-
-        // Store AI estimate in enquiry for frontend display
-        const breakdown =
-          `Base fare: £${quote.pricing.base_fare.toFixed(2)}\n` +
-          `Distance (${quote.distance.text}): £${quote.pricing.distance_charge.toFixed(2)}\n` +
-          `${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges.toFixed(2)}\n` : ''}` +
-          `Time multiplier (${quote.pricing.time_multiplier_name}): ${quote.pricing.time_multiplier}x`;
-
-        enquiry.aiEstimate = {
-          totalPrice: quote.pricing.total_amount.toFixed(2),
-          distance: quote.distance.text,
-          duration: quote.duration.text,
-          breakdown: breakdown,
-        };
-        await enquiry.save();
-
-        estimateMessage =
-          `\n🤖 AI PRICE ESTIMATE: £${quote.pricing.total_amount}\n` +
-          `📏 Distance: ${quote.distance.text} (${quote.duration.text})\n` +
-          `⏰ ${quote.pricing.time_multiplier_name} pricing\n` +
-          `${quote.zones.length > 0 ? `📍 Zones: ${quote.zones.map((z) => z.zone_name).join(', ')}\n` : ''}` +
-          `\nBreakdown:\n` +
-          `  Base fare: £${quote.pricing.base_fare}\n` +
-          `  Distance: £${quote.pricing.distance_charge}\n` +
-          `  ${quote.pricing.zone_charges > 0 ? `Zone charges: £${quote.pricing.zone_charges}\n` : ''}` +
-          `\n━━━━━━━━━━━━━━━━━━━━\n`;
 
         logger.info(
           `🤖 AI estimate calculated: £${quote.pricing.total_amount} for ${enquiry.referenceNumber}`
@@ -184,6 +232,9 @@ export const createEnquiry = async (req, res, next) => {
       passengers: req.body.passengers || 1,
       vehicleType: req.body.vehicleType || 'Saloon',
       specialRequests: req.body.specialRequests || '',
+      bookingType: req.body.bookingType || 'point-to-point', // 'point-to-point' or 'disposal'
+      hours: req.body.hours || null, // For disposal bookings
+      includeCongestion: req.body.includeCongestion || false, // For disposal bookings
       source: req.body.source || 'web',
     };
 

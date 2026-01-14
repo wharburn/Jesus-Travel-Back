@@ -24,6 +24,9 @@ class Enquiry {
     this.passengers = data.passengers || 1;
     this.vehicleType = data.vehicleType || 'Saloon';
     this.specialRequests = data.specialRequests || '';
+    this.bookingType = data.bookingType || 'point-to-point'; // 'point-to-point' or 'disposal'
+    this.hours = data.hours || null; // For disposal bookings
+    this.includeCongestion = data.includeCongestion || false; // For disposal bookings
     this.status = data.status || 'pending_quote'; // pending_quote, quoted, confirmed, cancelled
     this.quotedPrice = data.quotedPrice || null;
     this.quotedBy = data.quotedBy || null;
