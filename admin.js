@@ -602,7 +602,7 @@ function viewEnquiry(id) {
             ? `
         <!-- AI Estimate (from Backend) -->
         <div>
-          <h3 class="text-lg font-semibold text-yellow-500 mb-3">🤖 AI Price Estimate</h3>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">🤖 AI Price Estimate (Backend)</h3>
           <div class="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-4 border border-blue-700/50">
             <div class="grid grid-cols-3 gap-4">
               <div>
@@ -610,6 +610,7 @@ function viewEnquiry(id) {
                 <div class="text-2xl font-bold text-blue-400">£${
                   enquiry.aiEstimate.totalPrice
                 }</div>
+                <div class="text-xs text-blue-300 mt-1">Includes zones & multipliers</div>
               </div>
               <div>
                 <div class="text-sm text-gray-400">Distance</div>
@@ -631,7 +632,7 @@ function viewEnquiry(id) {
                 : ''
             }
             <div class="mt-2 text-xs text-gray-500">
-              Calculated automatically when booking was created
+              ⏱️ Calculated when booking was created • Includes all pricing rules
             </div>
           </div>
         </div>
@@ -655,23 +656,24 @@ function viewEnquiry(id) {
 
         <!-- Distance, Duration & Price (from Map) -->
         <div>
-          <h3 class="text-lg font-semibold text-yellow-500 mb-3">📍 Route Information (Live from Map)</h3>
+          <h3 class="text-lg font-semibold text-yellow-500 mb-3">📍 Live Estimate (Frontend)</h3>
           <div class="grid grid-cols-3 gap-4">
             <div class="bg-gray-800 rounded-lg p-4">
               <div class="text-sm text-gray-400">Distance</div>
               <div id="routeDistance" class="text-2xl font-bold text-yellow-500">--</div>
             </div>
             <div class="bg-gray-800 rounded-lg p-4">
-              <div class="text-sm text-gray-400">Estimated Duration</div>
+              <div class="text-sm text-gray-400">Duration</div>
               <div id="routeDuration" class="text-2xl font-bold text-yellow-500">--</div>
             </div>
             <div class="bg-gray-800 rounded-lg p-4">
               <div class="text-sm text-gray-400">Estimated Price</div>
               <div id="estimatedPrice" class="text-2xl font-bold text-yellow-500">--</div>
+              <div class="text-xs text-yellow-300 mt-1">Base + distance only</div>
             </div>
           </div>
           <div class="mt-2 text-xs text-gray-500">
-            Calculated live from Google Maps when you open this modal
+            🔄 Calculated live from Google Maps • Simple formula (no zones/multipliers)
           </div>
         </div>
 
