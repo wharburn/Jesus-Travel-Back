@@ -4,6 +4,7 @@ import { calculateQuote } from '../services/pricing/pricingEngine.js';
 import { sendWhatsAppMessage } from '../services/whatsapp/client.js';
 import { errorResponse, successResponse } from '../utils/helpers.js';
 import logger from '../utils/logger.js';
+import { getSetting } from '../utils/settings.js';
 
 /**
  * Format date to DD MMM YYYY format (e.g., "20 Jan 2026")
@@ -51,8 +52,10 @@ const formatDateTime = (isoString) => {
 async function notifyPricingTeamManual(enquiry) {
   try {
     // Get pricing team phone from settings (with fallback to env var)
-    const settings = await redis.get('settings');
-    const pricingTeamPhone = settings?.pricingTeam?.phone || process.env.PRICING_TEAM_PHONE;
+    const pricingTeamPhone =
+      (await getSetting('pricingTeam.phone')) || process.env.PRICING_TEAM_PHONE;
+
+    logger.info(`📞 Pricing team phone: ${pricingTeamPhone}`);
 
     if (pricingTeamPhone) {
       let aiEstimate = null;
@@ -255,8 +258,10 @@ export const createEnquiry = async (req, res, next) => {
         logger.info(`✅ Auto-quote sent to customer: ${enquiry.customerPhone}`);
 
         // Notify pricing team (for monitoring)
-        const settings = await redis.get('settings');
-        const pricingTeamPhone = settings?.pricingTeam?.phone || process.env.PRICING_TEAM_PHONE;
+        const pricingTeamPhone =
+          (await getSetting('pricingTeam.phone')) || process.env.PRICING_TEAM_PHONE;
+
+        logger.info(`📞 Pricing team phone (auto-quote): ${pricingTeamPhone}`);
 
         if (pricingTeamPhone) {
           const teamMessage =
