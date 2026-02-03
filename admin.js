@@ -1,4 +1,4 @@
-const API_URL = 'https://jesus-travel-back.onrender.com/api/v1';
+const API_URL = 'http://localhost:3000/api/v1';
 
 // Check authentication
 const token = localStorage.getItem('adminToken');
@@ -512,9 +512,8 @@ function updatePagination() {
   const start = currentPage * pageSize + 1;
   const end = Math.min((currentPage + 1) * pageSize, filteredEnquiries.length);
 
-  document.getElementById(
-    'paginationInfo'
-  ).textContent = `Showing ${start}-${end} of ${filteredEnquiries.length} enquiries`;
+  document.getElementById('paginationInfo').textContent =
+    `Showing ${start}-${end} of ${filteredEnquiries.length} enquiries`;
   document.getElementById('prevBtn').disabled = currentPage === 0;
   document.getElementById('nextBtn').disabled = currentPage >= totalPages - 1;
 }

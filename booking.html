@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
     <!-- Google tag (gtag.js) -->
@@ -586,8 +586,8 @@
               <div id="booking-summary" class="text-left space-y-2 text-gray-300"></div>
             </div>
             <p class="text-sm text-gray-400" data-i18n="booking.contactInfo">
-              You will receive a confirmation email at the address provided. <br/>If you have any urgent
-              questions, please call us at
+              You will receive a confirmation email at the address provided. <br />If you have any
+              urgent questions, please call us at
               <a href="tel:+447850672664" class="text-jt-gold hover:underline">+44 7850 672664</a>
             </p>
           </div>
@@ -743,14 +743,15 @@
       </div>
     </footer>
 
-    <!-- Google Maps Places API -->
+    <!-- Load scripts first -->
+    <script src="./script.js"></script>
+    <script src="./booking.js"></script>
+
+    <!-- Google Maps Places API - loaded after booking.js so callback works -->
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtkzW3zbExrKKowMYZy83pQp9I5fciM2Y&libraries=places&callback=initAutocomplete"
       async
       defer
     ></script>
-
-    <script src="./script.js"></script>
-    <script src="./booking.js"></script>
   </body>
 </html>
